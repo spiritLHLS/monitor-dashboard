@@ -20,6 +20,8 @@
   "/src/view/layout/tabs/index.vue": "HistoryComponent",
   "/src/view/login/index.vue": "Login",
   "/src/view/person/person.vue": "Person",
+  "/src/view/products/products/products.vue": "Products",
+  "/src/view/products/products/productsForm.vue": "ProductsForm",
   "/src/view/routerHolder.vue": "RouterHolder",
   "/src/view/superAdmin/api/api.vue": "Api",
   "/src/view/superAdmin/authority/authority.vue": "Authority",
@@ -44,7 +46,5 @@
   "/src/view/systemTools/system/system.vue": "Config",
   "/src/plugin/announcement/form/info.vue": "InfoForm",
   "/src/plugin/announcement/view/info.vue": "Info",
-  "/src/plugin/email/view/index.vue": "Email",
-  "/src/plugin/spiders/form/products.vue": "ProductsForm",
-  "/src/plugin/spiders/view/products.vue": "Products"
+  "/src/plugin/email/view/index.vue": "Email"
 }
