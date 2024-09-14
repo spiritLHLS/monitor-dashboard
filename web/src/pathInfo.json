@@ -23,6 +23,8 @@
   "/src/view/products/products/products.vue": "Products",
   "/src/view/products/products/productsForm.vue": "ProductsForm",
   "/src/view/routerHolder.vue": "RouterHolder",
+  "/src/view/shops/shops/shops.vue": "Shops",
+  "/src/view/shops/shops/shopsForm.vue": "ShopsForm",
   "/src/view/superAdmin/api/api.vue": "Api",
   "/src/view/superAdmin/authority/authority.vue": "Authority",
   "/src/view/superAdmin/authority/components/apis.vue": "Apis",
