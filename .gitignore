@@ -30,10 +30,9 @@ rm_file/
 /server/__debug_bin*
 server/uploads/
 server/config.yaml
+server/plugin/spiders
 
 *.iml
 web/.pnpm-debug.log
 web/pnpm-lock.yaml
-server/config.yaml
-server/config.yaml
-server/config.yaml
+web/src/plugin/spiders

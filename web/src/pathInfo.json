@@ -44,5 +44,7 @@
   "/src/view/systemTools/system/system.vue": "Config",
   "/src/plugin/announcement/form/info.vue": "InfoForm",
   "/src/plugin/announcement/view/info.vue": "Info",
-  "/src/plugin/email/view/index.vue": "Email"
+  "/src/plugin/email/view/index.vue": "Email",
+  "/src/plugin/spiders/form/products.vue": "ProductsForm",
+  "/src/plugin/spiders/view/products.vue": "Products"
 }
