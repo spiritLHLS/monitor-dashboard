@@ -8,7 +8,6 @@ import (
     productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
-    "github.com/flipped-aurora/gin-vue-admin/server/utils"
 )
 
 type ProductsApi struct {}
@@ -31,7 +30,6 @@ func (pdApi *ProductsApi) CreateProducts(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    pd.CreatedBy = utils.GetUserID(c)
 	err = pdService.CreateProducts(&pd)
 	if err != nil {
         global.GVA_LOG.Error("创建失败!", zap.Error(err))
@@ -52,8 +50,7 @@ func (pdApi *ProductsApi) CreateProducts(c *gin.Context) {
 // @Router /pd/deleteProducts [delete]
 func (pdApi *ProductsApi) DeleteProducts(c *gin.Context) {
 	ID := c.Query("ID")
-    userID := utils.GetUserID(c)
-	err := pdService.DeleteProducts(ID,userID)
+	err := pdService.DeleteProducts(ID)
 	if err != nil {
         global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败:" + err.Error(), c)
@@ -72,8 +69,7 @@ func (pdApi *ProductsApi) DeleteProducts(c *gin.Context) {
 // @Router /pd/deleteProductsByIds [delete]
 func (pdApi *ProductsApi) DeleteProductsByIds(c *gin.Context) {
 	IDs := c.QueryArray("IDs[]")
-    userID := utils.GetUserID(c)
-	err := pdService.DeleteProductsByIds(IDs,userID)
+	err := pdService.DeleteProductsByIds(IDs)
 	if err != nil {
         global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败:" + err.Error(), c)
@@ -98,7 +94,6 @@ func (pdApi *ProductsApi) UpdateProducts(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    pd.UpdatedBy = utils.GetUserID(c)
 	err = pdService.UpdateProducts(pd)
 	if err != nil {
         global.GVA_LOG.Error("更新失败!", zap.Error(err))
