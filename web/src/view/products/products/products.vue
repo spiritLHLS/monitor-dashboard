@@ -215,34 +215,32 @@
       <el-table ref="multipleTable" style="width: 100%" tooltip-effect="dark" :data="tableData" row-key="ID"
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-
-        <el-table-column align="left" label="日期" prop="createdAt" width="180">
-          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
-        </el-table-column>
-
         <el-table-column align="left" label="TAG" prop="tag" width="90" />
-        <el-table-column align="left" label="CPU" prop="cpu" width="90" />
-        <el-table-column align="left" label="内存" prop="memory" width="90" />
-        <el-table-column align="left" label="磁盘" prop="disk" width="90" />
-        <el-table-column align="left" label="流量" prop="traffic" width="90" />
-        <el-table-column align="left" label="端口" prop="portSpeed" width="90" />
-        <el-table-column align="left" label="地点" prop="location" width="90" />
-        <el-table-column align="left" label="价格" prop="price" width="90" />
-        <el-table-column label="其他" prop="additional" width="200">
+        <el-table-column align="left" label="CPU" prop="cpu" width="80" />
+        <el-table-column align="left" label="内存" prop="memory" width="80" />
+        <el-table-column align="left" label="磁盘" prop="disk" width="80" />
+        <el-table-column align="left" label="流量" prop="traffic" width="80" />
+        <el-table-column align="left" label="端口" prop="portSpeed" width="80" />
+        <el-table-column align="left" label="地点" prop="location" width="80" />
+        <el-table-column align="left" label="价格" prop="price" width="80" />
+        <el-table-column label="其他" prop="additional" width="60">
           <template #default="scope">
             [富文本内容]
           </template>
         </el-table-column>
         <el-table-column align="left" label="链接" prop="url" width="90" />
         <el-table-column align="left" label="计费类型" prop="billingType" width="90" />
-        <el-table-column align="left" label="历史库存" prop="oldStock" width="90" />
-        <el-table-column align="left" label="现有库存" prop="stock" width="90" />
-        <el-table-column align="left" label="重复检测" prop="multiCheck" width="90" />
-        <el-table-column align="left" label="爬虫间隔" prop="intervals" width="90" />
-        <el-table-column align="left" label="消息ID" prop="messageId" width="90" />
-        <el-table-column align="left" label="推送间隔" prop="pushIntervals" width="90" />
+        <el-table-column align="left" label="历史库存" prop="oldStock" width="80" />
+        <el-table-column align="left" label="现有库存" prop="stock" width="80" />
+        <el-table-column align="left" label="爬虫间隔" prop="intervals" width="80" />
+        <el-table-column align="left" label="消息编号" prop="messageId" width="80" />
+        <el-table-column align="left" label="推送间隔" prop="pushIntervals" width="80" />
+        <el-table-column align="left" label="重复检测" prop="multiCheck" width="80" />
         <el-table-column align="left" label="推送时间" prop="pushTime" width="180">
           <template #default="scope">{{ formatDate(scope.row.pushTime) }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="创建日期" prop="createdAt" width="160">
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <!-- <el-table-column align="left" label="创建者" prop="createdBy" width="90" />
           <el-table-column align="left" label="更新者" prop="updatedBy" width="90" />
