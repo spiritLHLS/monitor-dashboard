@@ -29,7 +29,11 @@ rm_file/
 /server/latest_log
 /server/__debug_bin*
 server/uploads/
+server/config.yaml
 
 *.iml
 web/.pnpm-debug.log
 web/pnpm-lock.yaml
+server/config.yaml
+server/config.yaml
+server/config.yaml
