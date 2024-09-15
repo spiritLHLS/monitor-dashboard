@@ -2,8 +2,10 @@ package initialize
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicRouter *gin.RouterGroup, engine *gin.Engine) {
@@ -14,4 +16,9 @@ func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicRouter *gin.RouterGroup,
 	bizPluginV1(PrivateGroup, PublicRouter)
 	bizPluginV2(engine)
 	PluginInit(PrivateGroup, telegram_bot.CreateTelegram_botPlug())
+	roleID := viper.GetInt("tgr.role_id")
+	tgbotToken := viper.GetString("tgr.tgbot_token")
+	codeLength := viper.GetInt("tgr.verification_code_length")
+	channelChatID := viper.GetString("tgr.channel_chat_id")
+	PluginInit(PublicRouter, register.CreateRegisterPlug(uint(roleID), tgbotToken, codeLength, channelChatID))
 }

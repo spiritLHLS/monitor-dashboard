@@ -6,7 +6,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useRouterStore } from './router'
 import cookie from 'js-cookie'
-
+import { TGRRegister, TGRLogin } from '@/plugin/register/api/api'
 import {useAppStore} from "@/pinia";
 
 export const useUserStore = defineStore('user', () => {
@@ -128,7 +128,75 @@ export const useUserStore = defineStore('user', () => {
     window.localStorage.setItem('token', token.value)
   })
 
+  const UserTgRegister = async (loginInfo) => {
+      loadingInstance.value = ElLoading.service({
+          fullscreen: true,
+          text: "注册中，请稍候...",
+      });
+      try {
+          const res = await TGRRegister(loginInfo);
+          if (res.code === 0) {
+              setUserInfo(res.data.user);
+              setToken(res.data.token);
+              const routerStore = useRouterStore();
+              await routerStore.SetAsyncRouter();
+              const asyncRouters = routerStore.asyncRouters;
+              asyncRouters.forEach((asyncRouter) => {
+                  router.addRoute(asyncRouter);
+              });
+              router.push({name: userInfo.value.authority.defaultRouter});
+              return true;
+          }
+      } catch (e) {
+          loadingInstance.value.close();
+      }
+      loadingInstance.value.close();
+  };
+  const UserTgLogin = async (loginInfo) => {
+      loadingInstance.value = ElLoading.service({
+      fullscreen: true,
+      text: '登录中，请稍候...',
+      });
+      try {
+      console.log("try login");
+      const res = await TGRLogin(loginInfo);
+      console.log("Login response:", res);
+      if (res.code === 0) {
+          setUserInfo(res.data.user);
+          setToken(res.data.token);
+          const routerStore = useRouterStore();
+          await routerStore.SetAsyncRouter();
+          const asyncRouters = routerStore.asyncRouters;
+          asyncRouters.forEach(asyncRouter => {
+          router.addRoute(asyncRouter);
+          });
+
+          console.log("User info:", userInfo.value);
+          if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
+          ElMessage.error('请联系管理员进行授权');
+          } else {
+          console.log("Redirecting to:", userInfo.value.authority.defaultRouter);
+          await router.replace({ name: userInfo.value.authority.defaultRouter });
+          console.log("Redirected successfully.");
+          }
+          loadingInstance.value.close();
+          const isWin = ref(/windows/i.test(navigator.userAgent));
+          if (isWin.value) {
+          window.localStorage.setItem('osType', 'WIN');
+          } else {
+          window.localStorage.setItem('osType', 'MAC');
+          }
+          return true;
+      }
+      } catch (e) {
+      console.log("Login error:", e);
+      loadingInstance.value.close();
+      }
+      loadingInstance.value.close();
+  }
   return {
+    UserTgRegister,
+    UserTgLogin,
     userInfo,
     token,
     NeedInit,
