@@ -6,6 +6,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/router/products"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/shops"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/system"
+	"github.com/flipped-aurora/gin-vue-admin/server/router/tgchannel"
 )
 
 var RouterGroupApp = new(RouterGroup)
@@ -16,4 +17,5 @@ type RouterGroup struct {
 	Products   products.RouterGroup
 	Shops      shops.RouterGroup
 	Partitions partitions.RouterGroup
+	Tgchannel  tgchannel.RouterGroup
 }

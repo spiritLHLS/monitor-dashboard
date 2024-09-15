@@ -5,11 +5,12 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/partitions"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/products"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/shops"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/tgchannel"
 )
 
 func bizModel() error {
 	db := global.GVA_DB
-	err := db.AutoMigrate(products.Products{}, shops.Shops{}, partitions.Partitionspage{})
+	err := db.AutoMigrate(products.Products{}, shops.Shops{}, partitions.Partitionspage{}, tgchannel.Tgchannel{})
 	if err != nil {
 		return err
 	}
