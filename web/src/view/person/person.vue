@@ -217,12 +217,12 @@
     >
       <el-form :model="phoneForm">
         <el-form-item
-          label="手机号"
+          label="TGID"
           label-width="120px"
         >
           <el-input
             v-model="phoneForm.phone"
-            placeholder="请输入手机号"
+            placeholder="请输入TGID"
             autocomplete="off"
           />
         </el-form-item>

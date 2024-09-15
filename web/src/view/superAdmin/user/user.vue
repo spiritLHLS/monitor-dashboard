@@ -45,7 +45,7 @@
         />
         <el-table-column
           align="left"
-          label="手机号"
+          label="TGID"
           min-width="180"
           prop="phone"
         />
@@ -176,7 +176,7 @@
           <el-input v-model="userInfo.nickName" />
         </el-form-item>
         <el-form-item
-          label="手机号"
+          label="TGID"
           prop="phone"
         >
           <el-input v-model="userInfo.phone" />
@@ -389,9 +389,9 @@ const rules = ref({
   nickName: [
     { required: true, message: '请输入用户昵称', trigger: 'blur' }
   ],
-  phone: [
-    { pattern: /^1([38][0-9]|4[014-9]|[59][0-35-9]|6[2567]|7[0-8])\d{8}$/, message: '请输入合法手机号', trigger: 'blur' },
-  ],
+  // phone: [
+  //   { pattern: /^1([38][0-9]|4[014-9]|[59][0-35-9]|6[2567]|7[0-8])\d{8}$/, message: '请输入合法TGID', trigger: 'blur' },
+  // ],
   email: [
     { pattern: /^([0-9A-Za-z\-_.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g, message: '请输入正确的邮箱', trigger: 'blur' },
   ],
