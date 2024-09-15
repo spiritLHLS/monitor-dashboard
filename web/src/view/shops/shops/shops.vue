@@ -30,7 +30,7 @@
             <el-form-item label="消息ID" prop="mid">
               <el-input v-model="searchInfo.mid" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="计费类型" prop="type">
+            <el-form-item label="商家类型" prop="type">
               <el-input v-model="searchInfo.type" placeholder="搜索条件" />
             </el-form-item>
             <el-form-item label="推广链接" prop="affLink">
@@ -70,7 +70,7 @@
 
         <el-table-column align="left" label="频道TAG" prop="tag" width="90" />
         <el-table-column align="left" label="消息编号" prop="mid" width="90" />
-        <el-table-column align="left" label="计费类型" prop="type" width="90" />
+        <el-table-column align="left" label="商家类型" prop="type" width="90" />
         <el-table-column align="left" label="推广链接" prop="affLink" width="90" />
         <el-table-column align="left" label="商家链接" prop="shopLink" width="90" />
         <el-table-column align="left" label="额外标签" prop="additionalTags" width="90" />
@@ -116,8 +116,16 @@
         <el-form-item label="消息编号:" prop="mid">
           <el-input v-model="formData.mid" :clearable="true" placeholder="请输入消息编号" />
         </el-form-item>
-        <el-form-item label="计费类型:" prop="type">
-          <el-input v-model="formData.type" :clearable="true" placeholder="请输入计费类型" />
+        <el-form-item label="商家类型:" prop="type">
+            <el-select v-model="formData.type" placeholder="请选择商家类型" clearable>
+              <el-option label="whmcs1" value="whmcs1"></el-option>
+              <el-option label="whmcs2" value="whmcs2"></el-option>
+              <el-option label="whmcs3" value="whmcs3"></el-option>
+              <el-option label="whmcs4" value="whmcs4"></el-option>
+              <el-option label="hostbill1" value="hostbill1"></el-option>
+              <el-option label="blesta1" value="blesta1"></el-option>
+              <el-option label="blesta2" value="blesta2"></el-option>
+            </el-select>
         </el-form-item>
         <el-form-item label="推广链接:" prop="affLink">
           <el-input v-model="formData.affLink" :clearable="true" placeholder="请输入推广链接" />
@@ -148,7 +156,7 @@
         <el-descriptions-item label="消息编号">
           {{ detailFrom.mid }}
         </el-descriptions-item>
-        <el-descriptions-item label="计费类型">
+        <el-descriptions-item label="商家类型">
           {{ detailFrom.type }}
         </el-descriptions-item>
         <el-descriptions-item label="推广链接">

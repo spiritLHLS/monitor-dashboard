@@ -223,11 +223,6 @@
         <el-table-column align="left" label="端口" prop="portSpeed" width="80" />
         <el-table-column align="left" label="地点" prop="location" width="80" />
         <el-table-column align="left" label="价格" prop="price" width="80" />
-        <el-table-column label="其他" prop="additional" width="60">
-          <template #default="scope">
-            [富文本内容]
-          </template>
-        </el-table-column>
         <el-table-column align="left" label="链接" prop="url" width="90" />
         <el-table-column align="left" label="计费类型" prop="billingType" width="90" />
         <el-table-column align="left" label="历史库存" prop="oldStock" width="80" />
@@ -238,6 +233,11 @@
         <el-table-column align="left" label="重复检测" prop="multiCheck" width="80" />
         <el-table-column align="left" label="推送时间" prop="pushTime" width="180">
           <template #default="scope">{{ formatDate(scope.row.pushTime) }}</template>
+        </el-table-column>
+        <el-table-column label="其他" prop="additional" width="120">
+          <template #default="scope">
+            [富文本内容]
+          </template>
         </el-table-column>
         <el-table-column align="left" label="创建日期" prop="createdAt" width="160">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
