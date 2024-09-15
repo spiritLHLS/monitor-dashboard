@@ -20,31 +20,60 @@
           <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期"
             :disabled-date="time => searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
         </el-form-item>
+        <el-form-item label="是否冻结" prop="isFrozen">
+          <el-select v-model="searchInfo.isFrozen" clearable placeholder="请选择">
+            <el-option key="true" label="是" value="true">
+            </el-option>
+            <el-option key="false" label="否" value="false">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <template v-if="showAllQuery">
           <div class="row">
-            <el-form-item label="频道TAG" prop="tag">
-              <el-input v-model="searchInfo.tag" placeholder="搜索条件" />
+            <el-form-item label="用户名" prop="username">
+              <el-input v-model="searchInfo.username" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="消息ID" prop="mid">
-              <el-input v-model="searchInfo.mid" placeholder="搜索条件" />
+            <el-form-item label="TGID" prop="tgID">
+              <el-input v-model="searchInfo.tgID" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="商家类型" prop="type">
-              <el-input v-model="searchInfo.type" placeholder="搜索条件" />
+            <el-form-item label="昵称" prop="nickname">
+              <el-input v-model="searchInfo.nickname" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="推广链接" prop="affLink">
-              <el-input v-model="searchInfo.affLink" placeholder="搜索条件" />
-            </el-form-item>
-            <el-form-item label="商家链接" prop="shopLink">
-              <el-input v-model="searchInfo.shopLink" placeholder="搜索条件" />
+            <el-form-item label="密码" prop="password">
+              <el-input v-model="searchInfo.password" placeholder="搜索条件" />
             </el-form-item>
           </div>
           <div class="row">
-            <el-form-item label="额外标签" prop="additionalTags">
-              <el-input v-model="searchInfo.additionalTags" placeholder="搜索条件" />
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="searchInfo.email" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="备注" prop="additional">
+              <el-input v-model="searchInfo.additional" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="QQ号" prop="qqNumber">
+              <el-input v-model="searchInfo.qqNumber" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="微信号" prop="weChatNumber">
+              <el-input v-model="searchInfo.weChatNumber" placeholder="搜索条件" />
+            </el-form-item>
+            <!-- <el-form-item label="推送渠道1" prop="pushChannel1">
+              <el-input v-model="searchInfo.pushChannel1" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="推送渠道2" prop="pushChannel2">
+              <el-input v-model="searchInfo.pushChannel2" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="推送渠道3" prop="pushChannel3">
+              <el-input v-model="searchInfo.pushChannel3" placeholder="搜索条件" />
+            </el-form-item> -->
+          </div>
+          <div class="row">
+            <el-form-item label="用户等级" prop="level">
+              <el-input v-model.number="searchInfo.startLevel" placeholder="最小值" />
+              —
+              <el-input v-model.number="searchInfo.endLevel" placeholder="最大值" />
             </el-form-item>
           </div>
         </template>
-
         <el-form-item>
           <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button icon="refresh" @click="onReset">重置</el-button>
@@ -64,20 +93,30 @@
       <el-table ref="multipleTable" style="width: 100%" tooltip-effect="dark" :data="tableData" row-key="ID"
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-
-
-        <el-table-column align="left" label="频道TAG" prop="tag" width="90" />
-        <el-table-column align="left" label="消息编号" prop="mid" width="90" />
-        <el-table-column align="left" label="商家类型" prop="type" width="90" />
-        <el-table-column align="left" label="推广链接" prop="affLink" width="90" />
-        <el-table-column align="left" label="商家链接" prop="shopLink" width="90" />
-        <el-table-column align="left" label="额外标签" prop="additionalTags" width="90" />
+        <el-table-column align="left" label="用户名" prop="username" width="100" />
+        <el-table-column align="left" label="TGID" prop="tgID" width="100" />
+        <el-table-column align="left" label="昵称" prop="nickname" width="100" />
+        <el-table-column align="left" label="密码" prop="password" width="100" />
+        <el-table-column align="left" label="是否冻结" prop="isFrozen" width="100">
+          <template #default="scope">{{ formatBoolean(scope.row.isFrozen) }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="邮箱" prop="email" width="100" />
+        <el-table-column align="left" label="备注" prop="additional" width="100" />
+        <el-table-column align="left" label="用户等级" prop="level" width="100" />
+        <el-table-column align="left" label="QQ号" prop="qqNumber" width="100" />
+        <el-table-column align="left" label="微信号" prop="weChatNumber" width="100" />
+        <el-table-column align="left" label="推送渠道1" prop="pushChannel1" width="100" />
+        <el-table-column align="left" label="推送渠道2" prop="pushChannel2" width="100" />
+        <el-table-column align="left" label="推送渠道3" prop="pushChannel3" width="100" />
         <el-table-column align="left" label="日期" prop="createdAt" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <!-- <el-table-column align="left" label="创建者" prop="createdBy" width="90" />
-          <el-table-column align="left" label="更新者" prop="updatedBy" width="90" />
-          <el-table-column align="left" label="删除者" prop="deletedBy" width="90" /> -->
+        <el-table-column label="头像" prop="avatar" width="200">
+          <template #default="scope">
+            <el-image preview-teleported style="width: 100px; height: 100px" :src="getUrl(scope.row.avatar)"
+              fit="cover" />
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
           <template #default="scope">
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)"><el-icon
@@ -85,7 +124,7 @@
                 <InfoFilled />
               </el-icon>查看详情</el-button>
             <el-button type="primary" link icon="edit" class="table-button"
-              @click="updateShopsFunc(scope.row)">变更</el-button>
+              @click="updateEcsUsersFunc(scope.row)">变更</el-button>
             <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -108,73 +147,97 @@
       </template>
 
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-        <el-form-item label="频道TAG:" prop="tag">
-          <el-input v-model="formData.tag" :clearable="true" placeholder="请输入频道TAG" />
+        <el-form-item label="用户名:" prop="username">
+          <el-input v-model="formData.username" :clearable="true" placeholder="请输入用户名" :disabled="type === 'update'" />
         </el-form-item>
-        <el-form-item label="消息编号:" prop="mid">
-          <el-input v-model="formData.mid" :clearable="true" placeholder="请输入消息编号" />
+        <el-form-item label="TGID:" prop="tgID">
+          <el-input v-model="formData.tgID" :clearable="true" placeholder="请输入TGID" />
         </el-form-item>
-        <el-form-item label="商家类型:" prop="type">
-          <el-select v-model="formData.type" placeholder="请选择商家类型" clearable>
-            <el-option label="whmcs1" value="whmcs1"></el-option>
-            <el-option label="whmcs2" value="whmcs2"></el-option>
-            <el-option label="whmcs3" value="whmcs3"></el-option>
-            <el-option label="whmcs4" value="whmcs4"></el-option>
-            <el-option label="hostbill1" value="hostbill1"></el-option>
-            <el-option label="blesta1" value="blesta1"></el-option>
-            <el-option label="blesta2" value="blesta2"></el-option>
-          </el-select>
+        <el-form-item label="昵称:" prop="nickname">
+          <el-input v-model="formData.nickname" :clearable="true" placeholder="请输入昵称" />
         </el-form-item>
-        <el-form-item label="推广链接:" prop="affLink">
-          <el-input v-model="formData.affLink" :clearable="true" placeholder="请输入推广链接" />
+        <el-form-item label="头像:" prop="avatar">
+          <SelectImage v-model="formData.avatar" file-type="image" />
         </el-form-item>
-        <el-form-item label="商家链接:" prop="shopLink">
-          <el-input v-model="formData.shopLink" :clearable="true" placeholder="请输入商家链接" />
+        <el-form-item label="密码:" prop="password">
+          <el-input v-model="formData.password" :clearable="true" placeholder="请输入密码" :disabled="type === 'update'" />
         </el-form-item>
-        <el-form-item label="额外标签:" prop="additionalTags">
-          <el-input v-model="formData.additionalTags" :clearable="true" placeholder="请输入额外标签" />
+        <el-form-item label="是否冻结:" prop="isFrozen">
+          <el-switch v-model="formData.isFrozen" active-color="#13ce66" inactive-color="#ff4949" active-text="是"
+            inactive-text="否" clearable></el-switch>
         </el-form-item>
-        <!-- <el-form-item label="创建者:"  prop="createdBy" >
-              <el-input v-model.number="formData.createdBy" :clearable="true" placeholder="请输入创建者" />
-            </el-form-item>
-            <el-form-item label="更新者:"  prop="updatedBy" >
-              <el-input v-model.number="formData.updatedBy" :clearable="true" placeholder="请输入更新者" />
-            </el-form-item>
-            <el-form-item label="删除者:"  prop="deletedBy" >
-              <el-input v-model.number="formData.deletedBy" :clearable="true" placeholder="请输入删除者" />
-            </el-form-item> -->
+        <el-form-item label="邮箱:" prop="email">
+          <el-input v-model="formData.email" :clearable="true" placeholder="请输入邮箱" />
+        </el-form-item>
+        <el-form-item label="备注:" prop="additional">
+          <el-input v-model="formData.additional" :clearable="true" placeholder="请输入备注" />
+        </el-form-item>
+        <el-form-item label="用户等级:" prop="level">
+          <el-input v-model.number="formData.level" :clearable="false" placeholder="请输入用户等级" />
+        </el-form-item>
+        <el-form-item label="QQ号:" prop="qqNumber">
+          <el-input v-model="formData.qqNumber" :clearable="true" placeholder="请输入QQ号" />
+        </el-form-item>
+        <el-form-item label="微信号:" prop="weChatNumber">
+          <el-input v-model="formData.weChatNumber" :clearable="true" placeholder="请输入微信号" />
+        </el-form-item>
+        <el-form-item label="推送渠道1:" prop="pushChannel1">
+          <el-input v-model="formData.pushChannel1" :clearable="true" placeholder="请输入推送渠道1" />
+        </el-form-item>
+        <el-form-item label="推送渠道2:" prop="pushChannel2">
+          <el-input v-model="formData.pushChannel2" :clearable="true" placeholder="请输入推送渠道2" />
+        </el-form-item>
+        <el-form-item label="推送渠道3:" prop="pushChannel3">
+          <el-input v-model="formData.pushChannel3" :clearable="true" placeholder="请输入推送渠道3" />
+        </el-form-item>
       </el-form>
     </el-drawer>
 
     <el-drawer destroy-on-close size="800" v-model="detailShow" :show-close="true" :before-close="closeDetailShow">
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="频道TAG">
-          {{ detailFrom.tag }}
+        <el-descriptions-item label="用户名">
+          {{ detailFrom.username }}
         </el-descriptions-item>
-        <el-descriptions-item label="消息编号">
-          {{ detailFrom.mid }}
+        <el-descriptions-item label="TGID">
+          {{ detailFrom.tgID }}
         </el-descriptions-item>
-        <el-descriptions-item label="商家类型">
-          {{ detailFrom.type }}
+        <el-descriptions-item label="昵称">
+          {{ detailFrom.nickname }}
         </el-descriptions-item>
-        <el-descriptions-item label="推广链接">
-          {{ detailFrom.affLink }}
+        <el-descriptions-item label="头像">
+          <el-image style="width: 50px; height: 50px" :preview-src-list="returnArrImg(detailFrom.avatar)"
+            :src="getUrl(detailFrom.avatar)" fit="cover" />
         </el-descriptions-item>
-        <el-descriptions-item label="商家链接">
-          {{ detailFrom.shopLink }}
+        <el-descriptions-item label="密码">
+          {{ detailFrom.password }}
         </el-descriptions-item>
-        <el-descriptions-item label="额外标签">
-          {{ detailFrom.additionalTags }}
+        <el-descriptions-item label="是否冻结">
+          {{ detailFrom.isFrozen }}
         </el-descriptions-item>
-        <!-- <el-descriptions-item label="创建者">
-                        {{ detailFrom.createdBy }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="更新者">
-                        {{ detailFrom.updatedBy }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="删除者">
-                        {{ detailFrom.deletedBy }}
-                    </el-descriptions-item> -->
+        <el-descriptions-item label="邮箱">
+          {{ detailFrom.email }}
+        </el-descriptions-item>
+        <el-descriptions-item label="备注">
+          {{ detailFrom.additional }}
+        </el-descriptions-item>
+        <el-descriptions-item label="用户等级">
+          {{ detailFrom.level }}
+        </el-descriptions-item>
+        <el-descriptions-item label="QQ号">
+          {{ detailFrom.qqNumber }}
+        </el-descriptions-item>
+        <el-descriptions-item label="微信号">
+          {{ detailFrom.weChatNumber }}
+        </el-descriptions-item>
+        <el-descriptions-item label="推送渠道1">
+          {{ detailFrom.pushChannel1 }}
+        </el-descriptions-item>
+        <el-descriptions-item label="推送渠道2">
+          {{ detailFrom.pushChannel2 }}
+        </el-descriptions-item>
+        <el-descriptions-item label="推送渠道3">
+          {{ detailFrom.pushChannel3 }}
+        </el-descriptions-item>
       </el-descriptions>
     </el-drawer>
 
@@ -183,24 +246,24 @@
 
 <script setup>
 import {
-  createShops,
-  deleteShops,
-  deleteShopsByIds,
-  updateShops,
-  findShops,
-  getShopsList
-} from '@/api/shops/shops'
+  createEcsUsers,
+  deleteEcsUsers,
+  deleteEcsUsersByIds,
+  updateEcsUsers,
+  findEcsUsers,
+  getEcsUsersList
+} from '@/api/ecsusers/ecsusers'
+import { getUrl } from '@/utils/image'
+// 图片选择组件
+import SelectImage from '@/components/selectImage/selectImage.vue'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict, filterDataSource, returnArrImg, onDownloadFile } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
 
-
-
-
 defineOptions({
-  name: 'Shops'
+  name: 'EcsUsers'
 })
 
 // 控制更多查询条件显示/隐藏状态
@@ -208,22 +271,27 @@ const showAllQuery = ref(false)
 
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
-  tag: '',
-  mid: '',
-  type: '',
-  affLink: '',
-  shopLink: '',
-  additionalTags: '',
-  createdBy: undefined,
-  updatedBy: undefined,
-  deletedBy: undefined,
+  username: '',
+  nickname: '',
+  avatar: "",
+  password: '',
+  isFrozen: false,
+  pushChannel1: '',
+  pushChannel2: '',
+  pushChannel3: '',
+  tgID: '',
+  qqNumber: '',
+  weChatNumber: '',
+  email: '',
+  additional: '',
+  level: undefined,
 })
 
 
 
 // 验证规则
 const rule = reactive({
-  tag: [{
+  username: [{
     required: true,
     message: '',
     trigger: ['input', 'blur'],
@@ -234,7 +302,29 @@ const rule = reactive({
     trigger: ['input', 'blur'],
   }
   ],
-  type: [{
+  nickname: [{
+    required: true,
+    message: '',
+    trigger: ['input', 'blur'],
+  },
+  {
+    whitespace: true,
+    message: '不能只输入空格',
+    trigger: ['input', 'blur'],
+  }
+  ],
+  password: [{
+    required: true,
+    message: '',
+    trigger: ['input', 'blur'],
+  },
+  {
+    whitespace: true,
+    message: '不能只输入空格',
+    trigger: ['input', 'blur'],
+  }
+  ],
+  tgID: [{
     required: true,
     message: '',
     trigger: ['input', 'blur'],
@@ -246,7 +336,6 @@ const rule = reactive({
   }
   ],
 })
-
 
 const searchRule = reactive({
   createdAt: [
@@ -288,6 +377,9 @@ const onSubmit = () => {
     if (!valid) return
     page.value = 1
     pageSize.value = 10
+    if (searchInfo.value.isFrozen === "") {
+      searchInfo.value.isFrozen = null
+    }
     getTableData()
   })
 }
@@ -306,7 +398,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getShopsList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getEcsUsersList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -341,7 +433,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deleteShopsFunc(row)
+    deleteEcsUsersFunc(row)
   })
 }
 
@@ -364,7 +456,7 @@ const onDelete = async () => {
       multipleSelection.value.map(item => {
         IDs.push(item.ID)
       })
-    const res = await deleteShopsByIds({ IDs })
+    const res = await deleteEcsUsersByIds({ IDs })
     if (res.code === 0) {
       ElMessage({
         type: 'success',
@@ -382,8 +474,8 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateShopsFunc = async (row) => {
-  const res = await findShops({ ID: row.ID })
+const updateEcsUsersFunc = async (row) => {
+  const res = await findEcsUsers({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
     formData.value = res.data
@@ -393,8 +485,8 @@ const updateShopsFunc = async (row) => {
 
 
 // 删除行
-const deleteShopsFunc = async (row) => {
-  const res = await deleteShops({ ID: row.ID })
+const deleteEcsUsersFunc = async (row) => {
+  const res = await deleteEcsUsers({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -420,15 +512,20 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    tag: '',
-    mid: '',
-    type: '',
-    affLink: '',
-    shopLink: '',
-    additionalTags: '',
-    createdBy: undefined,
-    updatedBy: undefined,
-    deletedBy: undefined,
+    username: '',
+    nickname: '',
+    avatar: "",
+    password: '',
+    isFrozen: false,
+    pushChannel1: '',
+    pushChannel2: '',
+    pushChannel3: '',
+    tgID: '',
+    qqNumber: '',
+    weChatNumber: '',
+    email: '',
+    additional: '',
+    level: undefined,
   }
 }
 // 弹窗确定
@@ -438,13 +535,13 @@ const enterDialog = async () => {
     let res
     switch (type.value) {
       case 'create':
-        res = await createShops(formData.value)
+        res = await createEcsUsers(formData.value)
         break
       case 'update':
-        res = await updateShops(formData.value)
+        res = await updateEcsUsers(formData.value)
         break
       default:
-        res = await createShops(formData.value)
+        res = await createEcsUsers(formData.value)
         break
     }
     if (res.code === 0) {
@@ -474,7 +571,7 @@ const openDetailShow = () => {
 // 打开详情
 const getDetails = async (row) => {
   // 打开弹窗
-  const res = await findShops({ ID: row.ID })
+  const res = await findEcsUsers({ ID: row.ID })
   if (res.code === 0) {
     detailFrom.value = res.data
     openDetailShow()

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/ecsusers"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/findallpd"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/partitions"
@@ -20,4 +21,5 @@ type ApiGroup struct {
 	PartitionsApiGroup partitions.ApiGroup
 	TgchannelApiGroup  tgchannel.ApiGroup
 	FindallpdApiGroup  findallpd.ApiGroup
+	EcsusersApiGroup   ecsusers.ApiGroup
 }

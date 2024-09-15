@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/flipped-aurora/gin-vue-admin/server/router/ecsusers"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/findallpd"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/partitions"
@@ -20,4 +21,5 @@ type RouterGroup struct {
 	Partitions partitions.RouterGroup
 	Tgchannel  tgchannel.RouterGroup
 	Findallpd  findallpd.RouterGroup
+	Ecsusers   ecsusers.RouterGroup
 }
