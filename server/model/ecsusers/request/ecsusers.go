@@ -26,3 +26,8 @@ type EcsUsersSearch struct {
 	EndLevel       *int       `json:"endLevel" form:"endLevel"`
 	request.PageInfo
 }
+
+type AdminChangePasswordReq struct {
+	UserID   uint   `json:"userId" form:"userId" `
+	Password string `json:"password" form:"password" `
+}

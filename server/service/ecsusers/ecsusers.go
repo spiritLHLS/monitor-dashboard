@@ -173,3 +173,12 @@ func (eusrService *EcsUsersService) GetEcsUsersPublic() {
 	// 此方法为获取数据源定义的数据
 	// 请自行实现
 }
+
+// AdminChangePassword 方法介绍
+// Author [yourname](https://github.com/yourname)
+func (eusrService *EcsUsersService) AdminChangePassword(req ecsusersReq.AdminChangePasswordReq) (err error) {
+	newPwd := utils.BcryptHash(req.Password)
+	// 在对应表中通过user的id查询到后更新用户密码
+	db := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("id = ?", req.UserID).Update("password", newPwd)
+	return db.Error
+}

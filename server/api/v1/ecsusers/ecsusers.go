@@ -168,3 +168,28 @@ func (eusrApi *EcsUsersApi) GetEcsUsersPublic(c *gin.Context) {
 		"info": "不需要鉴权的订阅用户接口信息",
 	}, "获取成功", c)
 }
+
+// AdminChangePassword 方法介绍
+// @Tags EcsUsers
+// @Summary 方法介绍
+// @accept application/json
+// @Produce application/json
+// @Param data body ecsusersReq.AdminChangePasswordReq true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/adminChangePassword [PUT]
+func (eusrApi *EcsUsersApi) AdminChangePassword(c *gin.Context) {
+	var req ecsusersReq.AdminChangePasswordReq
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	// 请添加自己的业务逻辑
+	err = eusrService.AdminChangePassword(req)
+	if err != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err))
+		response.FailWithMessage("失败", c)
+		return
+	}
+	response.OkWithData("返回数据", c)
+}

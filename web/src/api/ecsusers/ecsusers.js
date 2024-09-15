@@ -108,3 +108,17 @@ export const getEcsUsersPublic = () => {
     method: 'get',
   })
 }
+// AdminChangePassword 方法介绍
+// @Tags EcsUsers
+// @Summary 方法介绍
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/adminChangePassword [PUT]
+export const adminChangePassword = () => {
+  return service({
+    url: '/eusr/adminChangePassword',
+    method: 'PUT'
+  })
+}
