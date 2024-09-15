@@ -20,31 +20,65 @@
           <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期"
             :disabled-date="time => searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
         </el-form-item>
-
-
         <template v-if="showAllQuery">
           <div class="row">
-            <el-form-item label="频道地址" prop="channel">
-              <el-input v-model="searchInfo.channel" placeholder="搜索条件" />
+            <el-form-item label="频道TAG" prop="tag">
+              <el-input v-model="searchInfo.tag" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="频道ID" prop="tgid">
-              <el-input v-model="searchInfo.tgid" placeholder="搜索条件" />
-            </el-form-item>
-            <el-form-item label="推送类型标志" prop="flag">
+            <el-form-item label="标志" prop="flag">
               <el-input v-model="searchInfo.flag" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="其他信息关键词" prop="additionalKey">
-              <el-input v-model="searchInfo.additionalKey" placeholder="搜索条件" />
+            <el-form-item label="计费类型" prop="billingType">
+              <el-input v-model="searchInfo.billingType" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="Tokens" prop="tokens">
-              <el-input v-model="searchInfo.tokens" placeholder="搜索条件" />
+            <el-form-item label="起始编号" prop="pdId">
+              <el-input v-model.number="searchInfo.pdId" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="推送商家" prop="tags">
-              <el-input v-model="searchInfo.tags" placeholder="搜索条件" />
+            <el-form-item label="结束编号" prop="endId">
+              <el-input v-model.number="searchInfo.endId" placeholder="搜索条件" />
             </el-form-item>
           </div>
+          <div class="row">
+            <el-form-item label="cpu" prop="cpu">
+              <el-input v-model="searchInfo.cpu" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="内存" prop="memory">
+              <el-input v-model="searchInfo.memory" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="硬盘" prop="disk">
+              <el-input v-model="searchInfo.disk" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="流量" prop="traffic">
+              <el-input v-model="searchInfo.traffic" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="带宽" prop="portSpeed">
+              <el-input v-model="searchInfo.portSpeed" placeholder="搜索条件" />
+            </el-form-item>
+          </div>
+          <div class="row">
+            <el-form-item label="地址" prop="location">
+              <el-input v-model="searchInfo.location" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="价格" prop="price">
+              <el-input v-model="searchInfo.price" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="其他信息" prop="additional">
+              <el-input v-model="searchInfo.additional" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="链接" prop="url">
+              <el-input v-model="searchInfo.url" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="历史库存" prop="oldStock">
+              <el-input v-model.number="searchInfo.oldStock" placeholder="搜索条件" />
+            </el-form-item>
+          </div>
+          <el-form-item label="现有库存" prop="stock">
+            <el-input v-model.number="searchInfo.stock" placeholder="搜索条件" />
+          </el-form-item>
+          <el-form-item label="消息ID" prop="messageId">
+            <el-input v-model="searchInfo.messageId" placeholder="搜索条件" />
+          </el-form-item>
         </template>
-
         <el-form-item>
           <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button icon="refresh" @click="onReset">重置</el-button>
@@ -64,24 +98,26 @@
       <el-table ref="multipleTable" style="width: 100%" tooltip-effect="dark" :data="tableData" row-key="ID"
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-
+        <el-table-column align="left" label="TAG" prop="tag" width="90" />
+        <el-table-column align="left" label="标志" prop="flag" width="90" />
+        <el-table-column align="left" label="计费类型" prop="billingType" width="90" />
+        <el-table-column align="left" label="起始编号" prop="pdId" width="90" />
+        <el-table-column align="left" label="结束编号" prop="endId" width="90" />
+        <el-table-column align="left" label="CPU" prop="cpu" width="90" />
+        <el-table-column align="left" label="内存" prop="memory" width="90" />
+        <el-table-column align="left" label="硬盘" prop="disk" width="90" />
+        <el-table-column align="left" label="流量" prop="traffic" width="90" />
+        <el-table-column align="left" label="带宽" prop="portSpeed" width="90" />
+        <el-table-column align="left" label="地址" prop="location" width="90" />
+        <el-table-column align="left" label="价格" prop="price" width="90" />
+        <el-table-column align="left" label="其他信息" prop="additional" width="90" />
+        <el-table-column align="left" label="链接" prop="url" width="90" />
+        <el-table-column align="left" label="历史库存" prop="oldStock" width="90" />
+        <el-table-column align="left" label="现有库存" prop="stock" width="90" />
+        <el-table-column align="left" label="消息ID" prop="messageId" width="90" />
         <el-table-column align="left" label="日期" prop="createdAt" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-
-        <el-table-column align="left" label="频道地址" prop="channel" width="120" />
-        <el-table-column align="left" label="频道ID" prop="tgid" width="120" />
-        <el-table-column align="left" label="推送类型标签" prop="flag" width="120" />
-        <el-table-column align="left" label="Tokens" prop="tokens" width="120" />
-        <el-table-column label="推送商家" prop="tags" width="200">
-          <template #default="scope">
-            [富文本内容]
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="其他信息关键词" prop="additionalKey" width="120" />
-        <!-- <el-table-column align="left" label="创建者" prop="createdBy" width="120" />
-        <el-table-column align="left" label="更新者" prop="updatedBy" width="120" />
-        <el-table-column align="left" label="删除者" prop="deletedBy" width="120" /> -->
         <el-table-column align="left" label="操作" fixed="right" min-width="240">
           <template #default="scope">
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)"><el-icon
@@ -89,7 +125,7 @@
                 <InfoFilled />
               </el-icon>查看详情</el-button>
             <el-button type="primary" link icon="edit" class="table-button"
-              @click="updateTgchannelFunc(scope.row)">变更</el-button>
+              @click="updateFindallpdFunc(scope.row)">变更</el-button>
             <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -112,68 +148,113 @@
       </template>
 
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-        <el-form-item label="频道地址:" prop="channel">
-          <el-input v-model="formData.channel" :clearable="true" placeholder="请输入频道地址" />
+        <el-form-item label="TAG:" prop="tag">
+          <el-input v-model="formData.tag" :clearable="true" placeholder="请输入TAG" />
         </el-form-item>
-        <el-form-item label="频道ID:" prop="tgid">
-          <el-input v-model="formData.tgid" :clearable="true" placeholder="请输入频道ID" />
+        <el-form-item label="标志:" prop="flag">
+          <el-input v-model="formData.flag" :clearable="true" placeholder="请输入标志" />
         </el-form-item>
-        <el-form-item label="推送类型:" prop="flag">
-          <el-select v-model="formData.flag" placeholder="请选择推送类型标志">
-            <el-option label="ONLY" value="ONLY"></el-option>
-            <el-option label="ALL WITHOUT" value="ALL WITHOUT"></el-option>
-          </el-select>
+        <el-form-item label="计费类型:" prop="billingType">
+          <el-input v-model="formData.billingType" :clearable="true" placeholder="请输入计费类型" />
         </el-form-item>
-        <el-form-item label="Tokens:" prop="tokens">
-          <el-input v-model="formData.tokens" :clearable="true" placeholder="请输入Tokens" />
+        <el-form-item label="起始编号:" prop="pdId">
+          <el-input v-model.number="formData.pdId" :clearable="true" placeholder="请输入商品起始爬虫的编号" />
         </el-form-item>
-        <el-form-item label="推送商家:" prop="tags">
-          <RichEdit v-model="formData.tags" />
+        <el-form-item label="结束编号:" prop="endId">
+          <el-input v-model.number="formData.endId" :clearable="true" placeholder="请输入商品结束爬虫的编号" />
         </el-form-item>
-        <el-form-item label="其他信息关键词:" prop="additionalKey">
-          <el-input v-model="formData.additionalKey" :clearable="true" placeholder="请输入其他信息关键词(含有的才推送)，按空格分隔" />
+        <el-form-item label="CPU:" prop="cpu">
+          <el-input v-model="formData.cpu" :clearable="true" placeholder="请输入CPU" />
         </el-form-item>
-        <!-- <el-form-item label="创建者:" prop="createdBy">
-          <el-input v-model.number="formData.createdBy" :clearable="true" placeholder="请输入创建者" />
+        <el-form-item label="内存:" prop="memory">
+          <el-input v-model="formData.memory" :clearable="true" placeholder="请输入内存" />
         </el-form-item>
-        <el-form-item label="更新者:" prop="updatedBy">
-          <el-input v-model.number="formData.updatedBy" :clearable="true" placeholder="请输入更新者" />
+        <el-form-item label="硬盘:" prop="disk">
+          <el-input v-model="formData.disk" :clearable="true" placeholder="请输入硬盘" />
         </el-form-item>
-        <el-form-item label="删除者:" prop="deletedBy">
-          <el-input v-model.number="formData.deletedBy" :clearable="true" placeholder="请输入删除者" />
-        </el-form-item> -->
+        <el-form-item label="流量:" prop="traffic">
+          <el-input v-model="formData.traffic" :clearable="true" placeholder="请输入流量" />
+        </el-form-item>
+        <el-form-item label="带宽:" prop="portSpeed">
+          <el-input v-model="formData.portSpeed" :clearable="true" placeholder="请输入带宽" />
+        </el-form-item>
+        <el-form-item label="地址:" prop="location">
+          <el-input v-model="formData.location" :clearable="true" placeholder="请输入地址" />
+        </el-form-item>
+        <el-form-item label="价格:" prop="price">
+          <el-input v-model="formData.price" :clearable="true" placeholder="请输入价格" />
+        </el-form-item>
+        <el-form-item label="其他信息:" prop="additional">
+          <el-input v-model="formData.additional" :clearable="true" placeholder="请输入其他信息" />
+        </el-form-item>
+        <el-form-item label="链接:" prop="url">
+          <el-input v-model="formData.url" :clearable="true" placeholder="请输入链接" />
+        </el-form-item>
+        <el-form-item label="历史库存:" prop="oldStock">
+          <el-input v-model.number="formData.oldStock" :clearable="true" placeholder="请输入历史库存" />
+        </el-form-item>
+        <el-form-item label="现有库存:" prop="stock">
+          <el-input v-model.number="formData.stock" :clearable="true" placeholder="请输入现有库存" />
+        </el-form-item>
+        <el-form-item label="消息ID:" prop="messageId">
+          <el-input v-model="formData.messageId" :clearable="true" placeholder="请输入消息ID" />
+        </el-form-item>
       </el-form>
     </el-drawer>
 
     <el-drawer destroy-on-close size="800" v-model="detailShow" :show-close="true" :before-close="closeDetailShow">
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="频道地址">
-          {{ detailFrom.channel }}
+        <el-descriptions-item label="TAG">
+          {{ detailFrom.tag }}
         </el-descriptions-item>
-        <el-descriptions-item label="频道ID">
-          {{ detailFrom.tgid }}
-        </el-descriptions-item>
-        <el-descriptions-item label="推送类型标签">
+        <el-descriptions-item label="标志">
           {{ detailFrom.flag }}
         </el-descriptions-item>
-        <el-descriptions-item label="Tokens">
-          {{ detailFrom.tokens }}
+        <el-descriptions-item label="计费类型">
+          {{ detailFrom.billingType }}
         </el-descriptions-item>
-        <el-descriptions-item label="推送商家">
-          {{ detailFrom.tags }}
+        <el-descriptions-item label="起始编号">
+          {{ detailFrom.pdId }}
         </el-descriptions-item>
-        <el-descriptions-item label="其他信息关键词">
-          {{ detailFrom.additionalKey }}
+        <el-descriptions-item label="结束编号">
+          {{ detailFrom.endId }}
         </el-descriptions-item>
-        <!-- <el-descriptions-item label="创建者">
-          {{ detailFrom.createdBy }}
+        <el-descriptions-item label="CPU">
+          {{ detailFrom.cpu }}
         </el-descriptions-item>
-        <el-descriptions-item label="更新者">
-          {{ detailFrom.updatedBy }}
+        <el-descriptions-item label="内存">
+          {{ detailFrom.memory }}
         </el-descriptions-item>
-        <el-descriptions-item label="删除者">
-          {{ detailFrom.deletedBy }}
-        </el-descriptions-item> -->
+        <el-descriptions-item label="硬盘">
+          {{ detailFrom.disk }}
+        </el-descriptions-item>
+        <el-descriptions-item label="流量">
+          {{ detailFrom.traffic }}
+        </el-descriptions-item>
+        <el-descriptions-item label="带宽">
+          {{ detailFrom.portSpeed }}
+        </el-descriptions-item>
+        <el-descriptions-item label="地址">
+          {{ detailFrom.location }}
+        </el-descriptions-item>
+        <el-descriptions-item label="价格">
+          {{ detailFrom.price }}
+        </el-descriptions-item>
+        <el-descriptions-item label="其他信息">
+          {{ detailFrom.additional }}
+        </el-descriptions-item>
+        <el-descriptions-item label="链接">
+          {{ detailFrom.url }}
+        </el-descriptions-item>
+        <el-descriptions-item label="历史库存">
+          {{ detailFrom.oldStock }}
+        </el-descriptions-item>
+        <el-descriptions-item label="现有库存">
+          {{ detailFrom.stock }}
+        </el-descriptions-item>
+        <el-descriptions-item label="消息ID">
+          {{ detailFrom.messageId }}
+        </el-descriptions-item>
       </el-descriptions>
     </el-drawer>
 
@@ -182,15 +263,13 @@
 
 <script setup>
 import {
-  createTgchannel,
-  deleteTgchannel,
-  deleteTgchannelByIds,
-  updateTgchannel,
-  findTgchannel,
-  getTgchannelList
-} from '@/api/tgchannel/tgchannel'
-// 富文本组件
-import RichEdit from '@/components/richtext/rich-edit.vue'
+  createFindallpd,
+  deleteFindallpd,
+  deleteFindallpdByIds,
+  updateFindallpd,
+  findFindallpd,
+  getFindallpdList
+} from '@/api/findallpd/findallpd'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict, filterDataSource, returnArrImg, onDownloadFile } from '@/utils/format'
@@ -201,7 +280,7 @@ import { ref, reactive } from 'vue'
 
 
 defineOptions({
-  name: 'Tgchannel'
+  name: 'Findallpd'
 })
 
 // 控制更多查询条件显示/隐藏状态
@@ -209,33 +288,30 @@ const showAllQuery = ref(false)
 
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
-  channel: '',
-  tgid: '',
+  tag: '',
   flag: '',
-  tokens: '',
-  tags: '',
-  additionalKey: '',
-  createdBy: undefined,
-  updatedBy: undefined,
-  deletedBy: undefined,
+  billingType: '',
+  pdId: undefined,
+  endId: undefined,
+  cpu: '',
+  memory: '',
+  disk: '',
+  traffic: '',
+  portSpeed: '',
+  location: '',
+  price: '',
+  additional: '',
+  url: '',
+  oldStock: undefined,
+  stock: undefined,
+  messageId: '',
 })
 
 
 
 // 验证规则
 const rule = reactive({
-  channel: [{
-    required: true,
-    message: '',
-    trigger: ['input', 'blur'],
-  },
-  {
-    whitespace: true,
-    message: '不能只输入空格',
-    trigger: ['input', 'blur'],
-  }
-  ],
-  tgid: [{
+  tag: [{
     required: true,
     message: '',
     trigger: ['input', 'blur'],
@@ -257,7 +333,7 @@ const rule = reactive({
     trigger: ['input', 'blur'],
   }
   ],
-  tokens: [{
+  billingType: [{
     required: true,
     message: '',
     trigger: ['input', 'blur'],
@@ -268,18 +344,14 @@ const rule = reactive({
     trigger: ['input', 'blur'],
   }
   ],
-  tags: [{
+  endId: [{
     required: true,
     message: '',
     trigger: ['input', 'blur'],
   },
-  {
-    whitespace: true,
-    message: '不能只输入空格',
-    trigger: ['input', 'blur'],
-  }
   ],
 })
+
 
 const searchRule = reactive({
   createdAt: [
@@ -339,7 +411,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getTgchannelList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getFindallpdList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -374,7 +446,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deleteTgchannelFunc(row)
+    deleteFindallpdFunc(row)
   })
 }
 
@@ -397,7 +469,7 @@ const onDelete = async () => {
       multipleSelection.value.map(item => {
         IDs.push(item.ID)
       })
-    const res = await deleteTgchannelByIds({ IDs })
+    const res = await deleteFindallpdByIds({ IDs })
     if (res.code === 0) {
       ElMessage({
         type: 'success',
@@ -415,8 +487,8 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateTgchannelFunc = async (row) => {
-  const res = await findTgchannel({ ID: row.ID })
+const updateFindallpdFunc = async (row) => {
+  const res = await findFindallpd({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
     formData.value = res.data
@@ -426,8 +498,8 @@ const updateTgchannelFunc = async (row) => {
 
 
 // 删除行
-const deleteTgchannelFunc = async (row) => {
-  const res = await deleteTgchannel({ ID: row.ID })
+const deleteFindallpdFunc = async (row) => {
+  const res = await deleteFindallpd({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -453,15 +525,23 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    channel: '',
-    tgid: '',
+    tag: '',
     flag: '',
-    tokens: '',
-    tags: '',
-    additionalKey: '',
-    createdBy: undefined,
-    updatedBy: undefined,
-    deletedBy: undefined,
+    billingType: '',
+    pdId: undefined,
+    endId: undefined,
+    cpu: '',
+    memory: '',
+    disk: '',
+    traffic: '',
+    portSpeed: '',
+    location: '',
+    price: '',
+    additional: '',
+    url: '',
+    oldStock: undefined,
+    stock: undefined,
+    messageId: '',
   }
 }
 // 弹窗确定
@@ -471,13 +551,13 @@ const enterDialog = async () => {
     let res
     switch (type.value) {
       case 'create':
-        res = await createTgchannel(formData.value)
+        res = await createFindallpd(formData.value)
         break
       case 'update':
-        res = await updateTgchannel(formData.value)
+        res = await updateFindallpd(formData.value)
         break
       default:
-        res = await createTgchannel(formData.value)
+        res = await createFindallpd(formData.value)
         break
     }
     if (res.code === 0) {
@@ -507,7 +587,7 @@ const openDetailShow = () => {
 // 打开详情
 const getDetails = async (row) => {
   // 打开弹窗
-  const res = await findTgchannel({ ID: row.ID })
+  const res = await findFindallpd({ ID: row.ID })
   if (res.code === 0) {
     detailFrom.value = res.data
     openDetailShow()

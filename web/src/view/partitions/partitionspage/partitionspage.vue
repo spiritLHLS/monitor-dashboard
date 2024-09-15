@@ -22,24 +22,24 @@
         </el-form-item>
         <template v-if="showAllQuery">
           <div class="row">
-          <el-form-item label="Tag" prop="tg_tag">
-            <el-input v-model="searchInfo.tg_tag" placeholder="搜索条件" />
-          </el-form-item>
-          <el-form-item label="分区名字" prop="name">
-            <el-input v-model="searchInfo.name" placeholder="搜索条件" />
-          </el-form-item>
-          <el-form-item label="分区链接" prop="link">
-            <el-input v-model="searchInfo.link" placeholder="搜索条件" />
-          </el-form-item>
-          <el-form-item label="分区类型" prop="type">
-            <el-input v-model="searchInfo.type" placeholder="搜索条件" />
-          </el-form-item>
-          <el-form-item label="识别数量" prop="num">
-            <el-input v-model.number="searchInfo.num" placeholder="搜索条件" />
-          </el-form-item>
-          <el-form-item label="爬虫间隔" prop="intervals">
-            <el-input v-model.number="searchInfo.intervals" placeholder="搜索条件" />
-          </el-form-item>
+            <el-form-item label="Tag" prop="tg_tag">
+              <el-input v-model="searchInfo.tg_tag" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="分区名字" prop="name">
+              <el-input v-model="searchInfo.name" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="分区链接" prop="link">
+              <el-input v-model="searchInfo.link" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="分区类型" prop="type">
+              <el-input v-model="searchInfo.type" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="识别数量" prop="num">
+              <el-input v-model.number="searchInfo.num" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="爬虫间隔" prop="intervals">
+              <el-input v-model.number="searchInfo.intervals" placeholder="搜索条件" />
+            </el-form-item>
           </div>
           <!-- <div class="row"> -->
           <el-form-item label="其他信息" prop="additional">

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/service/example"
+	"github.com/flipped-aurora/gin-vue-admin/server/service/findallpd"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/partitions"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/products"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/shops"
@@ -18,4 +19,5 @@ type ServiceGroup struct {
 	ShopsServiceGroup      shops.ServiceGroup
 	PartitionsServiceGroup partitions.ServiceGroup
 	TgchannelServiceGroup  tgchannel.ServiceGroup
+	FindallpdServiceGroup  findallpd.ServiceGroup
 }
