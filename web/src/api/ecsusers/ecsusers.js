@@ -124,3 +124,18 @@ export const adminChangePassword = (data) => {
     data
   })
 }
+
+// GetUserInfo 方法介绍
+// @Tags EcsUsers
+// @Summary 方法介绍
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getUserInfo [GET]
+export const getUserInfo = () => {
+  return service({
+    url: '/eusr/getUserInfo',
+    method: 'GET'
+  })
+}

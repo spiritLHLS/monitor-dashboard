@@ -24,6 +24,7 @@ type EcsUsers struct {
 	Email        string    `json:"email" form:"email" gorm:"column:email;comment:用户邮箱;"`                                                                                //邮箱
 	Additional   string    `json:"additional" form:"additional" gorm:"column:additional;comment:备注;size:255;"`                                                          //备注
 	Level        *int      `json:"level" form:"level" gorm:"default:0;column:level;comment:用户等级;"`                                                                      //用户等级
+	AuthorityID  uint      `json:"authorityID" form:"authorityID" gorm:"default:8881;column:authority_id;comment:用户角色;"`                                                //用户角色
 }
 
 // TableName 订阅用户 EcsUsers自定义表名 ecs_users

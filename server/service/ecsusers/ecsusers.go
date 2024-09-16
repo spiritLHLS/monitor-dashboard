@@ -183,3 +183,11 @@ func (eusrService *EcsUsersService) AdminChangePassword(req ecsusersReq.AdminCha
 		Where("id = ?", req.UserID).Update("password", newPwd)
 	return db.Error
 }
+
+// GetUserInfo 方法介绍
+// Author [yourname](https://github.com/yourname)
+func (eusrService *EcsUsersService) GetUserInfo() (err error) {
+	// 请在这里实现自己的业务逻辑
+	db := global.GVA_DB.Model(&ecsusers.EcsUsers{})
+	return db.Error
+}

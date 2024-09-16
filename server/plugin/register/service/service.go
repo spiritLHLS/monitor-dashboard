@@ -6,7 +6,7 @@ import (
 	"fmt"
 	gvaGlobal "github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	plugGlobal "github.com/flipped-aurora/gin-vue-admin/server/plugin/register/global"
+	tgrGlobal "github.com/flipped-aurora/gin-vue-admin/server/plugin/register/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/model"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot/service"
 	userServiceSystem "github.com/flipped-aurora/gin-vue-admin/server/service/system"
@@ -20,9 +20,9 @@ type RegisterService struct{}
 
 func (e *RegisterService) Code(tgid string) (err error) {
 	// 制作四位数code
-	code := utils.RandomString(plugGlobal.GlobalConfig.CodeLength)
+	code := utils.RandomString(tgrGlobal.GlobalConfig.CodeLength)
 	// 发送code
-	_, err = service.ServiceGroupApp.SendTgMessage(plugGlobal.GlobalConfig.TgBotToken, tgid,
+	_, err = service.ServiceGroupApp.SendTgMessage(tgrGlobal.GlobalConfig.TgBotToken, tgid,
 		fmt.Sprintf("验证码：<code>%v</code>", code), "html")
 	if err != nil {
 		return errors.New(fmt.Sprintf("发送TG验证码错误：%v", err))
@@ -59,7 +59,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (*system.SysUser,
 		return nil, fmt.Errorf(errTGCodeMismatch, register.Code)
 	}
 	// 检查用户是否在特定频道中
-	_, err = service.ServiceGroupApp.IsTgMember(plugGlobal.GlobalConfig.TgBotToken, register.Tgid, plugGlobal.GlobalConfig.ChannelId)
+	_, err = service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, register.Tgid, tgrGlobal.GlobalConfig.ChannelId)
 	if err != nil {
 		return nil, fmt.Errorf(errNotInChannel, err)
 	}
@@ -81,10 +81,10 @@ func (e *RegisterService) Register(register model.RegisterReq) (*system.SysUser,
 		Password:    hashedPassword,
 		NickName:    "注册用户",
 		Phone:       register.Tgid,
-		AuthorityId: plugGlobal.GlobalConfig.AuthorityId,
+		AuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
 		Authority: system.SysAuthority{
 			DefaultRouter: "dashboard",
-			AuthorityId:   plugGlobal.GlobalConfig.AuthorityId,
+			AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
 		},
 	}
 	// 检查用户名和密码是否为空
@@ -127,7 +127,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (*system.SysUser,
 	// 创建用户角色
 	userAuthority := &system.SysUserAuthority{
 		SysUserId:               user.ID,
-		SysAuthorityAuthorityId: plugGlobal.GlobalConfig.AuthorityId,
+		SysAuthorityAuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
 	}
 	if err := tx.Create(userAuthority).Error; err != nil {
 		tx.Rollback()
@@ -220,7 +220,7 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (*system.S
 		if err := gvaGlobal.GVA_DB.Where("username = ?", loginUser.Username).First(&sysus).Error; err != nil {
 			return nil, fmt.Errorf(errUserNotFound, err)
 		}
-		if _, err := service.ServiceGroupApp.IsTgMember(plugGlobal.GlobalConfig.TgBotToken, sysus.Phone, plugGlobal.GlobalConfig.ChannelId); err != nil {
+		if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, sysus.Phone, tgrGlobal.GlobalConfig.ChannelId); err != nil {
 			return nil, fmt.Errorf(errNotInChannel, err)
 		}
 	}

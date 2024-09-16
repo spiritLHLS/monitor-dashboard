@@ -16,9 +16,9 @@ func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicRouter *gin.RouterGroup,
 	bizPluginV1(PrivateGroup, PublicRouter)
 	bizPluginV2(engine)
 	PluginInit(PrivateGroup, telegram_bot.CreateTelegram_botPlug())
-	roleID := viper.GetInt("tgr.role_id")
+	authorityID := viper.GetInt("tgr.authority_id")
 	tgbotToken := viper.GetString("tgr.tgbot_token")
 	codeLength := viper.GetInt("tgr.verification_code_length")
 	channelChatID := viper.GetString("tgr.channel_chat_id")
-	PluginInit(PublicRouter, register.CreateRegisterPlug(uint(roleID), tgbotToken, codeLength, channelChatID))
+	PluginInit(PublicRouter, register.CreateRegisterPlug(uint(authorityID), tgbotToken, codeLength, channelChatID))
 }

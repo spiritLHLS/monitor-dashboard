@@ -169,7 +169,7 @@ func (eusrApi *EcsUsersApi) GetEcsUsersPublic(c *gin.Context) {
 	}, "获取成功", c)
 }
 
-// AdminChangePassword 方法介绍
+// AdminChangePassword 管理员修改用户密码
 // @Tags EcsUsers
 // @Summary 方法介绍
 // @accept application/json
@@ -186,6 +186,25 @@ func (eusrApi *EcsUsersApi) AdminChangePassword(c *gin.Context) {
 	}
 	// 请添加自己的业务逻辑
 	err = eusrService.AdminChangePassword(req)
+	if err != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err))
+		response.FailWithMessage("失败", c)
+		return
+	}
+	response.OkWithData("返回数据", c)
+}
+
+// GetUserInfo 前端用户信息查询
+// @Tags EcsUsers
+// @Summary 方法介绍
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getUserInfo [GET]
+func (eusrApi *EcsUsersApi) GetUserInfo(c *gin.Context) {
+	// 请添加自己的业务逻辑
+	err := eusrService.GetUserInfo()
 	if err != nil {
 		global.GVA_LOG.Error("失败!", zap.Error(err))
 		response.FailWithMessage("失败", c)
