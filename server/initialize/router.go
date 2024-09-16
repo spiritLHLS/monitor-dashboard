@@ -57,7 +57,7 @@ func Routers() *gin.Engine {
 	// global.GVA_LOG.Info("use middleware cors")
 	docs.SwaggerInfo.BasePath = global.GVA_CONFIG.System.RouterPrefix
 	Router.GET(global.GVA_CONFIG.System.RouterPrefix+"/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	global.GVA_LOG.Info("register swagger handler")
+	global.GVA_LOG.Info("client swagger handler")
 	// 方便统一添加路由组前缀 多服务器上线使用
 
 	PublicGroup := Router.Group(global.GVA_CONFIG.System.RouterPrefix)
@@ -104,6 +104,6 @@ func Routers() *gin.Engine {
 
 	global.GVA_ROUTERS = Router.Routes()
 
-	global.GVA_LOG.Info("router register success")
+	global.GVA_LOG.Info("router client success")
 	return Router
 }

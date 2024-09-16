@@ -1,6 +1,6 @@
 package config
 
-type Register struct {
+type Client struct {
 	Admins      string // 管理员
 	Name        string // 用户名
 	AuthorityId uint   // 权限ID

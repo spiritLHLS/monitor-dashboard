@@ -6,7 +6,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useRouterStore } from './router'
 import cookie from 'js-cookie'
-import { TGRRegister, TGRLogin } from '@/plugin/register/api/api'
+import { TGRRegister, TGRLogin } from '@/plugin/client/api/api'
 import {useAppStore} from "@/pinia";
 
 export const useUserStore = defineStore('user', () => {

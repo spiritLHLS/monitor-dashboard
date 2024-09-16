@@ -6,9 +6,10 @@ import (
 	"fmt"
 	gvaGlobal "github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
-	tgrGlobal "github.com/flipped-aurora/gin-vue-admin/server/plugin/register/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/model"
+	tgrGlobal "github.com/flipped-aurora/gin-vue-admin/server/plugin/client/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/model"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot/service"
 	gvaService "github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
@@ -48,7 +49,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 		errEmptyUsername   = "用户名为空"
 		errEmptyPassword   = "密码为空"
 		errAccountCreation = "注册账户失败: %v"
-		errLogin           = "登陆失败"
+		errRoleCreation    = "注册角色失败: %v"
 	)
 	ctx := context.Background()
 	// 验证TG码
@@ -87,9 +88,47 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 	euser.Nickname = "注册用户"
 	euser.TGID = register.Tgid
 	euser.AuthorityID = tgrGlobal.GlobalConfig.AuthorityId
-	// 创建用户账户
+	// 创建用户的订阅账户
 	if err := eusrService.CreateEcsUsers(euser); err != nil {
 		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errAccountCreation, err)
+	}
+	// 同时创建对应的系统账户：用户的ID、用户的用户名、密码、uuid相对应 - 避免casbin无法鉴权
+	sysUser := &system.SysUser{
+		UUID:        euser.UUID,
+		Username:    register.Username,
+		Password:    euser.Password,
+		NickName:    "注册用户",
+		Phone:       "",
+		AuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
+		Authority: system.SysAuthority{
+			DefaultRouter: "dashboard",
+			AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
+		},
+	}
+	// 开始数据库事务
+	tx := gvaGlobal.GVA_DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	// 创建用户账户
+	if err := tx.Create(sysUser).Error; err != nil {
+		tx.Rollback()
+		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errAccountCreation, err)
+	}
+	// 创建用户角色
+	userAuthority := &system.SysUserAuthority{
+		SysUserId:               sysUser.ID,
+		SysAuthorityAuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
+	}
+	if err := tx.Create(userAuthority).Error; err != nil {
+		tx.Rollback()
+		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errRoleCreation, err)
+	}
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, err
 	}
 	// 登录
 	token, claims, err := utils.LoginToken(euser)

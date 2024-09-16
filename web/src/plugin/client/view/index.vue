@@ -89,7 +89,7 @@
 
 <script setup>
 import { captcha } from "@/api/user";
-import { TGRGetCode } from "@/plugin/register/api/api";
+import { TGRGetCode } from "@/plugin/client/api/api";
 import { reactive, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";

@@ -1,8 +1,8 @@
-package register
+package client
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/router"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/router"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,5 +23,5 @@ func (*RegisterPlugin) Register(group *gin.RouterGroup) {
 }
 
 func (*RegisterPlugin) RouterPath() string {
-	return "register"
+	return "client"
 }

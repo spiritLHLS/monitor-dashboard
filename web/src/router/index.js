@@ -22,17 +22,17 @@ const routes = [{
 {
   path: '/login',
   name: 'Login',
-  component: () => import('@/plugin/register/view/index.vue') // 有更改 原始为 @/view/login/index.vue
+  component: () => import('@/plugin/client/view/index.vue') // 有更改 原始为 @/view/login/index.vue
 },
 {
-  path: '/register',
+  path: '/client',
   name: 'Register',
-  component: () => import('@/plugin/register/view/index.vue')
+  component: () => import('@/plugin/client/view/index.vue')
 },
 {
   path: '/resetpwd',
   name: 'Resetpwd',
-  component: () => import('@/plugin/register/view/reset.vue')
+  component: () => import('@/plugin/client/view/reset.vue')
 },
 {
   path: '/:catchAll(.*)',

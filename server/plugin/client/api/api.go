@@ -4,9 +4,9 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/model"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/service"
-	tgrUtils "github.com/flipped-aurora/gin-vue-admin/server/plugin/register/utils"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/model"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/service"
+	tgrUtils "github.com/flipped-aurora/gin-vue-admin/server/plugin/client/utils"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -18,7 +18,7 @@ type RegisterApi struct{}
 // @Summary 发送code
 // @Produce  application/json
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"发送成功"}"
-// @Router /register/code [post]
+// @Router /client/code [post]
 func (p *RegisterApi) Code(c *gin.Context) {
 	var req model.CodeReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -38,7 +38,7 @@ func (p *RegisterApi) Code(c *gin.Context) {
 // @Summary 注册用户
 // @Produce  application/json
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"发送成功"}"
-// @Router /register/register [post]
+// @Router /client/client [post]
 func (p *RegisterApi) Register(c *gin.Context) {
 	var req model.RegisterReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -62,7 +62,7 @@ func (p *RegisterApi) Register(c *gin.Context) {
 // @Summary 修改密码
 // @Produce  application/json
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"发送成功"}"
-// @Router /register/changePassword [post]
+// @Router /client/changePassword [post]
 func (p *RegisterApi) ChangePassword(c *gin.Context) {
 	var req model.ChangePasswordReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -87,7 +87,7 @@ func (p *RegisterApi) ChangePassword(c *gin.Context) {
 // @Summary 用户登录
 // @Produce  application/json
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"发送成功"}"
-// @Router /register/login [post]
+// @Router /client/login [post]
 func (p *RegisterApi) Login(c *gin.Context) {
 	var req model.LoginReq
 	if err := c.ShouldBindJSON(&req); err != nil {

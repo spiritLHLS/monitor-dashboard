@@ -62,15 +62,15 @@ func RegisterTables() {
 		example.ExaFileUploadAndDownload{},
 	)
 	if err != nil {
-		global.GVA_LOG.Error("register table failed", zap.Error(err))
+		global.GVA_LOG.Error("client table failed", zap.Error(err))
 		os.Exit(0)
 	}
 
 	err = bizModel()
 
 	if err != nil {
-		global.GVA_LOG.Error("register biz_table failed", zap.Error(err))
+		global.GVA_LOG.Error("client biz_table failed", zap.Error(err))
 		os.Exit(0)
 	}
-	global.GVA_LOG.Info("register table success")
+	global.GVA_LOG.Info("client table success")
 }

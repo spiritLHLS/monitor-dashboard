@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { TGRGetCode, TGRChangePassword } from "@/plugin/register/api/api";
+import { TGRGetCode, TGRChangePassword } from "@/plugin/client/api/api";
 import { reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";

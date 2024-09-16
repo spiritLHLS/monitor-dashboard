@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/api"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/api"
 	"github.com/gin-gonic/gin"
 )
 

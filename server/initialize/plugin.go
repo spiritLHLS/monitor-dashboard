@@ -2,7 +2,7 @@ package initialize
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot"
 	"github.com/gin-gonic/gin"
 )
@@ -22,5 +22,5 @@ func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicRouter *gin.RouterGroup,
 	tgbotToken := global.GVA_VP.GetString("tgr.tgbot_token")
 	codeLength := global.GVA_VP.GetInt("tgr.verification_code_length")
 	channelChatID := global.GVA_VP.GetString("tgr.channel_chat_id")
-	PluginInit(PublicRouter, register.CreateRegisterPlug(uint(authorityID), tgbotToken, codeLength, channelChatID, tgrAdmins))
+	PluginInit(PublicRouter, client.CreateRegisterPlug(uint(authorityID), tgbotToken, codeLength, channelChatID, tgrAdmins))
 }
