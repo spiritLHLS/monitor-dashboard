@@ -31,6 +31,8 @@ rm_file/
 server/uploads/
 server/config.yaml
 server/plugin/spiders
+server/plugin/allpdspiders
+server/plugin/telegrampush
 
 *.iml
 web/.pnpm-debug.log
