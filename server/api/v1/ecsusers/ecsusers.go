@@ -5,6 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
 	ecsusersReq "github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -204,11 +205,16 @@ func (eusrApi *EcsUsersApi) AdminChangePassword(c *gin.Context) {
 // @Router /eusr/getUserInfo [GET]
 func (eusrApi *EcsUsersApi) GetUserInfo(c *gin.Context) {
 	// 请添加自己的业务逻辑
-	err := eusrService.GetUserInfo()
+	id := utils.GetUserID(c)
+	if id == 0 {
+		response.FailWithMessage("失败", c)
+		return
+	}
+	user, err := eusrService.GetUserInfo(id)
 	if err != nil {
 		global.GVA_LOG.Error("失败!", zap.Error(err))
 		response.FailWithMessage("失败", c)
 		return
 	}
-	response.OkWithData("返回数据", c)
+	response.OkWithData(user, c)
 }

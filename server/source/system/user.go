@@ -48,7 +48,7 @@ func (i *initUser) InitializeData(ctx context.Context) (next context.Context, er
 	ap := ctx.Value("adminPassword")
 	apStr, ok := ap.(string)
 	if !ok {
-		apStr = "123456"
+		apStr = "123456spiritlhl"
 	}
 
 	password := utils.BcryptHash(apStr)
@@ -59,21 +59,21 @@ func (i *initUser) InitializeData(ctx context.Context) (next context.Context, er
 			UUID:        uuid.Must(uuid.NewV4()),
 			Username:    "admin",
 			Password:    adminPassword,
-			NickName:    "Mr.奇淼",
-			HeaderImg:   "https://qmplusimg.henrongyi.top/gva_header.jpg",
+			NickName:    "Admin",
+			HeaderImg:   "https://avatars.githubusercontent.com/u/103393591",
 			AuthorityId: 888,
-			Phone:       "17611111111",
-			Email:       "333333333@qq.com",
+			Phone:       "8188210666",
+			Email:       "admin@spiritlhl.net",
 		},
 		{
 			UUID:        uuid.Must(uuid.NewV4()),
-			Username:    "a303176530",
+			Username:    "spiritlhl",
 			Password:    password,
-			NickName:    "用户1",
-			HeaderImg:   "https:///qmplusimg.henrongyi.top/1572075907logo.png",
+			NickName:    "spiritlhl",
+			HeaderImg:   "https://avatars.githubusercontent.com/u/103393591",
 			AuthorityId: 9528,
-			Phone:       "17611111111",
-			Email:       "333333333@qq.com"},
+			Phone:       "8188210666",
+			Email:       "spiritlhl@yandex.com"},
 	}
 	if err = db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, sysModel.SysUser{}.TableName()+"表数据初始化失败!")

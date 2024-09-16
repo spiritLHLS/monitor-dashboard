@@ -1,79 +1,80 @@
 <template>
-  <div id="resetPasswordLayout">
-    <div class="reset-password-panel">
-      <div class="reset-password-panel-form">
-        <div class="reset-password-panel-form-title">
-          <img
-            class="reset-password-panel-form-title-logo"
-            src="~@/assets/logo.png"
-            alt
+  <div class="reset-password-container">
+    <div class="reset-password-box">
+      <div class="reset-password-header">
+        <img class="reset-logo" src="~@/assets/logo.png" alt="Logo" />
+        <h1 class="reset-title">{{ $GIN_VUE_ADMIN.appName }}</h1>
+        <h2 class="reset-subtitle">密码重置</h2>
+      </div>
+      <el-form
+        ref="resetPasswordForm"
+        :model="resetFormData"
+        :rules="resetFormRules"
+        class="reset-form"
+        @keyup.enter="submitForm"
+      >
+        <el-form-item prop="tg_id">
+          <el-input 
+            v-model="resetFormData.tg_id" 
+            placeholder="请输入TGID"
+            prefix-icon="ChatDotSquare"
           />
-          <p class="reset-password-panel-form-title-p">
-            {{ $GIN_VUE_ADMIN.appName }}
-          </p>
-          <p class="reset-password-panel-form-title-p">密码重置</p>
-        </div>
-        <el-form
-          ref="resetPasswordForm"
-          :model="resetFormData"
-          :rules="resetFormRules"
-          @keyup.enter="submitForm"
-        >
-          <el-form-item prop="tg_id">
-            <el-input v-model="resetFormData.tg_id" placeholder="请输入TGID"></el-input>
-          </el-form-item>
-          <el-form-item prop="code">
-            <div class="code-input-container">
-              <el-input
-                v-model="resetFormData.code"
-                placeholder="请输入TG验证码"
-                class="code-input"
-                style="width: calc(100% - 150px)"
-              />
-              <div class="send-tg-code-container">
-                <el-button type="primary" size="default" @click="sendTGCode"
-                  >发送TG验证码</el-button
-                >
-              </div>
-            </div>
-          </el-form-item>
-          <el-form-item prop="new_password">
+        </el-form-item>
+
+        <el-form-item prop="code">
+          <div class="tg-code-container">
+            <el-input
+              v-model="resetFormData.code"
+              placeholder="请输入TG验证码"
+              class="tg-code-input"
+            />
+            <el-button type="primary" @click="sendTGCode" class="send-tg-code-btn">
+              发送验证码
+            </el-button>
+          </div>
+        </el-form-item>
+
+        <el-form-item prop="new_password">
           <el-input
             v-model="resetFormData.new_password"
             :type="lock === 'lock' ? 'password' : 'text'"
             placeholder="请输入新密码"
+            prefix-icon="Lock"
           >
             <template #suffix>
-              <span class="input-icon">
-                <el-icon>
-                  <component :is="lock" @click="changeLock" />
-                </el-icon>
-              </span>
+              <el-icon @click="changeLock" class="password-icon">
+                <component :is="lock" />
+              </el-icon>
             </template>
           </el-input>
         </el-form-item>
+
         <el-form-item prop="re_password">
           <el-input
             v-model="resetFormData.re_password"
             :type="lock === 'lock' ? 'password' : 'text'"
             placeholder="请再次输入新密码"
+            prefix-icon="Lock"
           >
             <template #suffix>
-              <span class="input-icon">
-                <el-icon>
-                  <component :is="lock" @click="changeLock" />
-                </el-icon>
-              </span>
+              <el-icon @click="changeLock" class="password-icon">
+                <component :is="lock" />
+              </el-icon>
             </template>
           </el-input>
         </el-form-item>
-          <el-form-item>
-            <el-button type="primary" size="large" @click="submitForm"
-              >确认重置</el-button
-            >
-          </el-form-item>
-        </el-form>
+
+        <el-form-item>
+          <el-button type="primary" @click="submitForm" class="submit-btn">
+            确认重置
+          </el-button>
+        </el-form-item>
+        <div class="form-footer">
+        <el-button type="text" @click="goToLoginPage" class="back-to-login">
+          返回登录
+        </el-button>
       </div>
+      </el-form>
     </div>
   </div>
 </template>
@@ -165,65 +166,82 @@ const sendTGCode = () => {
       });
     });
 };
+
+const goToLoginPage = () => {
+  router.push("/login");
+};
 </script>
 
 <style scoped>
-#resetPasswordLayout {
+.reset-password-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.reset-password-panel-form {
-  max-width: 400px;
-  width: 100%;
-  padding: 20px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+.reset-password-box {
+  width: 400px;
+  padding: 40px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.reset-password-panel-form-title {
+.reset-password-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
-.reset-password-panel-form-title-logo {
-  width: 100px;
+.reset-logo {
+  width: 80px;
+  margin-bottom: 16px;
 }
 
-.reset-password-panel-form-title-p {
+.reset-title {
   font-size: 24px;
-  font-weight: bold;
-  margin: 10px 0;
+  color: #333;
+  margin: 0 0 10px;
 }
 
-.el-input {
-  width: 100%;
+.reset-subtitle {
+  font-size: 18px;
+  color: #666;
+  margin: 0;
 }
 
-.input-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+.reset-form :deep(.el-input__wrapper) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
 }
 
-.code-input-container {
+.reset-form :deep(.el-input__wrapper):hover,
+.reset-form :deep(.el-input__wrapper):focus {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.password-icon {
+  cursor: pointer;
+}
+
+.tg-code-container {
   display: flex;
   align-items: center;
 }
 
-.code-input {
-  width: calc(100% - 150px);
+.tg-code-input {
+  flex: 1;
+  margin-right: 10px;
 }
 
-.send-tg-code-container {
-  margin-left: 10px;
+.send-tg-code-btn {
+  white-space: nowrap;
 }
 
-.el-button--primary {
+.submit-btn {
   width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
 }
 </style>

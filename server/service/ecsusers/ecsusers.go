@@ -201,8 +201,7 @@ func (eusrService *EcsUsersService) Login(username, password string) (user ecsus
 
 // GetUserInfo 方法介绍
 // Author [yourname](https://github.com/yourname)
-func (eusrService *EcsUsersService) GetUserInfo() (err error) {
-	// 请在这里实现自己的业务逻辑
-	db := global.GVA_DB.Model(&ecsusers.EcsUsers{})
-	return db.Error
+func (eusrService *EcsUsersService) GetUserInfo(id uint) (user ecsusers.EcsUsers, err error) {
+	err = global.GVA_DB.First(&user, id).Error
+	return
 }
