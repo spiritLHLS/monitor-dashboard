@@ -1,63 +1,122 @@
-<!--
-    @auther: bypanghu<bypanghu@163.com>
-    @date: 2024/5/8
-!-->
-
 <template>
-  <div>
-    <el-table :data="tableData" stripe style="width: 100%">
-      <el-table-column prop="ranking" label="排名" width="80" align="center" />
-      <el-table-column prop="title" label="插件标题" show-overflow-tooltip>
-        <template #default="{ row }">
-          <a class="text-active" :href="row.link" target="_blank">{{ row.title }}</a>
-        </template>
-      </el-table-column>
-      <el-table-column prop="click_num" label="关注度" width="100" />
-      <el-table-column prop="hot" label="热度值" width="100" />
-    </el-table>
+  <div class="control-panel">
+    <button class="control-button spider" @click="toggleSpiderStatus">
+      <icon-spider :class="{ active: spiderStatus }" />
+      <span>{{ spiderStatus ? '关闭爬虫' : '启用爬虫' }}</span>
+    </button>
+    
+    <button class="control-button telegram" @click="toggleTelegramStatus">
+      <icon-telegram :class="{ active: telegramStatus }" />
+      <span>{{ telegramStatus ? '关闭推送' : '启用推送' }}</span>
+    </button>
+    
+    <button class="control-button products" @click="toggleFAProductsCheckStatus">
+      <icon-products :class="{ active: faProductsStatus }" />
+      <span>{{ faProductsStatus ? '关闭商品爬虫' : '启用商品爬虫' }}</span>
+    </button>
   </div>
 </template>
 
 <script setup>
-const tableData = [
-  {
-    ranking: 1,
-    title : "组织管理插件:更方便管理组织，分配资源权限。",
-    click_num : 523,
-    hot : 263,
-    link : "https://plugin.gin-vue-admin.com/#/layout/newPluginInfo?id=36"
-  },
-  {
-    ranking: 2,
-    title : "Kubernetes容器管理:，Kubernetes 原生资源管理，提供炫酷的YAML 编辑，Pod 终端，方便运维兄弟管理k8s资源",
-    click_num : 416,
-    hot : 223,
-    link : "https://plugin.gin-vue-admin.com/#/layout/newPluginInfo?id=42"
-  },
-  {
-    ranking: 3,
-    title : "定时任务配置化管理:本插件用于对系统内部的定时任务进行配置化管理，可以配置自定义的函数和HTTP，可以配置cron和remark等等",
-    click_num : 337,
-    hot : 176,
-    link : "https://plugin.gin-vue-admin.com/#/layout/newPluginInfo?id=67"
-  },
-  {
-    ranking: 4,
-    title : "官网CMS系统：基于Gin-Vue-Admin 和 插件市场客户端开发基座开发的企业官网类（cms）系统",
-    click_num : 292,
-    hot : 145,
-    link : "https://plugin.gin-vue-admin.com/#/layout/newPluginInfo?id=69"
-  },
-  {
-    ranking: 5,
-    title : "微信支付插件：提供扫码支付功能（需自行对接业务）",
-    click_num : 173,
-    hot : 110,
-    link : "https://plugin.gin-vue-admin.com/#/layout/newPluginInfo?id=28"
-  },
-]
+import { ref } from 'vue'
+import {
+  controlSpiders, getSpidersStatus, controlTelegramPush, getTelegramPushStatus,
+  controlFAProductsCheck, getFAProductsCheckStatus
+} from '@/view/dashboard/control.js'
+
+const initializeStatus = async (statusRef, getStatusFunc) => {
+  try {
+    const statusData = await getStatusFunc();
+    statusRef.value = statusData.data;
+  } catch (error) {
+    console.error('Error initializing status:', error);
+  }
+};
+
+const toggleStatus = async (statusRef, controlStatusFunc, controlKey) => {
+  try {
+    const newStatus = !statusRef.value;
+    const controlObj = { [controlKey]: newStatus };
+    const statusData = await controlStatusFunc(controlObj);
+    statusRef.value = statusData.data;
+  } catch (error) {
+    console.error('Error toggling status:', error)
+  }
+}
+
+// Spider
+const spiderStatus = ref(false)
+const fetchSpiderStatus = () => initializeStatus(spiderStatus, getSpidersStatus)
+const toggleSpiderStatus = () => toggleStatus(spiderStatus, controlSpiders, 'enable_spiders')
+
+// Telegram
+const telegramStatus = ref(false)
+const fetchTelegramStatus = () => initializeStatus(telegramStatus, getTelegramPushStatus)
+const toggleTelegramStatus = () => toggleStatus(telegramStatus, controlTelegramPush, 'enable_tgpush')
+
+// FA Products Check
+const faProductsStatus = ref(false)
+const fetchFAProductsCheckStatus = () => initializeStatus(faProductsStatus, getFAProductsCheckStatus)
+const toggleFAProductsCheckStatus = () => toggleStatus(faProductsStatus, controlFAProductsCheck, 'enable_allpdspiders')
+
+// 初始获取状态
+fetchSpiderStatus()
+fetchTelegramStatus()
+fetchFAProductsCheckStatus()
 </script>
 
 <style scoped lang="scss">
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+  background: #f5f7fa;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
+.control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 50px;
+  background: #ffffff;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+
+  span {
+    margin-left: 10px;
+  }
+}
+
+.spider { &:hover, &.active { background: #4CAF50; color: white; } }
+.telegram { &:hover, &.active { background: #2196F3; color: white; } }
+.products { &:hover, &.active { background: #FF9800; color: white; } }
+
+// 这里假设您使用了一些图标组件，如果没有，可以使用字体图标或SVG图标替代
+.icon-spider, .icon-telegram, .icon-products {
+  font-size: 24px;
+  transition: all 0.3s ease;
+  
+  &.active {
+    transform: scale(1.2);
+  }
+}
 </style>
