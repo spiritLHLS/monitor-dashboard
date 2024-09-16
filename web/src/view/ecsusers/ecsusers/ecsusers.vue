@@ -88,7 +88,6 @@
         <el-button type="primary" icon="plus" @click="openDialog">新增</el-button>
         <el-button icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length"
           @click="onDelete">删除</el-button>
-
       </div>
       <el-table ref="multipleTable" style="width: 100%" tooltip-effect="dark" :data="tableData" row-key="ID"
         @selection-change="handleSelectionChange">
@@ -117,15 +116,16 @@
               fit="cover" />
           </template>
         </el-table-column>
-        <el-table-column align="left" label="操作" fixed="right" min-width="240">
+        <el-table-column align="left" label="操作" fixed="right" min-width="303">
           <template #default="scope">
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)"><el-icon
                 style="margin-right: 5px">
                 <InfoFilled />
-              </el-icon>查看详情</el-button>
+              </el-icon>查看</el-button>
             <el-button type="primary" link icon="edit" class="table-button"
               @click="updateEcsUsersFunc(scope.row)">变更</el-button>
             <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
+            <el-button type="primary" link icon="key" @click="adminChangePasswordFunc(scope.row)">修改密码</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -251,7 +251,8 @@ import {
   deleteEcsUsersByIds,
   updateEcsUsers,
   findEcsUsers,
-  getEcsUsersList
+  getEcsUsersList,
+  adminChangePassword
 } from '@/api/ecsusers/ecsusers'
 import { getUrl } from '@/utils/image'
 // 图片选择组件
@@ -585,6 +586,22 @@ const closeDetailShow = () => {
   detailFrom.value = {}
 }
 
+const adminChangePasswordFunc = (row) => {
+  ElMessageBox.prompt('请输入你要修改的密码', '修改密码', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async ({ value }) => {
+    const res = await adminChangePassword({ userID: row.ID, password: value})
+    if (res.code === 0) {
+      ElMessage({
+        type: 'success',
+        message: '修改成功'
+      })
+      getTableData()
+    }
+  })
+}
 
 </script>
 

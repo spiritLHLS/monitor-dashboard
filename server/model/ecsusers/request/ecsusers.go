@@ -28,6 +28,6 @@ type EcsUsersSearch struct {
 }
 
 type AdminChangePasswordReq struct {
-	UserID   uint   `json:"userId" form:"userId" `
-	Password string `json:"password" form:"password" `
+	UserID   uint   `json:"userID"`
+	Password string `json:"password"`
 }

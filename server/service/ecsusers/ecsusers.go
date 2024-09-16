@@ -179,6 +179,7 @@ func (eusrService *EcsUsersService) GetEcsUsersPublic() {
 func (eusrService *EcsUsersService) AdminChangePassword(req ecsusersReq.AdminChangePasswordReq) (err error) {
 	newPwd := utils.BcryptHash(req.Password)
 	// 在对应表中通过user的id查询到后更新用户密码
-	db := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("id = ?", req.UserID).Update("password", newPwd)
+	db := global.GVA_DB.Model(&ecsusers.EcsUsers{}).
+		Where("id = ?", req.UserID).Update("password", newPwd)
 	return db.Error
 }
