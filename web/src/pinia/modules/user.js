@@ -172,13 +172,15 @@ export const useUserStore = defineStore('user', () => {
           });
 
           console.log("User info:", userInfo.value);
-          if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
-          ElMessage.error('请联系管理员进行授权');
-          } else {
-          console.log("Redirecting to:", userInfo.value.authority.defaultRouter);
-          await router.replace({ name: userInfo.value.authority.defaultRouter });
-          console.log("Redirected successfully.");
-          }
+          // if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
+          // ElMessage.error('请联系管理员进行授权');
+          // } else {
+          // console.log("Redirecting to:", userInfo.value.authority.defaultRouter);
+          // await router.replace({ name: userInfo.value.authority.defaultRouter });
+          // console.log("Redirected successfully.");
+          // }
+          // 直接跳转，不校验是否设置默认的跳转路径了
+          await router.replace({name: "dashboard"})
           loadingInstance.value.close();
           const isWin = ref(/windows/i.test(navigator.userAgent));
           if (isWin.value) {

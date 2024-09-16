@@ -5,7 +5,6 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicRouter *gin.RouterGroup, engine *gin.Engine) {
@@ -15,10 +14,13 @@ func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicRouter *gin.RouterGroup,
 	}
 	bizPluginV1(PrivateGroup, PublicRouter)
 	bizPluginV2(engine)
+	// 注册TG发信插件
 	PluginInit(PrivateGroup, telegram_bot.CreateTelegram_botPlug())
-	authorityID := viper.GetInt("tgr.authority_id")
-	tgbotToken := viper.GetString("tgr.tgbot_token")
-	codeLength := viper.GetInt("tgr.verification_code_length")
-	channelChatID := viper.GetString("tgr.channel_chat_id")
-	PluginInit(PublicRouter, register.CreateRegisterPlug(uint(authorityID), tgbotToken, codeLength, channelChatID))
+	// 注册用户登录注册校验插件
+	tgrAdmins := global.GVA_VP.GetString("tgr.admins")
+	authorityID := global.GVA_VP.GetInt("tgr.authority_id")
+	tgbotToken := global.GVA_VP.GetString("tgr.tgbot_token")
+	codeLength := global.GVA_VP.GetInt("tgr.verification_code_length")
+	channelChatID := global.GVA_VP.GetString("tgr.channel_chat_id")
+	PluginInit(PublicRouter, register.CreateRegisterPlug(uint(authorityID), tgbotToken, codeLength, channelChatID, tgrAdmins))
 }

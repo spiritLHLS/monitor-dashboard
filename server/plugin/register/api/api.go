@@ -1,11 +1,12 @@
 package api
 
 import (
-	systemApi "github.com/flipped-aurora/gin-vue-admin/server/api/v1/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/model"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/register/service"
+	tgrUtils "github.com/flipped-aurora/gin-vue-admin/server/plugin/register/utils"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -45,12 +46,15 @@ func (p *RegisterApi) Register(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if res, err := service.ServiceGroupApp.Register(req); err != nil {
+	if token, claims, user, err := service.ServiceGroupApp.Register(req); err != nil {
 		global.GVA_LOG.Error("注册用户失败", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
 	} else {
-		var baseApi systemApi.BaseApi
-		baseApi.TokenNext(c, *res)
+		response.OkWithDetailed(systemRes.LoginResponse{
+			User:      tgrUtils.ConvertEcsUserToSysUser(user),
+			Token:     token,
+			ExpiresAt: claims.RegisteredClaims.ExpiresAt.Unix() * 1000,
+		}, "登录成功", c)
 	}
 }
 
@@ -92,11 +96,14 @@ func (p *RegisterApi) Login(c *gin.Context) {
 		return
 	}
 	key := c.ClientIP()
-	if res, err := service.ServiceGroupApp.Login(req, key); err != nil {
+	if token, claims, user, err := service.ServiceGroupApp.Login(req, key); err != nil {
 		global.GVA_LOG.Error("用户登录失败", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
 	} else {
-		var baseApi systemApi.BaseApi
-		baseApi.TokenNext(c, *res)
+		response.OkWithDetailed(systemRes.LoginResponse{
+			User:      tgrUtils.ConvertEcsUserToSysUser(user),
+			Token:     token,
+			ExpiresAt: claims.RegisteredClaims.ExpiresAt.Unix() * 1000,
+		}, "登录成功", c)
 	}
 }

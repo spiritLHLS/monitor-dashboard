@@ -59,7 +59,7 @@ func checkUniqueness(eusr *ecsusers.EcsUsers) error {
 	}{
 		{"username", eusr.Username, "用户名"},
 		{"tg_id", eusr.TGID, "TGID"},
-		{"nickname", eusr.Nickname, "昵称"},
+		//{"nickname", eusr.Nickname, "昵称"},
 	}
 	// 如果邮箱不为空，也需要检查唯一性
 	if eusr.Email != "" {
@@ -182,6 +182,21 @@ func (eusrService *EcsUsersService) AdminChangePassword(req ecsusersReq.AdminCha
 	db := global.GVA_DB.Model(&ecsusers.EcsUsers{}).
 		Where("id = ?", req.UserID).Update("password", newPwd)
 	return db.Error
+}
+
+// Login 方法介绍
+// Author [yourname](https://github.com/yourname)
+func (eusrService *EcsUsersService) Login(username, password string) (user ecsusers.EcsUsers, err error) {
+	// 用户查找和密码比对
+	err = global.GVA_DB.First(&user, "username = ?", username).Error
+	if err != nil {
+		return user, errors.New("用户不存在")
+	}
+	ok := utils.BcryptCheck(password, user.Password)
+	if !ok {
+		return user, errors.New("密码错误")
+	}
+	return
 }
 
 // GetUserInfo 方法介绍

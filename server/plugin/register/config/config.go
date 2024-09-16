@@ -1,6 +1,7 @@
 package config
 
 type Register struct {
+	Admins      string // 管理员
 	Name        string // 用户名
 	AuthorityId uint   // 权限ID
 	TgBotToken  string // tg的bot的token

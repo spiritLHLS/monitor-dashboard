@@ -27,6 +27,30 @@ type EcsUsers struct {
 	AuthorityID  uint      `json:"authorityID" form:"authorityID" gorm:"default:8881;column:authority_id;comment:用户角色;"`                                                //用户角色
 }
 
+func (u EcsUsers) GetUsername() string {
+	return u.Username
+}
+
+func (u EcsUsers) GetNickname() string {
+	return u.Nickname
+}
+
+func (u EcsUsers) GetUUID() uuid.UUID {
+	return u.UUID
+}
+
+func (u EcsUsers) GetUserId() uint {
+	return u.ID
+}
+
+func (u EcsUsers) GetAuthorityId() uint {
+	return u.AuthorityID
+}
+
+func (u EcsUsers) GetUserInfo() any {
+	return u
+}
+
 // TableName 订阅用户 EcsUsers自定义表名 ecs_users
 func (EcsUsers) TableName() string {
 	return "ecs_users"
