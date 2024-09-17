@@ -82,12 +82,20 @@
         </el-form-item>
 
         <div class="form-footer">
-          <el-switch
-            v-model="registerType"
-            active-text="注册"
-            inactive-text="登录"
-            class="register-switch"
-          />
+          <div class="toggle-container">
+            <span
+              :class="['toggle-option', { active: !registerType }]"
+              @click="registerType = false"
+            >
+              登录
+            </span>
+            <span
+              :class="['toggle-option', { active: registerType }]"
+              @click="registerType = true"
+            >
+              注册
+            </span>
+          </div>
           <el-button type="text" @click="goToResetPage" class="forgot-password">
             忘记密码？
           </el-button>
@@ -104,7 +112,9 @@ import { reactive, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/pinia/modules/user";
+
 const router = useRouter();
+
 // 对用户的输入强制要求符合要求
 const checkUsername = (rule, value, callback) => {
   if (value.length < 5) {
@@ -113,6 +123,7 @@ const checkUsername = (rule, value, callback) => {
     callback();
   }
 };
+
 const checkPassword = (rule, value, callback) => {
   if (value.length < 6) {
     return callback(new Error("密码必须大于或等于6个字符"));
@@ -120,6 +131,7 @@ const checkPassword = (rule, value, callback) => {
     callback();
   }
 };
+
 const loginForm = ref(null);
 const loginFormData = reactive({
   username: "admin",
@@ -127,6 +139,7 @@ const loginFormData = reactive({
   captcha: "",
   captchaId: "",
 });
+
 const registerFormData = reactive({
   username: "admin",
   password: "123456",
@@ -135,10 +148,12 @@ const registerFormData = reactive({
   tg_id: "",
   code: "",
 });
+
 const lock = ref("lock");
 const picPath = ref("");
 const registerType = ref(false);
 const currentFormData = ref(loginFormData);
+
 const rules = reactive({
   username: [{ validator: checkUsername, trigger: "blur" }],
   password: [{ validator: checkPassword, trigger: "blur" }],
@@ -152,6 +167,7 @@ const rules = reactive({
 
 const formRules = ref(rules);
 const userStore = useUserStore();
+
 const loginVerify = () => {
   captcha({}).then((ele) => {
     rules.captcha[1].max = ele.data.captchaLength;
@@ -161,7 +177,9 @@ const loginVerify = () => {
     registerFormData.captchaId = ele.data.captchaId;
   });
 };
+
 loginVerify();
+
 const changeLock = () => {
   lock.value = lock.value === "lock" ? "unlock" : "lock";
 };
@@ -174,6 +192,7 @@ const login = async () => {
     return false;
   }
 };
+
 const register = async () => {
   try {
     await userStore.UserTgRegister(registerFormData);
@@ -182,6 +201,7 @@ const register = async () => {
     return false;
   }
 };
+
 const submitForm = async () => {
   const form = loginForm.value;
   const validationResult = await new Promise((resolve) => {
@@ -216,6 +236,7 @@ const submitForm = async () => {
     loginVerify();
   }
 };
+
 // TG验证码发送
 const sendTGCode = () => {
   const tg_id = registerFormData.tg_id;
@@ -236,10 +257,12 @@ const sendTGCode = () => {
       });
     });
 };
+
 // 跳转密码重置界面
 const goToResetPage = () => {
   router.push("/resetpwd");
 };
+
 // 监听注册类型的变化，切换表单数据
 watch(registerType, (newValue, oldValue) => {
   if (newValue === true && oldValue === false) {
@@ -330,16 +353,26 @@ watch(registerType, (newValue, oldValue) => {
   margin-top: 20px;
 }
 
-.register-switch {
-  font-size: 14px;
+.toggle-container {
+  display: flex;
+  background-color: #f0f0f0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.toggle-option {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-option.active {
+  background-color: #409EFF;
+  color: white;
 }
 
 .forgot-password {
   font-size: 14px;
-}
-
-:deep(.el-switch__label) {
-  color: #606266;
 }
 
 :deep(.el-button--text) {

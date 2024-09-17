@@ -209,6 +209,11 @@ func (pdService *ProductsService) buildPublicQueryConditions(db *gorm.DB, info p
 	// 库存数量查询
 	if info.Stock != nil {
 		db = db.Where("stock > ?", info.Stock)
+	} else {
+		db = db.Where("cpu <> ?", "")
+		db = db.Where("memory <> ?", "")
+		db = db.Where("disk <> ?", "")
+		db = db.Where("price <> ?", "")
 	}
 	return db
 }

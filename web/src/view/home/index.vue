@@ -1,54 +1,75 @@
 <template>
-  <div class="product-dashboard">
-    <aside class="sidebar">
-      <h1 class="site-title">监控</h1>
-      <el-form @submit.prevent="handleSearch" class="search-form">
-        <el-input v-for="(field, key) in searchFields" :key="key" v-model="searchInfo[key]"
-          :placeholder="field.placeholder" class="search-input">
-          <template #prefix>
-            <el-icon><Search /></el-icon>
-          </template>
-        </el-input>
-        <el-switch v-model="onlyInStock" class="stock-switch" active-text="只显示有库存" inactive-text="显示所有" />
-        <div class="button-group">
-          <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
-          <el-button @click="handleReset" class="reset-button">重置</el-button>
+    <div class="product-dashboard">
+        <header class="top-bar">
+            <div class="left-section">
+                <img src="https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png" alt="Logo" class="logo">
+                <nav class="nav-links">
+                    <a href="https://t.me/vps_reviews" target="_blank">商家</a>
+                    <a href="https://t.me/vps_spiders" target="_blank">关于</a>
+                </nav>
+            </div>
+            <div class="auth-buttons">
+                <el-button @click="router.push('/login')">登录/注册</el-button>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <aside class="sidebar">
+                <h1 class="site-title">全球VPS余量监控</h1>
+                <el-form @submit.prevent="handleSearch" class="search-form">
+                    <el-input v-for="(field, key) in searchFields" :key="key" v-model="searchInfo[key]"
+                        :placeholder="field.placeholder" class="search-input">
+                        <template #prefix>
+                            <el-icon>
+                                <Search />
+                            </el-icon>
+                        </template>
+                    </el-input>
+                    <div class="stock-toggle">
+                        <span :class="['toggle-option', { 'active': !onlyInStock }]" @click="onlyInStock = false">显示所有</span>
+                        <span :class="['toggle-option', { 'active': onlyInStock }]" @click="onlyInStock = true">只显示有库存</span>
+                    </div>
+                    <div class="button-group">
+                        <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
+                        <el-button @click="handleReset" class="reset-button">重置</el-button>
+                    </div>
+                </el-form>
+            </aside>
+
+            <main class="main-content">
+                <el-card class="table-card">
+                    <el-table v-loading="loading" :data="tableData" style="width: 100%"
+                        :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange">
+                        <el-table-column v-for="col in tableColumns" :key="col.prop" :prop="col.prop" :label="col.label"
+                            :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip>
+                            <template #default="{ row }" v-if="col.prop === 'actions'">
+                                <el-button type="primary" size="small" @click="showDetails(row)">商品详情</el-button>
+                                <el-button type="success" size="small" @click="openUrl(row.url)">点击购买</el-button>
+                            </template>
+                            <template #default="{ row }" v-else-if="col.prop === 'stock'">
+                                {{ row.stock === 1000 ? '有' : row.stock }}
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                    <div class="pagination-wrapper">
+                        <el-pagination v-model:current-page="page" v-model:page-size="pageSize"
+                            :page-sizes="[10, 20, 50, 100]" :total="total"
+                            layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange" />
+                    </div>
+                </el-card>
+            </main>
         </div>
-      </el-form>
-    </aside>
 
-    <main class="main-content">
-      <el-card class="table-card">
-        <el-table v-loading="loading" :data="tableData" style="width: 100%"
-          :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange">
-          <el-table-column v-for="col in tableColumns" :key="col.prop" :prop="col.prop" :label="col.label"
-            :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip>
-            <template #default="{ row }" v-if="col.prop === 'actions'">
-              <el-button type="primary" size="small" @click="showDetails(row)">商品详情</el-button>
-              <el-button type="success" size="small" @click="openUrl(row.url)">点击购买</el-button>
-            </template>
-            <template #default="{ row }" v-else-if="col.prop === 'stock'">
-              {{ row.stock === 1000 ? '有' : row.stock }}
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <div class="pagination-wrapper">
-          <el-pagination v-model:current-page="page" v-model:page-size="pageSize"
-            :page-sizes="[10, 20, 50, 100]" :total="total" layout="total, sizes, prev, pager, next, jumper"
-            @size-change="handleSizeChange" @current-change="handleCurrentChange" />
-        </div>
-      </el-card>
-    </main>
-
-    <el-dialog v-model="detailsVisible" title="商品详情" width="50%" :before-close="handleCloseDetails">
-      <el-descriptions :column="1" border>
-        <el-descriptions-item v-for="col in tableColumns" :key="col.prop" :label="col.label">
-          {{ col.prop === 'stock' && selectedProduct[col.prop] === 1000 ? '有' : selectedProduct[col.prop] }}
-        </el-descriptions-item>
-      </el-descriptions>
-    </el-dialog>
-  </div>
+        <el-dialog v-model="detailsVisible" title="商品详情" width="50%" :before-close="handleCloseDetails">
+            <el-descriptions :column="1" border>
+                <el-descriptions-item v-for="col in tableColumns" :key="col.prop" :label="col.label">
+                    {{ col.prop === 'stock' && selectedProduct[col.prop] === 1000 ? '有' : selectedProduct[col.prop] }}
+                </el-descriptions-item>
+            </el-descriptions>
+        </el-dialog>
+    </div>
 </template>
 
 <script setup>
@@ -56,17 +77,20 @@ import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { getProductsPublic } from '@/api/products/products'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const searchFields = {
-    tag: { placeholder: '搜索TAG' }, // Like
-    cpu: { placeholder: '搜索CPU' }, // Like
-    memory: { placeholder: '搜索内存' }, // Like
-    disk: { placeholder: '搜索磁盘' }, // Like
-    traffic: { placeholder: '搜索流量' }, // Like
-    portSpeed: { placeholder: '搜索端口' }, // Like
-    location: { placeholder: '搜索地点' }, // Like
-    price: { placeholder: '搜索价格' }, // Like
-    stock: { placeholder: '搜索库存' }, // >
+    tag: { placeholder: '搜索TAG 等于' },
+    cpu: { placeholder: '搜索CPU 等于' },
+    memory: { placeholder: '搜索内存 等于' },
+    disk: { placeholder: '搜索磁盘 等于' },
+    traffic: { placeholder: '搜索流量 等于' },
+    portSpeed: { placeholder: '搜索端口 等于' },
+    location: { placeholder: '搜索地点 等于' },
+    price: { placeholder: '搜索价格 等于' },
+    stock: { placeholder: '搜索库存 大于' },
 }
 
 const tableColumns = [
@@ -109,7 +133,7 @@ const getTableData = async () => {
         })
 
         if (onlyInStock.value) {
-            params.set('stock', '1')  // 设置 stock 参数为 1，表示查询库存大于等于 1 的商品
+            params.set('stock', '1')
         }
 
         const response = await getProductsPublic(params)
@@ -182,146 +206,242 @@ onMounted(() => {
 
 <style scoped>
 .product-dashboard {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #f0f6f0;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.left-section {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+    width: auto;
+    margin-right: 20px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: #2f3f2f;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.content-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
 }
 
 .sidebar {
-  width: 320px;
-  background-color: #ffffff;
-  padding: 24px;
-  overflow-y: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
+    width: 280px;
+    background-color: #ffffff;
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .site-title {
-  font-size: 28px;
-  color: #333;
-  margin-bottom: 28px;
-  text-align: center;
-  font-weight: bold;
+    font-size: 24px;
+    color: #2f3f2f;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
 }
 
 .search-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.search-input {
-  margin-bottom: 0;
+.stock-toggle {
+    display: flex;
+    background-color: #f0f6f0;
+    border-radius: 20px;
+    padding: 4px;
+    margin: 12px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
 }
 
-.stock-switch {
-  margin: 8px 0;
-  align-self: flex-start;
+.toggle-option {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    color: #2f3f2f;
+}
+
+.toggle-option.active {
+    background-color: #42b883;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(66, 184, 131, 0.2);
 }
 
 .button-group {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
 }
 
 .search-button,
 .reset-button {
-  flex: 1;
-  max-width: 45%;
+    flex: 1;
+    max-width: 45%;
 }
 
 .main-content {
-  flex-grow: 1;
-  padding: 24px;
-  overflow-y: auto;
-  background-color: #f0f2f5;
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #f0f6f0;
 }
 
 .table-card {
-  box-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.08),
-              0 3px 6px 0 rgba(0, 0, 0, 0.06),
-              0 5px 12px 4px rgba(0, 0, 0, 0.04);
-  border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
 }
 
 .pagination-wrapper {
-  padding: 16px;
-  display: flex;
-  justify-content: flex-end;
+    padding: 16px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 :deep(.el-input__wrapper) {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1) inset;
+    box-shadow: 0 0 0 1px #c0cfc0 inset;
 }
 
 :deep(.el-input__wrapper:hover) {
-  box-shadow: 0 0 0 1px #1890ff inset;
+    box-shadow: 0 0 0 1px #42b883 inset;
 }
 
 :deep(.el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(66, 184, 131, 0.2);
 }
 
 :deep(.el-switch__core) {
-  border-color: #d9d9d9;
+    border-color: #c0cfc0;
 }
 
 :deep(.el-switch.is-checked .el-switch__core) {
-  border-color: #1890ff;
-  background-color: #1890ff;
+    border-color: #42b883;
+    background-color: #42b883;
 }
 
 :deep(.el-table th) {
-  background-color: #fafafa;
-  font-weight: bold;
-  color: #333;
+    background-color: #f0f6f0;
+    font-weight: 600;
+    color: #2f3f2f;
 }
 
 :deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
-  background-color: #fafafa;
+    background-color: #f9fff9;
 }
 
 :deep(.el-table--enable-row-hover .el-table__body tr:hover > td) {
-  background-color: #e6f7ff;
+    background-color: #e8f5e8;
 }
 
 :deep(.el-button--primary) {
-  background-color: #1890ff;
-  border-color: #1890ff;
+    background-color: #42b883;
+    border-color: #42b883;
+}
+
+:deep(.el-button--primary:hover) {
+    background-color: #33a06f;
+    border-color: #33a06f;
 }
 
 :deep(.el-button--success) {
-  background-color: #52c41a;
-  border-color: #52c41a;
+    background-color: #42b883;
+    border-color: #42b883;
+}
+
+:deep(.el-button--success:hover) {
+    background-color: #33a06f;
+    border-color: #33a06f;
 }
 
 @media (max-width: 768px) {
-  .product-dashboard {
-    flex-direction: column;
-  }
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
 
-  .sidebar {
-    width: 100%;
-    max-height: 300px;
-    padding: 16px;
-  }
+    .left-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  .main-content {
-    height: calc(100vh - 300px);
-  }
+    .logo {
+        margin-bottom: 10px;
+    }
 
-  .button-group {
-    flex-direction: row;
-  }
+    .nav-links,
+    .auth-buttons {
+        margin-top: 10px;
+    }
 
-  .search-button,
-  .reset-button {
-    margin: 8px 0;
-    max-width: 48%;
-  }
+    .content-wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        max-height: 300px;
+        padding: 16px;
+    }
+
+    .main-content {
+        height: calc(100vh - 300px - 120px);
+    }
+
+    .button-group {
+        flex-direction: row;
+    }
+
+    .search-button,
+    .reset-button {
+        margin: 8px 0;
+        max-width: 48%;
+    }
+
+    .stock-toggle {
+        font-size: 12px;
+    }
+
+    .toggle-option {
+        padding: 6px 8px;
+    }
 }
 </style>
