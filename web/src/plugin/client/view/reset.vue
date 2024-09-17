@@ -17,7 +17,7 @@
         <div class="reset-password-box">
           <div class="reset-password-header">
             <img class="reset-logo" src="~@/assets/logo.png" alt="Logo" />
-            <h1 class="reset-title">{{ $GIN_VUE_ADMIN.appName }}</h1>
+            <h1 class="reset-title">ECS-SPIDERS</h1>
             <h2 class="reset-subtitle">密码重置</h2>
           </div>
           <el-form ref="resetPasswordForm" :model="resetFormData" :rules="resetFormRules" class="reset-form"

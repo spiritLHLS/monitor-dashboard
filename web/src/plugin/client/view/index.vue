@@ -18,7 +18,7 @@
           <div class="login-box">
             <div class="login-header">
               <img class="login-logo" src="~@/assets/logo.png" alt="Logo" />
-              <h1 class="login-title">{{ $GIN_VUE_ADMIN.appName }}</h1>
+              <h1 class="login-title">ECS-SPIDERS</h1>
             </div>
             <el-form ref="loginForm" :model="currentFormData" :rules="formRules" class="login-form"
               @keyup.enter="submitForm">
