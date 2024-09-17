@@ -1,80 +1,75 @@
 <template>
-  <div class="reset-password-container">
-    <div class="reset-password-box">
-      <div class="reset-password-header">
-        <img class="reset-logo" src="~@/assets/logo.png" alt="Logo" />
-        <h1 class="reset-title">{{ $GIN_VUE_ADMIN.appName }}</h1>
-        <h2 class="reset-subtitle">密码重置</h2>
+  <div class="app-container">
+    <header class="top-bar">
+      <div class="left-section">
+        <img src="https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png" alt="Logo" class="logo">
+        <nav class="nav-links">
+          <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
+          <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
+          <el-button type="primary" @click="openExternalLink('https://www.spiritlhl.net')">一键虚拟化项目</el-button>
+          <el-button type="primary" @click="router.push('/home')">回到监控页面</el-button>
+        </nav>
       </div>
-      <el-form
-        ref="resetPasswordForm"
-        :model="resetFormData"
-        :rules="resetFormRules"
-        class="reset-form"
-        @keyup.enter="submitForm"
-      >
-        <el-form-item prop="tg_id">
-          <el-input 
-            v-model="resetFormData.tg_id" 
-            placeholder="请输入TGID"
-            prefix-icon="ChatDotSquare"
-          />
-        </el-form-item>
+    </header>
 
-        <el-form-item prop="code">
-          <div class="tg-code-container">
-            <el-input
-              v-model="resetFormData.code"
-              placeholder="请输入TG验证码"
-              class="tg-code-input"
-            />
-            <el-button type="primary" @click="sendTGCode" class="send-tg-code-btn">
-              发送验证码
-            </el-button>
+    <div class="content-wrapper">
+      <div class="reset-password-container">
+        <div class="reset-password-box">
+          <div class="reset-password-header">
+            <img class="reset-logo" src="~@/assets/logo.png" alt="Logo" />
+            <h1 class="reset-title">{{ $GIN_VUE_ADMIN.appName }}</h1>
+            <h2 class="reset-subtitle">密码重置</h2>
           </div>
-        </el-form-item>
+          <el-form ref="resetPasswordForm" :model="resetFormData" :rules="resetFormRules" class="reset-form"
+            @keyup.enter="submitForm">
+            <el-form-item prop="tg_id">
+              <el-input v-model="resetFormData.tg_id" placeholder="请输入TGID" prefix-icon="ChatDotSquare" />
+            </el-form-item>
 
-        <el-form-item prop="new_password">
-          <el-input
-            v-model="resetFormData.new_password"
-            :type="lock === 'lock' ? 'password' : 'text'"
-            placeholder="请输入新密码"
-            prefix-icon="Lock"
-          >
-            <template #suffix>
-              <el-icon @click="changeLock" class="password-icon">
-                <component :is="lock" />
-              </el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
+            <el-form-item prop="code">
+              <div class="tg-code-container">
+                <el-input v-model="resetFormData.code" placeholder="请输入TG验证码" class="tg-code-input" />
+                <el-button type="primary" @click="sendTGCode" class="send-tg-code-btn">
+                  发送验证码
+                </el-button>
+              </div>
+            </el-form-item>
 
-        <el-form-item prop="re_password">
-          <el-input
-            v-model="resetFormData.re_password"
-            :type="lock === 'lock' ? 'password' : 'text'"
-            placeholder="请再次输入新密码"
-            prefix-icon="Lock"
-          >
-            <template #suffix>
-              <el-icon @click="changeLock" class="password-icon">
-                <component :is="lock" />
-              </el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
+            <el-form-item prop="new_password">
+              <el-input v-model="resetFormData.new_password" :type="lock === 'lock' ? 'password' : 'text'"
+                placeholder="请输入新密码" prefix-icon="Lock">
+                <template #suffix>
+                  <el-icon @click="changeLock" class="password-icon">
+                    <component :is="lock" />
+                  </el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
 
-        <el-form-item>
-          <el-button type="primary" @click="submitForm" class="submit-btn">
-            确认重置
-          </el-button>
-        </el-form-item>
-        <div class="form-footer">
-        <el-button type="text" @click="goToLoginPage" class="back-to-login">
-          返回登录
-        </el-button>
+            <el-form-item prop="re_password">
+              <el-input v-model="resetFormData.re_password" :type="lock === 'lock' ? 'password' : 'text'"
+                placeholder="请再次输入新密码" prefix-icon="Lock">
+                <template #suffix>
+                  <el-icon @click="changeLock" class="password-icon">
+                    <component :is="lock" />
+                  </el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button type="primary" @click="submitForm" class="submit-btn">
+                确认重置
+              </el-button>
+            </el-form-item>
+            <div class="form-footer">
+              <el-button link @click="goToLoginPage" class="back-to-login">
+                返回登录
+              </el-button>
+            </div>
+          </el-form>
+        </div>
       </div>
-      </el-form>
     </div>
   </div>
 </template>
@@ -84,6 +79,7 @@ import { TGRGetCode, TGRChangePassword } from "@/plugin/client/api/api";
 import { reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
+
 const router = useRouter();
 const resetFormData = reactive({
   tg_id: "",
@@ -115,6 +111,7 @@ const resetFormRules = reactive({
 const changeLock = () => {
   lock.value = lock.value === "lock" ? "unlock" : "lock";
 };
+
 const submitForm = () => {
   if (resetPasswordForm.value) {
     resetPasswordForm.value.validate((valid) => {
@@ -147,6 +144,7 @@ const submitForm = () => {
     });
   }
 };
+
 const sendTGCode = () => {
   const tg_id = resetFormData.tg_id;
   TGRGetCode({ tg_id })
@@ -170,23 +168,71 @@ const sendTGCode = () => {
 const goToLoginPage = () => {
   router.push("/login");
 };
+
+const openExternalLink = (url) => {
+  window.open(url, '_blank');
+};
 </script>
 
 <style scoped>
-.reset-password-container {
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #f0f6f0;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #e8f5e8;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 45px;
+  width: auto;
+  margin-right: 25px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-links .el-button {
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.content-wrapper {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+}
+
+.reset-password-container {
+  width: 100%;
+  max-width: 420px;
 }
 
 .reset-password-box {
-  width: 400px;
-  padding: 40px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 10px;
+  background-color: #ffffff;
+  border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 40px;
 }
 
 .reset-password-header {
@@ -195,14 +241,15 @@ const goToLoginPage = () => {
 }
 
 .reset-logo {
-  width: 80px;
-  margin-bottom: 16px;
+  width: 90px;
+  margin-bottom: 20px;
 }
 
 .reset-title {
-  font-size: 24px;
-  color: #333;
+  font-size: 28px;
+  color: #42b883;
   margin: 0 0 10px;
+  font-weight: 600;
 }
 
 .reset-subtitle {
@@ -212,36 +259,104 @@ const goToLoginPage = () => {
 }
 
 .reset-form :deep(.el-input__wrapper) {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
 .reset-form :deep(.el-input__wrapper):hover,
 .reset-form :deep(.el-input__wrapper):focus {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(66, 184, 131, 0.1);
 }
 
 .password-icon {
   cursor: pointer;
+  color: #42b883;
 }
 
 .tg-code-container {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .tg-code-input {
   flex: 1;
-  margin-right: 10px;
 }
 
 .send-tg-code-btn {
   white-space: nowrap;
+  border-radius: 8px;
 }
 
 .submit-btn {
   width: 100%;
   padding: 12px 0;
   font-size: 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.form-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.back-to-login {
+  font-size: 14px;
+  color: #42b883;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.back-to-login:hover {
+  color: #33a06f;
+}
+
+:deep(.el-button--primary) {
+  background-color: #42b883;
+  border-color: #42b883;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #33a06f;
+  border-color: #33a06f;
+}
+
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .left-section {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .logo {
+    margin-bottom: 15px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .nav-links .el-button {
+    flex: 1 0 calc(50% - 5px);
+    margin-bottom: 5px;
+  }
+
+  .reset-password-container {
+    padding: 20px 15px;
+  }
+
+  .reset-password-box {
+    padding: 30px 20px;
+  }
 }
 </style>

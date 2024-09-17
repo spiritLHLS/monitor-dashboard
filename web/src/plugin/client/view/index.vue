@@ -1,121 +1,136 @@
 <template>
-  <div class="login-container">
-    <div class="login-box">
-      <div class="login-header">
-        <img class="login-logo" src="~@/assets/logo.png" alt="Logo" />
-        <h1 class="login-title">{{ $GIN_VUE_ADMIN.appName }}</h1>
-      </div>
-      <el-form
-        ref="loginForm"
-        :model="currentFormData"
-        :rules="formRules"
-        class="login-form"
-        @keyup.enter="submitForm"
-      >
-        <el-form-item prop="username">
-          <el-input 
-            v-model="currentFormData.username" 
-            placeholder="请输入用户名"
-            prefix-icon="User"
-          />
-        </el-form-item>
-
-        <el-form-item prop="password">
-          <el-input
-            v-model="currentFormData.password"
-            :type="lock === 'lock' ? 'password' : 'text'"
-            placeholder="请输入密码"
-            prefix-icon="Lock"
-          >
-            <template #suffix>
-              <el-icon @click="changeLock" class="password-icon">
-                <component :is="lock" />
-              </el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <el-form-item prop="captcha">
-          <div class="captcha-container">
-            <el-input
-              v-model="currentFormData.captcha"
-              placeholder="请输入验证码"
-              class="captcha-input"
-            />
-            <img
-              v-if="picPath"
-              :src="picPath"
-              alt="验证码"
-              @click="loginVerify"
-              class="captcha-image"
-            />
-          </div>
-        </el-form-item>
-
-        <template v-if="registerType">
-          <el-form-item prop="tg_id">
-            <el-input 
-              v-model="currentFormData.tg_id" 
-              placeholder="请输入TGID"
-              prefix-icon="ChatDotSquare"
-            />
-          </el-form-item>
-
-          <el-form-item prop="code">
-            <div class="tg-code-container">
-              <el-input
-                v-model="currentFormData.code"
-                placeholder="请输入TG验证码"
-                class="tg-code-input"
-              />
-              <el-button type="primary" @click="sendTGCode" class="send-tg-code-btn">
-                发送验证码
-              </el-button>
-            </div>
-          </el-form-item>
-        </template>
-
-        <el-form-item>
-          <el-button type="primary" @click="submitForm" class="submit-btn">
-            {{ registerType ? '注册' : '登录' }}
-          </el-button>
-        </el-form-item>
-
-        <div class="form-footer">
-          <div class="toggle-container">
-            <span
-              :class="['toggle-option', { active: !registerType }]"
-              @click="registerType = false"
-            >
-              登录
-            </span>
-            <span
-              :class="['toggle-option', { active: registerType }]"
-              @click="registerType = true"
-            >
-              注册
-            </span>
-          </div>
-          <el-button type="text" @click="goToResetPage" class="forgot-password">
-            忘记密码？
-          </el-button>
+  <Transition name="fade" mode="out-in">
+    <div class="app-container">
+      <header class="top-bar">
+        <div class="left-section">
+          <img src="https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png" alt="Logo" class="logo">
+          <nav class="nav-links">
+            <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
+            <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
+            <el-button type="primary" @click="openExternalLink('https://www.spiritlhl.net')">一键虚拟化项目</el-button>
+            <el-button type="primary" @click="router.push('/home')">回到监控页面</el-button>
+          </nav>
         </div>
-      </el-form>
+      </header>
+
+      <div class="content-wrapper">
+        <div class="login-container">
+          <div class="login-box">
+            <div class="login-header">
+              <img class="login-logo" src="~@/assets/logo.png" alt="Logo" />
+              <h1 class="login-title">{{ $GIN_VUE_ADMIN.appName }}</h1>
+            </div>
+            <el-form ref="loginForm" :model="currentFormData" :rules="formRules" class="login-form"
+              @keyup.enter="submitForm">
+              <el-form-item prop="username">
+                <el-input v-model="currentFormData.username" placeholder="请输入用户名" prefix-icon="User"
+                  @keyup.enter="focusNextInput($event, passwordInput)" />
+              </el-form-item>
+
+              <el-form-item prop="password">
+                <el-input ref="passwordInput" v-model="currentFormData.password"
+                  :type="lock === 'lock' ? 'password' : 'text'" placeholder="请输入密码" prefix-icon="Lock"
+                  @keyup.enter="focusNextInput($event, captchaInput)">
+                  <template #suffix>
+                    <el-icon @click="changeLock" class="password-icon">
+                      <component :is="lock" />
+                    </el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
+
+              <el-form-item prop="captcha">
+                <div class="captcha-container">
+                  <el-input ref="captchaInput" v-model="currentFormData.captcha" placeholder="请输入验证码"
+                    class="captcha-input" />
+                  <img v-if="picPath" :src="picPath" alt="验证码" @click="loginVerify" class="captcha-image" />
+                </div>
+              </el-form-item>
+
+              <template v-if="registerType">
+                <el-form-item prop="tg_id">
+                  <el-input v-model="currentFormData.tg_id" placeholder="请输入TGID" prefix-icon="ChatDotSquare" />
+                </el-form-item>
+
+                <el-form-item prop="code">
+                  <div class="tg-code-container">
+                    <el-input v-model="currentFormData.code" placeholder="请输入TG验证码" class="tg-code-input" />
+                    <el-button type="primary" @click="sendTGCode" class="send-tg-code-btn">
+                      发送验证码
+                    </el-button>
+                  </div>
+                </el-form-item>
+              </template>
+
+              <el-form-item>
+                <el-checkbox v-model="rememberMe">记住密码</el-checkbox>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button type="primary" @click="submitForm" class="submit-btn" :loading="loading">
+                  {{ registerType ? '注册' : '登录' }}
+                </el-button>
+              </el-form-item>
+
+              <div class="form-footer">
+                <div class="toggle-container">
+                  <span :class="['toggle-option', { active: !registerType }]" @click="registerType = false">
+                    登录
+                  </span>
+                  <span :class="['toggle-option', { active: registerType }]" @click="registerType = true">
+                    注册
+                  </span>
+                </div>
+                <el-button link @click="goToResetPage" class="forgot-password">
+                  忘记密码？
+                </el-button>
+              </div>
+            </el-form>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup>
 import { captcha } from "@/api/user";
 import { TGRGetCode } from "@/plugin/client/api/api";
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch, onMounted, computed } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/pinia/modules/user";
 
 const router = useRouter();
+const userStore = useUserStore();
 
-// 对用户的输入强制要求符合要求
+const loginForm = ref(null);
+const passwordInput = ref(null);
+const captchaInput = ref(null);
+
+const loginFormData = reactive({
+  username: "",
+  password: "",
+  captcha: "",
+  captchaId: "",
+});
+
+const registerFormData = reactive({
+  username: "",
+  password: "",
+  captcha: "",
+  captchaId: "",
+  tg_id: "",
+  code: "",
+});
+
+const lock = ref("lock");
+const picPath = ref("");
+const registerType = ref(false);
+const currentFormData = ref(loginFormData);
+const loading = ref(false);
+const rememberMe = ref(false);
+
 const checkUsername = (rule, value, callback) => {
   if (value.length < 5) {
     return callback(new Error("用户名必须大于或等于5个字符"));
@@ -132,53 +147,34 @@ const checkPassword = (rule, value, callback) => {
   }
 };
 
-const loginForm = ref(null);
-const loginFormData = reactive({
-  username: "admin",
-  password: "123456",
-  captcha: "",
-  captchaId: "",
-});
-
-const registerFormData = reactive({
-  username: "admin",
-  password: "123456",
-  captcha: "",
-  captchaId: "",
-  tg_id: "",
-  code: "",
-});
-
-const lock = ref("lock");
-const picPath = ref("");
-const registerType = ref(false);
-const currentFormData = ref(loginFormData);
-
-const rules = reactive({
+const formRules = computed(() => ({
   username: [{ validator: checkUsername, trigger: "blur" }],
   password: [{ validator: checkPassword, trigger: "blur" }],
   captcha: [
     { required: true, message: "请输入验证码", trigger: "blur" },
     { message: "验证码格式不正确", trigger: "blur" },
   ],
-  tg_id: [{ required: true, message: "请输入TG ID", trigger: "blur", visible: false }],
-  code: [{ required: true, message: "请输入TG验证码", trigger: "blur", visible: false }],
-});
+  ...(registerType.value
+    ? {
+      tg_id: [{ required: true, message: "请输入TG ID", trigger: "blur" }],
+      code: [{ required: true, message: "请输入TG验证码", trigger: "blur" }],
+    }
+    : {}),
+}));
 
-const formRules = ref(rules);
-const userStore = useUserStore();
-
-const loginVerify = () => {
-  captcha({}).then((ele) => {
-    rules.captcha[1].max = ele.data.captchaLength;
-    rules.captcha[1].min = ele.data.captchaLength;
+const loginVerify = async () => {
+  try {
+    const ele = await captcha({});
+    formRules.value.captcha[1].max = ele.data.captchaLength;
+    formRules.value.captcha[1].min = ele.data.captchaLength;
     picPath.value = ele.data.picPath;
     currentFormData.value.captchaId = ele.data.captchaId;
     registerFormData.captchaId = ele.data.captchaId;
-  });
+  } catch (error) {
+    console.error('Failed to fetch captcha:', error);
+    ElMessage.error('获取验证码失败，请刷新页面重试');
+  }
 };
-
-loginVerify();
 
 const changeLock = () => {
   lock.value = lock.value === "lock" ? "unlock" : "lock";
@@ -187,6 +183,14 @@ const changeLock = () => {
 const login = async () => {
   try {
     await userStore.UserTgLogin(loginFormData);
+    if (rememberMe.value) {
+      localStorage.setItem('rememberedUser', JSON.stringify({
+        username: loginFormData.username,
+        password: loginFormData.password
+      }));
+    } else {
+      localStorage.removeItem('rememberedUser');
+    }
     return true;
   } catch (error) {
     return false;
@@ -203,41 +207,50 @@ const register = async () => {
 };
 
 const submitForm = async () => {
-  const form = loginForm.value;
-  const validationResult = await new Promise((resolve) => {
-    form.validate((valid) => {
-      resolve(valid);
+  loading.value = true;
+  try {
+    const form = loginForm.value;
+    const validationResult = await new Promise((resolve) => {
+      form.validate((valid) => {
+        resolve(valid);
+      });
     });
-  });
-  if (validationResult) {
-    let flag;
-    if (registerType.value) {
-      flag = await register();
-      if (flag) {
+    if (validationResult) {
+      let flag;
+      if (registerType.value) {
+        flag = await register();
+        if (flag) {
+          ElMessage({
+            type: "success",
+            message: "注册成功，正在跳转后台界面...",
+            showClose: true,
+          });
+        }
+      } else {
+        flag = await login();
+      }
+      if (!flag) {
         ElMessage({
-          type: "success",
-          message: "注册成功，正在跳转后台界面...",
-          showClose: true,
+          message: registerType.value ? '注册失败，请稍后重试' : '登录失败，请检查用户名和密码',
+          type: 'error',
+          duration: 3000
         });
+        loginVerify();
+        registerType.value = false;
       }
     } else {
-      flag = await login();
-    }
-    if (!flag) {
+      ElMessage({
+        type: "error",
+        message: "请正确填写登录信息",
+        showClose: true,
+      });
       loginVerify();
-      registerType.value = false;
     }
-  } else {
-    ElMessage({
-      type: "error",
-      message: "请正确填写登录信息",
-      showClose: true,
-    });
-    loginVerify();
+  } finally {
+    loading.value = false;
   }
 };
 
-// TG验证码发送
 const sendTGCode = () => {
   const tg_id = registerFormData.tg_id;
   TGRGetCode({ tg_id })
@@ -258,99 +271,178 @@ const sendTGCode = () => {
     });
 };
 
-// 跳转密码重置界面
 const goToResetPage = () => {
   router.push("/resetpwd");
 };
 
-// 监听注册类型的变化，切换表单数据
-watch(registerType, (newValue, oldValue) => {
-  if (newValue === true && oldValue === false) {
-    currentFormData.value = registerFormData;
+const openExternalLink = (url) => {
+  window.open(url, '_blank');
+};
+
+const focusNextInput = (event, nextRef) => {
+  if (event.key === 'Enter') {
+    nextRef.value.focus();
   }
+};
+
+watch(registerType, (newValue) => {
+  currentFormData.value = newValue ? registerFormData : loginFormData;
+});
+
+onMounted(() => {
+  loginVerify();
+  const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
+  if (rememberedUser) {
+    loginFormData.username = rememberedUser.username;
+    loginFormData.password = rememberedUser.password;
+    rememberMe.value = true;
+  }
+});
+
+defineExpose({
+  submitForm,
+  loginVerify,
+  goToResetPage
 });
 </script>
 
 <style scoped>
-.login-container {
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #f0f6f0;
+  color: #2c3e50;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #e8f5e8;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 45px;
+  width: auto;
+  margin-right: 25px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-links .el-button {
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.content-wrapper {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #f0f6f0;
+  padding: 40px 20px;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 420px;
 }
 
 .login-box {
-  width: 400px;
-  padding: 40px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 10px;
+  background-color: #ffffff;
+  border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 40px;
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 .login-logo {
-  width: 80px;
-  margin-bottom: 16px;
+  width: 90px;
+  margin-bottom: 20px;
 }
 
 .login-title {
-  font-size: 24px;
-  color: #333;
+  font-size: 28px;
+  color: #42b883;
   margin: 0;
+  font-weight: 600;
 }
 
 .login-form :deep(.el-input__wrapper) {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
 .login-form :deep(.el-input__wrapper):hover,
 .login-form :deep(.el-input__wrapper):focus {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(66, 184, 131, 0.1);
 }
 
 .password-icon {
   cursor: pointer;
+  color: #42b883;
 }
 
 .captcha-container,
 .tg-code-container {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .captcha-input,
 .tg-code-input {
   flex: 1;
-  margin-right: 10px;
 }
 
 .captcha-image {
   height: 40px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.captcha-image:hover {
+  opacity: 0.8;
 }
 
 .send-tg-code-btn {
   white-space: nowrap;
+  border-radius: 8px;
 }
 
 .submit-btn {
   width: 100%;
   padding: 12px 0;
   font-size: 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
 .form-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 .toggle-container {
@@ -364,18 +456,92 @@ watch(registerType, (newValue, oldValue) => {
   padding: 8px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 14px;
 }
 
 .toggle-option.active {
-  background-color: #409EFF;
+  background-color: #42b883;
   color: white;
 }
 
 .forgot-password {
   font-size: 14px;
+  color: #42b883;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-:deep(.el-button--text) {
-  color: #409EFF;
+.forgot-password:hover {
+  color: #33a06f;
+}
+
+:deep(.el-button.is-link) {
+  color: #42b883;
+}
+
+:deep(.el-button--primary) {
+  background-color: #42b883;
+  border-color: #42b883;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #33a06f;
+  border-color: #33a06f;
+}
+
+:deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  background-color: #42b883;
+  border-color: #42b883;
+}
+
+:deep(.el-checkbox__label) {
+  color: #2c3e50;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .left-section {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .logo {
+    margin-bottom: 15px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .nav-links .el-button {
+    flex: 1 0 calc(50% - 5px);
+    margin-bottom: 5px;
+  }
+
+  .login-container {
+    padding: 20px 15px;
+  }
+
+  .login-box {
+    padding: 30px 20px;
+  }
 }
 </style>

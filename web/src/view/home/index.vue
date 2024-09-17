@@ -101,7 +101,7 @@ const searchFields = {
 }
 
 const tableColumns = [
-    { label: 'TAG', prop: 'tag', minWidth: '120', sortable: true },
+    { label: '商家', prop: 'tag', minWidth: '120', sortable: true },
     { label: 'CPU', prop: 'cpu', minWidth: '100', sortable: true },
     { label: '内存', prop: 'memory', minWidth: '100', sortable: true },
     { label: '磁盘', prop: 'disk', minWidth: '100', sortable: true },

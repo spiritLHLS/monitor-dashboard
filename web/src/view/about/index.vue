@@ -60,6 +60,10 @@ export default {
         })
     }
 
+    const openExternalLink = (url) => {
+      window.open(url, '_blank')
+    }
+
     onMounted(() => {
       fetchAnnouncement()
     })
@@ -68,7 +72,8 @@ export default {
       router,
       isFetching,
       error,
-      announcement
+      announcement,
+      openExternalLink
     }
   }
 }
