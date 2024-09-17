@@ -1,18 +1,15 @@
 package products
 
 import (
-	
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/products"
-    productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/products"
+	productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-type ProductsApi struct {}
-
-
+type ProductsApi struct{}
 
 // CreateProducts 创建products表
 // @Tags Products
@@ -32,11 +29,11 @@ func (pdApi *ProductsApi) CreateProducts(c *gin.Context) {
 	}
 	err = pdService.CreateProducts(&pd)
 	if err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
-		response.FailWithMessage("创建失败:" + err.Error(), c)
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		response.FailWithMessage("创建失败:"+err.Error(), c)
 		return
 	}
-    response.OkWithMessage("创建成功", c)
+	response.OkWithMessage("创建成功", c)
 }
 
 // DeleteProducts 删除products表
@@ -52,8 +49,8 @@ func (pdApi *ProductsApi) DeleteProducts(c *gin.Context) {
 	ID := c.Query("ID")
 	err := pdService.DeleteProducts(ID)
 	if err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
-		response.FailWithMessage("删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("删除成功", c)
@@ -71,8 +68,8 @@ func (pdApi *ProductsApi) DeleteProductsByIds(c *gin.Context) {
 	IDs := c.QueryArray("IDs[]")
 	err := pdService.DeleteProductsByIds(IDs)
 	if err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
-		response.FailWithMessage("批量删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		response.FailWithMessage("批量删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("批量删除成功", c)
@@ -96,8 +93,8 @@ func (pdApi *ProductsApi) UpdateProducts(c *gin.Context) {
 	}
 	err = pdService.UpdateProducts(pd)
 	if err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
-		response.FailWithMessage("更新失败:" + err.Error(), c)
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		response.FailWithMessage("更新失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("更新成功", c)
@@ -116,8 +113,8 @@ func (pdApi *ProductsApi) FindProducts(c *gin.Context) {
 	ID := c.Query("ID")
 	repd, err := pdService.GetProducts(ID)
 	if err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
-		response.FailWithMessage("查询失败:" + err.Error(), c)
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		response.FailWithMessage("查询失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithData(repd, c)
@@ -141,16 +138,16 @@ func (pdApi *ProductsApi) GetProductsList(c *gin.Context) {
 	}
 	list, total, err := pdService.GetProductsInfoList(pageInfo)
 	if err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败:" + err.Error(), c)
-        return
-    }
-    response.OkWithDetailed(response.PageResult{
-        List:     list,
-        Total:    total,
-        Page:     pageInfo.Page,
-        PageSize: pageInfo.PageSize,
-    }, "获取成功", c)
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败:"+err.Error(), c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
 }
 
 // GetProductsPublic 不需要鉴权的products表接口
@@ -162,10 +159,39 @@ func (pdApi *ProductsApi) GetProductsList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /pd/getProductsPublic [get]
 func (pdApi *ProductsApi) GetProductsPublic(c *gin.Context) {
-    // 此接口不需要鉴权
-    // 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
-    pdService.GetProductsPublic()
-    response.OkWithDetailed(gin.H{
-       "info": "不需要鉴权的products表接口信息",
-    }, "获取成功", c)
+	var pageInfo productsReq.PublicProductsSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	list, total, err := pdService.GetProductsPublic(pageInfo)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败:"+err.Error(), c)
+		return
+	}
+	// 转换信息，避免输出敏感信息
+	publicList := make([]productsReq.PublicProductsSearch, len(list))
+	for i, product := range list {
+		publicList[i] = productsReq.PublicProductsSearch{
+			Tag:        product.Tag,
+			Cpu:        product.Cpu,
+			Memory:     product.Memory,
+			Disk:       product.Disk,
+			Traffic:    product.Traffic,
+			PortSpeed:  product.PortSpeed,
+			Location:   product.Location,
+			Price:      product.Price,
+			Additional: product.Additional,
+			Url:        product.Url,
+			Stock:      product.Stock,
+		}
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     publicList,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
 }

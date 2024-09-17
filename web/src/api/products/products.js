@@ -102,9 +102,10 @@ export const getProductsList = (params) => {
 // @Param data query productsReq.ProductsSearch true "分页获取products表列表"
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /pd/getProductsPublic [get]
-export const getProductsPublic = () => {
+export const getProductsPublic = (params) => {
   return service({
     url: '/pd/getProductsPublic',
     method: 'get',
+    params
   })
 }

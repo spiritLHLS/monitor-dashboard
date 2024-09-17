@@ -6,7 +6,7 @@ import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 Nprogress.configure({ showSpinner: false, ease: 'ease', speed: 500 })
 
-const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd']
+const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home']
 
 const getRouter = async(userStore) => {
   const routerStore = useRouterStore()
@@ -24,7 +24,6 @@ const removeLoading = () => {
     element.remove();
   }
 }
-
 
 async function handleKeepAlive(to) {
   if (to.matched.some(item => item.meta.keepAlive)) {

@@ -8,6 +8,7 @@ import (
 	ecsusersReq "github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gofrs/uuid/v5"
+	"gorm.io/gorm"
 )
 
 type EcsUsersService struct{}
@@ -108,70 +109,72 @@ func (eusrService *EcsUsersService) GetEcsUsers(ID string) (eusr ecsusers.EcsUse
 }
 
 // GetEcsUsersInfoList 分页获取订阅用户记录
-// Author [piexlmax](https://github.com/piexlmax)
+// 参数: info ecsusersReq.EcsUsersSearch - 包含搜索条件和分页信息的结构体
+// 返回: list []ecsusers.EcsUsers - 订阅用户列表
+//
+//	total int64 - 总记录数
+//	err error - 错误信息
 func (eusrService *EcsUsersService) GetEcsUsersInfoList(info ecsusersReq.EcsUsersSearch) (list []ecsusers.EcsUsers, total int64, err error) {
+	// 计算分页参数
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-	// 创建db
+	// 创建数据库查询对象
 	db := global.GVA_DB.Model(&ecsusers.EcsUsers{})
-	var eusrs []ecsusers.EcsUsers
-	// 如果有条件搜索 下方会自动创建搜索语句
+	// 构建查询条件
+	db = eusrService.buildQueryConditions(db, info)
+	// 获取总记录数
+	if err = db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	// 应用分页
+	if limit > 0 {
+		db = db.Limit(limit).Offset(offset)
+	}
+	// 执行查询
+	var ecsUsersList []ecsusers.EcsUsers
+	err = db.Find(&ecsUsersList).Error
+	return ecsUsersList, total, err
+}
+
+// buildQueryConditions 构建查询条件
+// 参数: db *gorm.DB - 数据库查询对象
+//
+//	info ecsusersReq.EcsUsersSearch - 搜索条件
+//
+// 返回: *gorm.DB - 添加了查询条件的数据库查询对象
+func (eusrService *EcsUsersService) buildQueryConditions(db *gorm.DB, info ecsusersReq.EcsUsersSearch) *gorm.DB {
+	// 时间范围查询
 	if info.StartCreatedAt != nil && info.EndCreatedAt != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", info.StartCreatedAt, info.EndCreatedAt)
 	}
-	if info.Username != "" {
-		db = db.Where("username LIKE ?", "%"+info.Username+"%")
+	// 字符串字段模糊查询
+	likeFields := map[string]string{
+		"username":       info.Username,
+		"nickname":       info.Nickname,
+		"password":       info.Password,
+		"push_channel1":  info.PushChannel1,
+		"push_channel2":  info.PushChannel2,
+		"push_channel3":  info.PushChannel3,
+		"tg_id":          info.TGID,
+		"qq_number":      info.QQNumber,
+		"we_chat_number": info.WeChatNumber,
+		"email":          info.Email,
+		"additional":     info.Additional,
 	}
-	if info.Nickname != "" {
-		db = db.Where("nickname LIKE ?", "%"+info.Nickname+"%")
+	for field, value := range likeFields {
+		if value != "" {
+			db = db.Where(field+" LIKE ?", "%"+value+"%")
+		}
 	}
-	if info.Password != "" {
-		db = db.Where("password LIKE ?", "%"+info.Password+"%")
-	}
+	// 布尔值精确匹配
 	if info.IsFrozen != nil {
 		db = db.Where("is_frozen = ?", info.IsFrozen)
 	}
-	if info.PushChannel1 != "" {
-		db = db.Where("push_channel1 LIKE ?", "%"+info.PushChannel1+"%")
-	}
-	if info.PushChannel2 != "" {
-		db = db.Where("push_channel2 LIKE ?", "%"+info.PushChannel2+"%")
-	}
-	if info.PushChannel3 != "" {
-		db = db.Where("push_channel3 LIKE ?", "%"+info.PushChannel3+"%")
-	}
-	if info.TGID != "" {
-		db = db.Where("tg_id LIKE ?", "%"+info.TGID+"%")
-	}
-	if info.QQNumber != "" {
-		db = db.Where("qq_number LIKE ?", "%"+info.QQNumber+"%")
-	}
-	if info.WeChatNumber != "" {
-		db = db.Where("we_chat_number LIKE ?", "%"+info.WeChatNumber+"%")
-	}
-	if info.Email != "" {
-		db = db.Where("email LIKE ?", "%"+info.Email+"%")
-	}
-	if info.Additional != "" {
-		db = db.Where("additional LIKE ?", "%"+info.Additional+"%")
-	}
+	// 等级范围查询
 	if info.StartLevel != nil && info.EndLevel != nil {
-		db = db.Where("level BETWEEN ? AND ? ", info.StartLevel, info.EndLevel)
+		db = db.Where("level BETWEEN ? AND ?", info.StartLevel, info.EndLevel)
 	}
-	err = db.Count(&total).Error
-	if err != nil {
-		return
-	}
-	if limit != 0 {
-		db = db.Limit(limit).Offset(offset)
-	}
-	err = db.Find(&eusrs).Error
-	return eusrs, total, err
-}
-
-func (eusrService *EcsUsersService) GetEcsUsersPublic() {
-	// 此方法为获取数据源定义的数据
-	// 请自行实现
+	return db
 }
 
 // AdminChangePassword 方法介绍
@@ -204,4 +207,9 @@ func (eusrService *EcsUsersService) Login(username, password string) (user ecsus
 func (eusrService *EcsUsersService) GetUserInfo(id uint) (user ecsusers.EcsUsers, err error) {
 	err = global.GVA_DB.First(&user, id).Error
 	return
+}
+
+func (eusrService *EcsUsersService) GetEcsUsersPublic() {
+	// 此方法为获取数据源定义的数据
+	// 请自行实现
 }

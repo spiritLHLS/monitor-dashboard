@@ -35,6 +35,11 @@ const routes = [{
   component: () => import('@/plugin/client/view/reset.vue')
 },
 {
+  path: '/home',
+  name: 'Home',
+  component: () => import('@/view/home/index.vue')
+},
+{
   path: '/:catchAll(.*)',
   meta: {
     closeTab: true,
