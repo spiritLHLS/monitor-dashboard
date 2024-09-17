@@ -108,7 +108,7 @@ const tableColumns = [
 ]
 
 const searchInfo = ref(Object.fromEntries(Object.keys(searchFields).map(key => [key, ''])))
-const onlyInStock = ref(true)
+const onlyInStock = ref(false)
 const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
@@ -118,6 +118,14 @@ const sortBy = ref('stock')
 const sortOrder = ref('desc')
 const detailsVisible = ref(false)
 const selectedProduct = ref({})
+
+// 处理富文本内容的函数
+const processData = (data) => {
+  return data
+    .replace(/<[^>]+>/g, '') // 移除所有HTML标签
+    .trim() // 去掉前后空格
+    .replace(/\s+/g, ' '); // 将多个空格替换为单个空格
+}
 
 const getTableData = async () => {
     loading.value = true
@@ -133,7 +141,7 @@ const getTableData = async () => {
         })
 
         if (onlyInStock.value) {
-            params.set('stock', '1')
+            params.set('stock', '0')
         }
 
         const response = await getProductsPublic(params)
@@ -158,7 +166,7 @@ const handleSearch = () => {
 
 const handleReset = () => {
     Object.keys(searchInfo.value).forEach(key => searchInfo.value[key] = '')
-    onlyInStock.value = true
+    onlyInStock.value = false
     page.value = 1
     pageSize.value = 10
     sortBy.value = 'stock'
@@ -187,7 +195,10 @@ const openUrl = (url) => {
 }
 
 const showDetails = (row) => {
-    selectedProduct.value = row
+    selectedProduct.value = {
+        ...row,
+        additional: processData(row.additional),
+    }
     detailsVisible.value = true
 }
 

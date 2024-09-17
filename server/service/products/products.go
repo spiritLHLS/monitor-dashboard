@@ -213,7 +213,7 @@ func (pdService *ProductsService) buildPublicQueryConditions(db *gorm.DB, info p
 		db = db.Where("cpu <> ?", "")
 		db = db.Where("memory <> ?", "")
 		db = db.Where("disk <> ?", "")
-		db = db.Where("price <> ?", "")
+		db = db.Where("price <> ? AND price IS NOT NULL", "").Order("LENGTH(tag) ASC")
 	}
 	return db
 }
