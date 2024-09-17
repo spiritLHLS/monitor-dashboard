@@ -68,11 +68,18 @@ func (s *info) GetInfoInfoList(info request.InfoSearch) (list []model.Info, tota
 	err = db.Find(&infos).Error
 	return infos, total, err
 }
+
 func (s *info) GetInfoDataSource() (res map[string][]map[string]any, err error) {
 	res = make(map[string][]map[string]any)
-
 	userID := make([]map[string]any, 0)
 	global.GVA_DB.Table("sys_users").Select("nick_name as label,id as value").Scan(&userID)
 	res["userID"] = userID
+	return
+}
+
+// GetHomeAboutInfo 根据标题获取公告记录
+// Author [piexlmax](https://github.com/piexlmax)
+func (s *info) GetHomeAboutInfo() (info model.Info, err error) {
+	err = global.GVA_DB.Where("title LIKE ?", "关于本项目").First(&info).Error
 	return
 }

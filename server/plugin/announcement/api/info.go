@@ -174,10 +174,16 @@ func (a *info) GetInfoDataSource(c *gin.Context) {
 // @Summary 不需要鉴权的公告接口
 // @accept application/json
 // @Produce application/json
-// @Param data query request.InfoSearch true "分页获取公告列表"
+// @Param data query request.InfoSearch true "根据标题获取公告内容"
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /info/getInfoPublic [get]
 func (a *info) GetInfoPublic(c *gin.Context) {
 	// 此接口不需要鉴权 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
-	response.OkWithDetailed(gin.H{"info": "不需要鉴权的公告接口信息"}, "获取成功", c)
+	dataSource, err := serviceInfo.GetHomeAboutInfo()
+	if err != nil {
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		response.FailWithMessage("查询失败", c)
+		return
+	}
+	response.OkWithData(dataSource, c)
 }

@@ -6,7 +6,7 @@ import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 Nprogress.configure({ showSpinner: false, ease: 'ease', speed: 500 })
 
-const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home']
+const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About']
 
 const getRouter = async(userStore) => {
   const routerStore = useRouterStore()

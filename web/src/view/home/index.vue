@@ -4,12 +4,14 @@
             <div class="left-section">
                 <img src="https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png" alt="Logo" class="logo">
                 <nav class="nav-links">
-                    <a href="https://t.me/vps_reviews" target="_blank">商家</a>
-                    <a href="https://t.me/vps_spiders" target="_blank">关于</a>
+                    <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
+                    <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
+                    <el-button type="primary" @click="openExternalLink('https://www.spiritlhl.net')">一键虚拟化项目</el-button>
+                    <el-button type="primary" @click="router.push('/about')">关于</el-button>
                 </nav>
             </div>
             <div class="auth-buttons">
-                <el-button @click="router.push('/login')">登录/注册</el-button>
+                <el-button type="primary" @click="router.push('/login')">登录/注册</el-button>
             </div>
         </header>
 
@@ -26,12 +28,16 @@
                         </template>
                     </el-input>
                     <div class="stock-toggle">
-                        <span :class="['toggle-option', { 'active': !onlyInStock }]" @click="onlyInStock = false">显示所有</span>
-                        <span :class="['toggle-option', { 'active': onlyInStock }]" @click="onlyInStock = true">只显示有库存</span>
+                        <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
+                            @click="displayMode = 'all'">显示所有</span>
+                        <span :class="['toggle-option', { 'active': displayMode === 'inStock' }]"
+                            @click="displayMode = 'inStock'">只显示有库存</span>
+                        <span :class="['toggle-option', { 'active': displayMode === 'dedicatedOnly' }]"
+                            @click="displayMode = 'dedicatedOnly'">仅独立服务器</span>
                     </div>
                     <div class="button-group">
                         <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
-                        <el-button @click="handleReset" class="reset-button">重置</el-button>
+                        <el-button type="primary" plain @click="handleReset" class="reset-button">重置</el-button>
                     </div>
                 </el-form>
             </aside>
@@ -91,6 +97,7 @@ const searchFields = {
     location: { placeholder: '搜索地点 等于' },
     price: { placeholder: '搜索价格 等于' },
     stock: { placeholder: '搜索库存 大于' },
+    additional: { placeholder: '搜索其他 关键词' },
 }
 
 const tableColumns = [
@@ -108,7 +115,7 @@ const tableColumns = [
 ]
 
 const searchInfo = ref(Object.fromEntries(Object.keys(searchFields).map(key => [key, ''])))
-const onlyInStock = ref(false)
+const displayMode = ref('all')
 const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
@@ -119,12 +126,11 @@ const sortOrder = ref('desc')
 const detailsVisible = ref(false)
 const selectedProduct = ref({})
 
-// 处理富文本内容的函数
 const processData = (data) => {
-  return data
-    .replace(/<[^>]+>/g, '') // 移除所有HTML标签
-    .trim() // 去掉前后空格
-    .replace(/\s+/g, ' '); // 将多个空格替换为单个空格
+    return data
+        .replace(/<[^>]+>/g, '')
+        .trim()
+        .replace(/\s+/g, ' ');
 }
 
 const getTableData = async () => {
@@ -133,15 +139,18 @@ const getTableData = async () => {
         const params = new URLSearchParams({
             page: page.value,
             pageSize: pageSize.value,
-            sortBy: sortBy.value,
-            sortOrder: sortOrder.value,
             ...Object.fromEntries(
                 Object.entries(searchInfo.value).filter(([_, v]) => v != null && v !== '')
             )
         })
-
-        if (onlyInStock.value) {
-            params.set('stock', '0')
+        if (displayMode.value === 'inStock') {
+            params.set('stock', '1')
+        } else if (displayMode.value === 'dedicatedOnly') {
+            params.append('additional', '独服')
+        }
+        if (sortBy.value) {
+            params.set('sortBy', sortBy.value)
+            params.set('sortOrder', sortOrder.value)
         }
 
         const response = await getProductsPublic(params)
@@ -166,7 +175,7 @@ const handleSearch = () => {
 
 const handleReset = () => {
     Object.keys(searchInfo.value).forEach(key => searchInfo.value[key] = '')
-    onlyInStock.value = false
+    displayMode.value = 'all'
     page.value = 1
     pageSize.value = 10
     sortBy.value = 'stock'
@@ -206,7 +215,11 @@ const handleCloseDetails = () => {
     detailsVisible.value = false
 }
 
-watch([page, pageSize, sortBy, sortOrder, onlyInStock], () => {
+const openExternalLink = (url) => {
+    window.open(url, '_blank')
+}
+
+watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
     getTableData()
 })
 
@@ -230,7 +243,7 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: #ffffff;
+    background-color: #e8f5e8;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -247,14 +260,13 @@ onMounted(() => {
 
 .nav-links {
     display: flex;
-    gap: 20px;
+    gap: 10px;
 }
 
-.nav-links a {
-    color: #2f3f2f;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 16px;
+.nav-links .el-button,
+.auth-buttons .el-button {
+    font-size: 14px;
+    padding: 8px 16px;
 }
 
 .auth-buttons {
@@ -392,6 +404,27 @@ onMounted(() => {
     border-color: #33a06f;
 }
 
+:deep(.el-button--primary) {
+    background-color: #42b883;
+    border-color: #42b883;
+}
+
+:deep(.el-button--primary:hover) {
+    background-color: #33a06f;
+    border-color: #33a06f;
+}
+
+:deep(.el-button--primary.is-plain) {
+    color: #42b883;
+    background: #ecf5f0;
+    border-color: #42b883;
+}
+
+:deep(.el-button--primary.is-plain:hover) {
+    background: #42b883;
+    color: #ffffff;
+}
+
 :deep(.el-button--success) {
     background-color: #42b883;
     border-color: #42b883;
@@ -421,6 +454,13 @@ onMounted(() => {
     .nav-links,
     .auth-buttons {
         margin-top: 10px;
+        width: 100%;
+    }
+
+    .nav-links .el-button,
+    .auth-buttons .el-button {
+        width: 100%;
+        margin-bottom: 5px;
     }
 
     .content-wrapper {

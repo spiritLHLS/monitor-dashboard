@@ -95,6 +95,7 @@ export const getInfoList = (params) => {
     params
   })
 }
+
 // @Tags Info
 // @Summary 获取数据源
 // @Security ApiKeyAuth
@@ -105,6 +106,19 @@ export const getInfoList = (params) => {
 export const getInfoDataSource = () => {
   return service({
     url: '/info/getInfoDataSource',
+    method: 'get',
+  })
+}
+
+// @Tags Info
+// @Summary 获取公告内容
+// @accept application/json
+// @Produce application/json
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
+// @Router /info/getInfoPublic [get]
+export const GetInfoPublic = () => {
+  return service({
+    url: '/info/getInfoPublic',
     method: 'get',
   })
 }

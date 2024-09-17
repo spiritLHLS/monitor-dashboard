@@ -1,198 +1,200 @@
 <template>
-  <div class="mt-2">
-    <el-row :gutter="10">
-      <el-col :span="12">
-        <el-card>
-          <template #header>
-            <el-divider>gin-vue-admin</el-divider>
-          </template>
-          <div>
-            <el-row>
-              <el-col
-                :span="8"
-                :offset="8"
-              >
-                <a href="https://github.com/flipped-aurora/gin-vue-admin">
-                  <img
-                    class="org-img dom-center"
-                    src="@/assets/logo.png"
-                    alt="gin-vue-admin"
-                  >
-                </a>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10">
-              <el-col :span="8">
-                <a href="https://github.com/flipped-aurora/gin-vue-admin">
-                  <img
-                    class="dom-center"
-                    src="https://img.shields.io/github/watchers/flipped-aurora/gin-vue-admin.svg?label=Watch"
-                    alt=""
-                  >
-                </a>
-              </el-col>
-              <el-col :span="8">
-                <a href="https://github.com/flipped-aurora/gin-vue-admin">
-                  <img
-                    class="dom-center"
-                    src="https://img.shields.io/github/stars/flipped-aurora/gin-vue-admin.svg?style=social"
-                    alt=""
-                  >
-                </a>
-              </el-col>
-              <el-col :span="8">
-                <a href="https://github.com/flipped-aurora/gin-vue-admin">
-                  <img
-                    class="dom-center"
-                    src="https://img.shields.io/github/forks/flipped-aurora/gin-vue-admin.svg?label=Fork"
-                    alt=""
-                  >
-                </a>
-              </el-col>
-            </el-row>
-          </div>
-        </el-card>
-        <el-card style="margin-top: 20px">
-          <template #header>
-            <div>flipped-aurora团队</div>
-          </template>
-          <div>
-            <el-row>
-              <el-col
-                :span="8"
-                :offset="8"
-              >
-                <a href="https://github.com/flipped-aurora">
-                  <img
-                    class="org-img dom-center"
-                    src="@/assets/flipped-aurora.png"
-                    alt="flipped-aurora"
-                  >
-                </a>
-              </el-col>
-            </el-row>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-              <div
-                v-for="(item, index) in members"
-                :key="index"
-                :span="8"
-              >
-                <a :href="item.html_url" class="flex items-center">
-                  <img
-                    class="w-8 h-8 rounded-full"
-                    :src="item.avatar_url"
-                  >
-                  <a
-                    class=" text-blue-700 ml-2 text-xl  font-bold  font-sans  "
-                    style=""
-                  >{{ item.login }}</a>
-                </a>
-              </div>
+  <div class="announcement-dashboard">
+    <header class="top-bar">
+      <div class="left-section">
+        <img src="https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png" alt="Logo" class="logo">
+        <nav class="nav-links">
+          <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
+          <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
+          <el-button type="primary" @click="openExternalLink('https://www.spiritlhl.net')">一键虚拟化项目</el-button>
+          <el-button type="primary" @click="router.push('/home')">回到监控页面</el-button>
+        </nav>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <main class="main-content">
+        <el-card class="announcement-card">
+          <div class="announcement">
+            <div v-if="isFetching">加载中...</div>
+            <div v-else-if="error">获取公告失败: {{ error }}</div>
+            <div v-else>
+              <h2>{{ announcement.title }}</h2>
+              <div v-html="announcement.content"></div>
             </div>
           </div>
         </el-card>
-      </el-col>
-      <el-col :span="12">
-        <el-card>
-          <template #header>
-            <div>提交记录</div>
-          </template>
-          <div>
-            <el-timeline>
-              <el-timeline-item
-                v-for="(item,index) in dataTimeline"
-                :key="index"
-                :timestamp="item.from"
-                placement="top"
-              >
-                <el-card>
-                  <h4>{{ item.title }}</h4>
-                  <p>{{ item.message }}</p>
-                </el-card>
-              </el-timeline-item>
-            </el-timeline>
-          </div>
-          <el-button
-            class="load-more"
-            type="primary"
-            link
-            @click="loadMore"
-          >
-            Load more
-          </el-button>
-        </el-card>
-      </el-col>
-    </el-row>
+      </main>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { Commits, Members } from '@/api/github'
-import { formatTimeToStr } from '@/utils/date'
-const page = ref(0)
+<script>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
-defineOptions({
-  name: 'About'
-})
+export default {
+  setup() {
+    const router = useRouter()
+    const isFetching = ref(false)
+    const error = ref(null)
+    const announcement = ref({})
 
-const loadMore = () => {
-  page.value++
-  loadCommits()
-}
-
-const dataTimeline = ref([])
-const loadCommits = () => {
-  Commits(page.value).then(({ data }) => {
-    data.forEach((element) => {
-      if (element.commit.message) {
-        dataTimeline.value.push({
-          from: formatTimeToStr(element.commit.author.date, 'yyyy-MM-dd'),
-          title: element.commit.author.name,
-          showDayAndMonth: true,
-          message: element.commit.message,
+    const fetchAnnouncement = () => {
+      isFetching.value = true
+      GetInfoPublic()
+        .then(response => {
+          if (response.code === 0) {
+            announcement.value = response.data
+          } else {
+            error.value = response.msg
+          }
         })
-      }
+        .catch(err => {
+          console.error('Error fetching announcement:', err)
+          error.value = '网络错误，请稍后再试'
+        })
+        .finally(() => {
+          isFetching.value = false
+        })
+    }
+
+    onMounted(() => {
+      fetchAnnouncement()
     })
-  })
+
+    return {
+      router,
+      isFetching,
+      error,
+      announcement
+    }
+  }
 }
-
-const members = ref([])
-const loadMembers = () => {
-  Members().then(({ data }) => {
-    members.value = data
-    members.value.sort()
-  })
-}
-
-loadCommits()
-loadMembers()
-
 </script>
 
 <style scoped>
-.load-more {
-  margin-left: 120px;
+.announcement-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #f0f6f0;
 }
 
-.avatar-img {
-  float: left;
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #e8f5e8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
   height: 40px;
-  width: 40px;
-  border-radius: 50%;
-  -webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  margin-top: 15px;
+  width: auto;
+  margin-right: 20px;
 }
 
-.org-img {
-  height: 150px;
-  width: 150px;
+.nav-links {
+  display: flex;
+  gap: 10px;
 }
 
+.nav-links .el-button {
+  font-size: 14px;
+  padding: 8px 16px;
+}
 
-.dom-center {
-  margin-left: 50%;
-  transform: translateX(-50%);
+.content-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #f0f6f0;
+}
+
+.announcement-card {
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.announcement {
+  padding: 20px;
+}
+
+.announcement h2 {
+  margin-top: 0;
+  color: #2f3f2f;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.announcement div {
+  padding: 10px 0;
+}
+
+.announcement p {
+  margin-bottom: 10px;
+  line-height: 1.6;
+  color: #2f3f2f;
+}
+
+:deep(.el-button--primary) {
+  background-color: #42b883;
+  border-color: #42b883;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #33a06f;
+  border-color: #33a06f;
+}
+
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .left-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logo {
+    margin-bottom: 10px;
+  }
+
+  .nav-links {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .nav-links .el-button {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+
+  .announcement h2 {
+    font-size: 20px;
+  }
 }
 </style>
