@@ -464,11 +464,22 @@ const closeDialog = () => {
     deletedBy: undefined,
   }
 }
+
+// 处理富文本内容的函数
+const processTags = (tags) => {
+  return tags
+    .replace(/<[^>]+>/g, '') // 移除所有HTML标签
+    .trim() // 去掉前后空格
+    .replace(/\s+/g, ' '); // 将多个空格替换为单个空格
+}
+
 // 弹窗确定
 const enterDialog = async () => {
   elFormRef.value?.validate(async (valid) => {
     if (!valid) return
     let res
+    // 处理 tags 字段
+    formData.value.tags = processTags(formData.value.tags)
     switch (type.value) {
       case 'create':
         res = await createTgchannel(formData.value)
@@ -490,7 +501,6 @@ const enterDialog = async () => {
     }
   })
 }
-
 
 const detailFrom = ref({})
 
@@ -520,7 +530,6 @@ const closeDetailShow = () => {
   detailShow.value = false
   detailFrom.value = {}
 }
-
 
 </script>
 

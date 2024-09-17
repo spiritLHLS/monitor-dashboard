@@ -56,7 +56,7 @@
             </el-form-item>
           </div>
           <div class="row">
-            <el-form-item label="计费类型" prop="billingType">
+            <el-form-item label="爬虫类型" prop="billingType">
               <el-input v-model="searchInfo.billingType" placeholder="搜索条件" />
             </el-form-item>
             <el-form-item label="历史库存" prop="oldStock">
@@ -135,11 +135,14 @@
             <el-button type="primary" @click="confirmmodifyPushIntervals">确定</el-button>
           </div>
         </el-dialog>
-        <!-- 修改计费类型对话框 -->
-        <el-dialog v-model="modifyBillingTypeDialogVisible" title="修改计费类型" width="30%">
+        <!-- 修改爬虫类型对话框 -->
+        <el-dialog v-model="modifyBillingTypeDialogVisible" title="修改爬虫类型" width="30%">
           <el-form label-width="120px">
-            <el-form-item label="新的计费类型">
-              <el-input v-model.trim="modifyBillingType" placeholder="请输入新的计费类型"></el-input>
+            <el-form-item label="新的爬虫类型">
+              <el-select v-model="modifyBillingType" placeholder="请选择新的爬虫类型">
+                <el-option label="单商品-single" value="single"></el-option>
+                <el-option label="多商品-multi" value="multi"></el-option>
+              </el-select>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -202,7 +205,7 @@
         <el-button icon="edit" class="table-button" style="margin-left: 10px;" :disabled="!multipleSelection.length"
           @click="updatePushIntervals">改推送间隔</el-button>
         <el-button icon="edit" class="table-button" style="margin-left: 10px;" :disabled="!multipleSelection.length"
-          @click="updateBillingType">改计费类型</el-button>
+          @click="updateBillingType">改爬虫类型</el-button>
         <el-button icon="edit" class="table-button" style="margin-left: 10px;" :disabled="!multipleSelection.length"
           @click="updateAdditional">改其他信息</el-button>
         <el-button icon="edit" class="table-button" style="margin-left: 10px;" :disabled="!multipleSelection.length"
@@ -224,13 +227,13 @@
         <el-table-column align="left" label="地点" prop="location" width="80" />
         <el-table-column align="left" label="价格" prop="price" width="80" />
         <el-table-column align="left" label="链接" prop="url" width="90" />
-        <el-table-column align="left" label="计费类型" prop="billingType" width="90" />
+        <el-table-column align="left" label="爬虫类型" prop="billingType" width="90" />
         <el-table-column align="left" label="历史库存" prop="oldStock" width="80" />
         <el-table-column align="left" label="现有库存" prop="stock" width="80" />
         <el-table-column align="left" label="爬虫间隔" prop="intervals" width="80" />
-        <el-table-column align="left" label="消息编号" prop="messageId" width="80" />
         <el-table-column align="left" label="推送间隔" prop="pushIntervals" width="80" />
         <el-table-column align="left" label="重复检测" prop="multiCheck" width="80" />
+        <el-table-column align="left" label="消息编号" prop="messageId" width="80" />
         <el-table-column align="left" label="推送时间" prop="pushTime" width="180">
           <template #default="scope">{{ formatDate(scope.row.pushTime) }}</template>
         </el-table-column>
@@ -278,35 +281,14 @@
         <el-form-item label="TAG:" prop="tag">
           <el-input v-model="formData.tag" :clearable="true" placeholder="请输入TGTAG" />
         </el-form-item>
-        <el-form-item label="CPU:" prop="cpu">
-          <el-input v-model="formData.cpu" :clearable="true" placeholder="请输入CPU数量" />
-        </el-form-item>
-        <el-form-item label="内存:" prop="memory">
-          <el-input v-model="formData.memory" :clearable="true" placeholder="请输入内存大小" />
-        </el-form-item>
-        <el-form-item label="磁盘:" prop="disk">
-          <el-input v-model="formData.disk" :clearable="true" placeholder="请输入磁盘大小" />
-        </el-form-item>
-        <el-form-item label="流量:" prop="traffic">
-          <el-input v-model="formData.traffic" :clearable="true" placeholder="请输入流量大小" />
-        </el-form-item>
-        <el-form-item label="端口:" prop="portSpeed">
-          <el-input v-model="formData.portSpeed" :clearable="true" placeholder="请输入端口速度信息" />
-        </el-form-item>
-        <el-form-item label="地点:" prop="location">
-          <el-input v-model="formData.location" :clearable="true" placeholder="请输入地点" />
-        </el-form-item>
-        <el-form-item label="价格:" prop="price">
-          <el-input v-model="formData.price" :clearable="true" placeholder="请输入价格" />
-        </el-form-item>
-        <el-form-item label="其他:" prop="additional">
-          <RichEdit v-model="formData.additional" />
-        </el-form-item>
         <el-form-item label="链接:" prop="url">
           <el-input v-model="formData.url" :clearable="true" placeholder="请输入商品链接" />
         </el-form-item>
-        <el-form-item label="计费类型:" prop="billingType">
-          <el-input v-model="formData.billingType" :clearable="true" placeholder="请输入计费类型：single 或 multi" />
+        <el-form-item label="爬虫类型:" prop="billingType">
+          <el-select v-model="formData.billingType" placeholder="请选择爬虫类型" clearable>
+            <el-option label="single" value="single"></el-option>
+            <el-option label="multi" value="multi"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="历史库存:" prop="oldStock">
           <el-input v-model.number="formData.oldStock" :clearable="true" placeholder="请输入历史库存" />
@@ -329,6 +311,30 @@
         <el-form-item label="推送时间:" prop="pushTime">
           <el-date-picker v-model="formData.pushTime" type="date" style="width:100%" placeholder="选择日期"
             :clearable="true" />
+        </el-form-item>
+        <el-form-item label="其他:" prop="additional">
+          <RichEdit v-model="formData.additional" />
+        </el-form-item>
+        <el-form-item label="CPU:" prop="cpu">
+          <el-input v-model="formData.cpu" :clearable="true" placeholder="请输入CPU数量" />
+        </el-form-item>
+        <el-form-item label="内存:" prop="memory">
+          <el-input v-model="formData.memory" :clearable="true" placeholder="请输入内存大小" />
+        </el-form-item>
+        <el-form-item label="磁盘:" prop="disk">
+          <el-input v-model="formData.disk" :clearable="true" placeholder="请输入磁盘大小" />
+        </el-form-item>
+        <el-form-item label="流量:" prop="traffic">
+          <el-input v-model="formData.traffic" :clearable="true" placeholder="请输入流量大小" />
+        </el-form-item>
+        <el-form-item label="端口:" prop="portSpeed">
+          <el-input v-model="formData.portSpeed" :clearable="true" placeholder="请输入端口速度信息" />
+        </el-form-item>
+        <el-form-item label="地点:" prop="location">
+          <el-input v-model="formData.location" :clearable="true" placeholder="请输入地点" />
+        </el-form-item>
+        <el-form-item label="价格:" prop="price">
+          <el-input v-model="formData.price" :clearable="true" placeholder="请输入价格" />
         </el-form-item>
         <!-- <el-form-item label="创建者:" prop="createdBy">
           <el-input v-model.number="formData.createdBy" :clearable="true" placeholder="请输入创建者" />
@@ -374,7 +380,7 @@
         <el-descriptions-item label="链接">
           {{ detailFrom.url }}
         </el-descriptions-item>
-        <el-descriptions-item label="计费类型">
+        <el-descriptions-item label="爬虫类型">
           {{ detailFrom.billingType }}
         </el-descriptions-item>
         <el-descriptions-item label="历史库存">
@@ -781,7 +787,7 @@ const updatePushIntervals = async () => {
   modifyPushIntervalsDialogVisible.value = true
 }
 
-// 更新所选记录的计费类型的方法
+// 更新所选记录的爬虫类型的方法
 const updateBillingType = async () => {
   if (multipleSelection.value.length === 0) {
     ElMessage({
@@ -883,7 +889,7 @@ const confirmmodifyPushIntervals = async () => {
   modifyPushIntervalsDialogVisible.value = false
 }
 
-// 确认修改计费类型
+// 确认修改爬虫类型
 const confirmmodifyBillingType = async () => {
   // 获取用户输入的新值
   const newbillingType = modifyBillingType.value

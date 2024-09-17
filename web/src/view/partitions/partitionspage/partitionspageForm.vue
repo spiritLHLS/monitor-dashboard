@@ -25,13 +25,13 @@
         <el-form-item label="识别数量:" prop="num">
           <el-input v-model.number="formData.num" :clearable="true" placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="其他信息:" prop="additional">
-          <RichEdit v-model="formData.additional" />
-        </el-form-item>
         <el-form-item label="爬虫间隔:" prop="intervals">
           <el-input v-model.number="formData.intervals" :clearable="true" placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="创建者:" prop="createdBy">
+        <el-form-item label="其他信息:" prop="additional">
+          <RichEdit v-model="formData.additional" />
+        </el-form-item>
+        <!-- <el-form-item label="创建者:" prop="createdBy">
           <el-input v-model.number="formData.createdBy" :clearable="true" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="更新者:" prop="updatedBy">
@@ -39,7 +39,7 @@
         </el-form-item>
         <el-form-item label="删除者:" prop="deletedBy">
           <el-input v-model.number="formData.deletedBy" :clearable="true" placeholder="请输入" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
           <el-button type="primary" @click="save">保存</el-button>
           <el-button type="primary" @click="back">返回</el-button>

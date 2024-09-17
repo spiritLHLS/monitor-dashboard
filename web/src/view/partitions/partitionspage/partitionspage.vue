@@ -192,11 +192,11 @@
         <el-form-item label="识别数量:" prop="num">
           <el-input v-model.number="formData.num" :clearable="true" placeholder="请输入识别数量" />
         </el-form-item>
-        <el-form-item label="其他信息:" prop="additional">
-          <RichEdit v-model="formData.additional" />
-        </el-form-item>
         <el-form-item label="爬虫间隔:" prop="intervals">
           <el-input v-model.number="formData.intervals" :clearable="true" placeholder="请输入爬虫间隔" />
+        </el-form-item>
+        <el-form-item label="其他信息:" prop="additional">
+          <RichEdit v-model="formData.additional" />
         </el-form-item>
         <!-- <el-form-item label="创建者:" prop="createdBy">
           <el-input v-model.number="formData.createdBy" :clearable="true" placeholder="请输入创建者" />

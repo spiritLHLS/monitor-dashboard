@@ -122,10 +122,23 @@ const init = async () => {
 }
 
 init()
+
+// 处理富文本内容的函数
+const processTags = (tags) => {
+  return tags
+    .replace(/<[^>]+>/g, '') // 移除所有HTML标签
+    .trim() // 去掉前后空格
+    .replace(/\s+/g, ' '); // 将多个空格替换为单个空格
+}
+
 // 保存按钮
 const save = async () => {
   elFormRef.value?.validate(async (valid) => {
     if (!valid) return
+    
+    // 处理推送商家字段
+    formData.value.tags = processTags(formData.value.tags);
+    
     let res
     switch (type.value) {
       case 'create':

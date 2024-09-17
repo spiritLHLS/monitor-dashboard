@@ -5,35 +5,14 @@
         <el-form-item label="TAG:" prop="tag">
           <el-input v-model="formData.tag" :clearable="true" placeholder="请输入TAG" />
         </el-form-item>
-        <el-form-item label="CPU:" prop="cpu">
-          <el-input v-model="formData.cpu" :clearable="true" placeholder="请输入CPU" />
-        </el-form-item>
-        <el-form-item label="内存:" prop="memory">
-          <el-input v-model="formData.memory" :clearable="true" placeholder="请输入内存" />
-        </el-form-item>
-        <el-form-item label="磁盘:" prop="disk">
-          <el-input v-model="formData.disk" :clearable="true" placeholder="请输入磁盘" />
-        </el-form-item>
-        <el-form-item label="流量:" prop="traffic">
-          <el-input v-model="formData.traffic" :clearable="true" placeholder="请输入流量" />
-        </el-form-item>
-        <el-form-item label="端口:" prop="portSpeed">
-          <el-input v-model="formData.portSpeed" :clearable="true" placeholder="请输入端口" />
-        </el-form-item>
-        <el-form-item label="地点:" prop="location">
-          <el-input v-model="formData.location" :clearable="true" placeholder="请输入地点" />
-        </el-form-item>
-        <el-form-item label="价格:" prop="price">
-          <el-input v-model="formData.price" :clearable="true" placeholder="请输入价格" />
-        </el-form-item>
-        <el-form-item label="其他:" prop="additional">
-          <RichEdit v-model="formData.additional" />
-        </el-form-item>
         <el-form-item label="链接:" prop="url">
           <el-input v-model="formData.url" :clearable="true" placeholder="请输入链接" />
         </el-form-item>
-        <el-form-item label="计费类型:" prop="billingType">
-          <el-input v-model="formData.billingType" :clearable="true" placeholder="请输入计费类型：single 或 multi" />
+        <el-form-item label="爬虫类型:" prop="billingType">
+          <el-select v-model="formData.billingType" placeholder="请选择爬虫类型" clearable>
+            <el-option label="single" value="single"></el-option>
+            <el-option label="multi" value="multi"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="历史库存:" prop="oldStock">
           <el-input v-model.number="formData.oldStock" :clearable="true" placeholder="请输入" />
@@ -55,6 +34,30 @@
         </el-form-item>
         <el-form-item label="推送时间:" prop="pushTime">
           <el-date-picker v-model="formData.pushTime" type="date" placeholder="选择日期" :clearable="true"></el-date-picker>
+        </el-form-item>
+        <el-form-item label="其他:" prop="additional">
+          <RichEdit v-model="formData.additional" />
+        </el-form-item>
+        <el-form-item label="CPU:" prop="cpu">
+          <el-input v-model="formData.cpu" :clearable="true" placeholder="请输入CPU" />
+        </el-form-item>
+        <el-form-item label="内存:" prop="memory">
+          <el-input v-model="formData.memory" :clearable="true" placeholder="请输入内存" />
+        </el-form-item>
+        <el-form-item label="磁盘:" prop="disk">
+          <el-input v-model="formData.disk" :clearable="true" placeholder="请输入磁盘" />
+        </el-form-item>
+        <el-form-item label="流量:" prop="traffic">
+          <el-input v-model="formData.traffic" :clearable="true" placeholder="请输入流量" />
+        </el-form-item>
+        <el-form-item label="端口:" prop="portSpeed">
+          <el-input v-model="formData.portSpeed" :clearable="true" placeholder="请输入端口" />
+        </el-form-item>
+        <el-form-item label="地点:" prop="location">
+          <el-input v-model="formData.location" :clearable="true" placeholder="请输入地点" />
+        </el-form-item>
+        <el-form-item label="价格:" prop="price">
+          <el-input v-model="formData.price" :clearable="true" placeholder="请输入价格" />
         </el-form-item>
         <!-- <el-form-item label="创建者:" prop="createdBy">
           <el-input v-model.number="formData.createdBy" :clearable="true" placeholder="请输入" />

@@ -116,13 +116,10 @@
         </el-form-item>
         <el-form-item label="商家类型:" prop="type">
           <el-select v-model="formData.type" placeholder="请选择商家类型" clearable>
-            <el-option label="whmcs1" value="whmcs1"></el-option>
-            <el-option label="whmcs2" value="whmcs2"></el-option>
-            <el-option label="whmcs3" value="whmcs3"></el-option>
-            <el-option label="whmcs4" value="whmcs4"></el-option>
-            <el-option label="hostbill1" value="hostbill1"></el-option>
-            <el-option label="blesta1" value="blesta1"></el-option>
-            <el-option label="blesta2" value="blesta2"></el-option>
+            <el-option label="whmcs" value="whmcs"></el-option>
+            <el-option label="hostbill" value="hostbill"></el-option>
+            <el-option label="blesta" value="blesta"></el-option>
+            <el-option label="other" value="other"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="推广链接:" prop="affLink">
