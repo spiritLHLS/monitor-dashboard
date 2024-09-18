@@ -258,12 +258,12 @@ const openUrl = (url) => {
       // 如果无法打开新窗口，提示用户并在当前窗口打开
       ElMessage({
         type: 'info',
-        message: '无法打开新窗口，将在当前页面跳转...'
+        message: '无法打开新窗口，将在当前页面跳转...(请浏览器允许本站点打开弹出窗口)'
       })
       setTimeout(() => {
         window.location.href = url
         resolve()
-      }, 2000) // 给用户2秒时间看到消息
+      }, 2500) // 给用户2.5秒时间看到消息
     }
   })
 }

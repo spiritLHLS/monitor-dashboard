@@ -50,7 +50,9 @@
                             :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip>
                             <template #default="{ row }" v-if="col.prop === 'actions'">
                                 <el-button type="primary" size="small" @click="showDetails(row)">商品详情</el-button>
-                                <el-button type="success" size="small" @click="router.push('/r/'+row.url)">点击购买</el-button>
+                                <!-- <el-button type="success" size="small" @click="router.push('/r/'+row.url)">点击购买</el-button> -->
+                                <el-button type="success" size="small"
+                                    @click="handleRedirectFunc(row.url)">点击购买</el-button>
                             </template>
                             <template #default="{ row }" v-else-if="col.prop === 'stock'">
                                 {{ row.stock === 1000 ? '有' : row.stock }}
@@ -84,6 +86,7 @@ import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { getProductsPublic } from '@/api/products/products'
 import { useRouter } from 'vue-router'
+import { handleRedirect } from '@/plugin/cryptourl/api/encryptedlink'
 
 const router = useRouter()
 
@@ -199,8 +202,53 @@ const handleSortChange = ({ prop, order }) => {
     getTableData()
 }
 
+const handleRedirectFunc = async (rowshortCode) => {
+    try {
+        if (rowshortCode.toLowerCase().includes('http') && rowshortCode.includes(':')) {
+            await openUrl(rowshortCode)
+            return
+        }
+        const response = await handleRedirect({ shortCode: rowshortCode })
+        if (response && response.redirectUrl) {
+            await openUrl(response.redirectUrl)
+        } else {
+            ElMessage({
+                type: 'error',
+                message: '服务器返回的数据无效'
+            })
+        }
+    } catch (error) {
+        console.error('重定向错误:', error)
+        ElMessage({
+            type: 'error',
+            message: '重定向失败: ' + (error.message || '未知错误')
+        })
+    }
+}
+
 const openUrl = (url) => {
-    window.open(url, '_blank')
+    return new Promise((resolve) => {
+        // 尝试打开新窗口
+        const newWindow = window.open(url, '_blank')
+        // 检查是否成功打开
+        if (newWindow && !newWindow.closed) {
+            ElMessage({
+                type: 'success',
+                message: '新窗口已打开'
+            })
+            resolve()
+        } else {
+            // 如果无法打开新窗口，提示用户并在当前窗口打开
+            ElMessage({
+                type: 'info',
+                message: '无法打开新窗口，将在当前页面跳转...(请浏览器允许本站点打开弹出窗口)'
+            })
+            setTimeout(() => {
+                window.location.href = url
+                resolve()
+            }, 2500) // 给用户2.5秒时间看到消息
+        }
+    })
 }
 
 const showDetails = (row) => {

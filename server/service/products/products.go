@@ -237,9 +237,8 @@ func (pdService *ProductsService) batchGetOrCreateEncryptedLinks(urls []string) 
 	for _, url := range urls {
 		if !existingUrlMap[url] {
 			newLink := model.EncryptedLink{RedirectUrl: url}
-			if err := service.EncryptedLink.CreateEncryptedLink(&newLink); err != nil {
-				return nil, err
-			}
+			_ = service.EncryptedLink.CreateEncryptedLink(&newLink)
+			// 无论是否成功创建直接回来
 			existingLinks = append(existingLinks, newLink)
 		}
 	}
