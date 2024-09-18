@@ -117,18 +117,17 @@ export const buildEncryptedUrl = (data) => {
 // @Produce application/json
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /EL/handleRedirect [GET]
-export const handleRedirect = (params) => {
-  return service({
+export const handleRedirect = async (params) => {
+  const response = await service({
     url: '/EL/handleRedirect',
     method: 'GET',
     params
-  }).then(response => {
-    if (response.code === 0 && response.data) {
-      return response.data;
-    } else {
-      throw new Error(response.message || '请求失败');
-    }
-  });
+  })
+  if (response.code === 0 && response.data) {
+    return response.data
+  } else {
+    throw new Error(response.message || '请求失败')
+  }
 }
 
 // @Tags EncryptedLink
