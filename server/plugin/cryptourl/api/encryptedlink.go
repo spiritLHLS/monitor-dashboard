@@ -7,6 +7,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl/model/request"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"net/http"
 )
 
 var EncryptedLink = new(EL)
@@ -164,4 +165,45 @@ func (a *EL) GetEncryptedLinkPublic(c *gin.Context) {
 	// 此接口不需要鉴权 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
 	serviceEncryptedLink.GetEncryptedLinkPublic()
 	response.OkWithDetailed(gin.H{"info": "不需要鉴权的加密链接接口信息"}, "获取成功", c)
+}
+
+// BuildEncryptedUrl 生成加密链接
+// @Tags EncryptedLink
+// @Summary 生成加密链接
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
+// @Router /EL/buildEncryptedUrl [POST]
+func (a *EL) BuildEncryptedUrl(c *gin.Context) {
+	// 请添加自己的业务逻辑
+	var ids request.BuildEncryptedUrlIds
+	err := c.ShouldBindJSON(&ids)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	err = serviceEncryptedLink.BuildEncryptedUrl(ids)
+	if err != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err))
+		response.FailWithMessage("失败", c)
+		return
+	}
+	response.OkWithData("返回数据", c)
+}
+
+// HandleRedirect 处理短代码对应重定向
+// @Tags EncryptedLink
+// @Summary 处理短代码对应重定向
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
+// @Router /EL/handleRedirect [GET]
+func (a *EL) HandleRedirect(c *gin.Context) {
+	shortCode := c.Query("shortCode")
+	var link model.EncryptedLink
+	if err := global.GVA_DB.Where("short_code = ?", shortCode).First(&link).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": 1, "message": "Link not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": gin.H{"redirectUrl": link.RedirectUrl}})
 }

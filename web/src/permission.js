@@ -6,7 +6,7 @@ import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 Nprogress.configure({ showSpinner: false, ease: 'ease', speed: 500 })
 
-const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About']
+const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About', 'Redirect']
 
 const getRouter = async(userStore) => {
   const routerStore = useRouterStore()
@@ -54,6 +54,10 @@ router.beforeEach(async(to, from) => {
   // 在白名单中的判断情况
   document.title = getPageTitle(to.meta.title, to)
   if(to.meta.client) {
+    return true
+  }
+  // 添加对重定向路由的特殊处理
+  if (to.name === 'Redirect') {
     return true
   }
   if (whiteList.indexOf(to.name) > -1) {
@@ -122,7 +126,6 @@ router.beforeEach(async(to, from) => {
     }
   }
 })
-
 
 router.afterEach(() => {
   // 路由加载完成后关闭进度条

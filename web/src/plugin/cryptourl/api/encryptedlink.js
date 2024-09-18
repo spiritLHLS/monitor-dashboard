@@ -94,6 +94,43 @@ export const getEncryptedLinkList = (params) => {
     params
   })
 }
+
+// BuildEncryptedUrl 生成加密链接
+// @Tags EncryptedLink
+// @Summary 生成加密链接
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
+// @Router /EL/buildEncryptedUrl [POST]
+export const buildEncryptedUrl = (data) => {
+  return service({
+    url: '/EL/buildEncryptedUrl',
+    method: 'POST',
+    data
+  })
+}
+
+// HandleRedirect 处理短代码对应重定向
+// @Tags EncryptedLink
+// @Summary 处理短代码对应重定向
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
+// @Router /EL/handleRedirect [GET]
+export const handleRedirect = (params) => {
+  return service({
+    url: '/EL/handleRedirect',
+    method: 'GET',
+    params
+  }).then(response => {
+    if (response.code === 0 && response.data) {
+      return response.data;
+    } else {
+      throw new Error(response.message || '请求失败');
+    }
+  });
+}
+
 // @Tags EncryptedLink
 // @Summary 不需要鉴权的加密链接接口
 // @accept application/json

@@ -50,7 +50,7 @@
                             :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip>
                             <template #default="{ row }" v-if="col.prop === 'actions'">
                                 <el-button type="primary" size="small" @click="showDetails(row)">商品详情</el-button>
-                                <el-button type="success" size="small" @click="openUrl(row.url)">点击购买</el-button>
+                                <el-button type="success" size="small" @click="router.push('/r/'+row.url)">点击购买</el-button>
                             </template>
                             <template #default="{ row }" v-else-if="col.prop === 'stock'">
                                 {{ row.stock === 1000 ? '有' : row.stock }}
