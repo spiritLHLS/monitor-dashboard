@@ -291,22 +291,22 @@
           </el-select>
         </el-form-item>
         <el-form-item label="历史库存:" prop="oldStock">
-          <el-input v-model.number="formData.oldStock" :clearable="true" placeholder="请输入历史库存" />
+          <el-input v-model.number="formData.oldStock" type="number" :clearable="true" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="现有库存:" prop="stock">
-          <el-input v-model.number="formData.stock" :clearable="true" placeholder="请输入现有库存" />
+          <el-input v-model.number="formData.stock" type="number" :clearable="true" placeholder="请输入现有库存" />
         </el-form-item>
         <el-form-item label="重复检测:" prop="multiCheck">
-          <el-input v-model.number="formData.multiCheck" :clearable="true" placeholder="请输入重复检测的次数" />
+          <el-input v-model.number="formData.multiCheck" type="number" :clearable="true" placeholder="请输入重复检测的次数" />
         </el-form-item>
         <el-form-item label="爬虫间隔:" prop="intervals">
-          <el-input v-model.number="formData.intervals" :clearable="true" placeholder="请输入爬虫间隔，以秒为单位，写-1则不爬虫" />
+          <el-input v-model.number="formData.intervals" type="number" :clearable="true" placeholder="请输入爬虫间隔，以秒为单位，写-1则不爬虫" />
         </el-form-item>
         <el-form-item label="消息编号:" prop="messageId">
           <el-input v-model="formData.messageId" :clearable="true" placeholder="请输入消息编号" />
         </el-form-item>
         <el-form-item label="推送间隔:" prop="pushIntervals">
-          <el-input v-model.number="formData.pushIntervals" :clearable="true" placeholder="请输入推送间隔，以天为单位，写-1则不推送" />
+          <el-input v-model.number="formData.pushIntervals" type="number" :clearable="true" placeholder="请输入推送间隔，以天为单位，写-1则不推送" />
         </el-form-item>
         <el-form-item label="推送时间:" prop="pushTime">
           <el-date-picker v-model="formData.pushTime" type="date" style="width:100%" placeholder="选择日期"
@@ -491,6 +491,18 @@ const rule = reactive({
   {
     whitespace: true,
     message: '不能只输入空格',
+    trigger: ['input', 'blur'],
+  }
+  ],
+  multiCheck: [{
+    required: true,
+    message: '',
+    trigger: ['input', 'blur'],
+  }
+  ],
+  billingType: [{
+    required: true,
+    message: '',
     trigger: ['input', 'blur'],
   }
   ],
@@ -733,12 +745,15 @@ const enterDialog = async () => {
     let res
     switch (type.value) {
       case 'create':
+        // formData.value.oldStock = Number(formData.value.oldStock)
         res = await createProducts(formData.value)
         break
       case 'update':
+        // formData.value.oldStock = Number(formData.value.oldStock)
         res = await updateProducts(formData.value)
         break
       default:
+        // formData.value.oldStock = Number(formData.value.oldStock)
         res = await createProducts(formData.value)
         break
     }
