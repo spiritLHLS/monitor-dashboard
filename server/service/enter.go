@@ -7,6 +7,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/service/partitions"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/products"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/shops"
+	"github.com/flipped-aurora/gin-vue-admin/server/service/subscribe"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/tgchannel"
 )
@@ -22,4 +23,5 @@ type ServiceGroup struct {
 	TgchannelServiceGroup  tgchannel.ServiceGroup
 	FindallpdServiceGroup  findallpd.ServiceGroup
 	EcsusersServiceGroup   ecsusers.ServiceGroup
+	SubscribeServiceGroup  subscribe.ServiceGroup
 }

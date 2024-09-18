@@ -7,6 +7,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/router/partitions"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/products"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/shops"
+	"github.com/flipped-aurora/gin-vue-admin/server/router/subscribe"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/tgchannel"
 )
@@ -22,4 +23,5 @@ type RouterGroup struct {
 	Tgchannel  tgchannel.RouterGroup
 	Findallpd  findallpd.RouterGroup
 	Ecsusers   ecsusers.RouterGroup
+	Subscribe  subscribe.RouterGroup
 }
