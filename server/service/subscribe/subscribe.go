@@ -102,3 +102,12 @@ func (subService *SubscribeService) SelfDeleteSub() (err error) {
 	db := global.GVA_DB.Model(&subscribe.Subscribe{})
 	return db.Error
 }
+
+// SelfGetAllPd 前端用户获取所有的商品
+// Author [yourname](https://github.com/yourname)
+func (subService *SubscribeService)SelfGetAllPd() (err error) {
+	// 请在这里实现自己的业务逻辑
+	db := global.GVA_DB.Model(&subscribe.Subscribe{})
+    return db.Error
+}
+

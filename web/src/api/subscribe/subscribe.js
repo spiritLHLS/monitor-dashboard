@@ -136,3 +136,16 @@ export const selfDeleteSub = () => {
     method: 'POST'
   })
 }
+// SelfGetAllPd 前端用户获取所有的商品
+// @Tags Subscribe
+// @Summary 前端用户获取所有的商品
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /sub/selfGetAllPd [GET]
+export const selfGetAllPd = () => {
+  return service({
+    url: '/sub/selfGetAllPd',
+    method: 'GET'
+  })
+}
