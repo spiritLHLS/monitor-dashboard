@@ -95,20 +95,21 @@ export const getSubscribeList = (params) => {
   })
 }
 
-// @Tags Subscribe
-// @Summary 不需要鉴权的订阅接口
+// @Tags selfGetSub
+// @Summary 前端用户获取自己已订阅的商品
 // @accept application/json
 // @Produce application/json
 // @Param data query subscribeReq.SubscribeSearch true "分页获取订阅列表"
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
-// @Router /sub/getSubscribePublic [get]
-export const getSubscribePublic = () => {
+// @Router /sub/selfGetSub [get]
+export const selfGetSub = () => {
   return service({
-    url: '/sub/getSubscribePublic',
+    url: '/sub/selfGetSub',
     method: 'get',
   })
 }
-// SelfCreateSub 仅当前用户创建当前用户关联的商品推送记录
+
+// SelfCreateSub 前端用户自行选择订阅商品
 // @Tags Subscribe
 // @Summary 仅当前用户创建当前用户关联的商品推送记录
 // @accept application/json
@@ -121,16 +122,17 @@ export const selfCreateSub = () => {
     method: 'POST'
   })
 }
-// DeleteSubscribePublic 前端用户删除自己已订阅的商品
+
+// selfDeleteSub 前端用户删除自己已订阅的商品
 // @Tags Subscribe
 // @Summary 前端用户删除自己已订阅的商品
 // @accept application/json
 // @Produce application/json
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
-// @Router /sub/deleteSubscribePublic [POST]
-export const deleteSubscribePublic = () => {
+// @Router /sub/selfDeleteSub [POST]
+export const selfDeleteSub = () => {
   return service({
-    url: '/sub/deleteSubscribePublic',
+    url: '/sub/selfDeleteSub',
     method: 'POST'
   })
 }

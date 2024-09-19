@@ -10,20 +10,19 @@ type SubscribeRouter struct{}
 func (s *SubscribeRouter) InitSubscribeRouter(Router *gin.RouterGroup, PublicRouter *gin.RouterGroup) {
 	subRouter := Router.Group("sub").Use(middleware.OperationRecord())
 	subRouterWithoutRecord := Router.Group("sub")
-	subRouterWithoutAuth := PublicRouter.Group("sub")
+	//subRouterWithoutAuth := PublicRouter.Group("sub")
 	{
 		subRouter.POST("createSubscribe", subApi.CreateSubscribe)
 		subRouter.DELETE("deleteSubscribe", subApi.DeleteSubscribe)
 		subRouter.DELETE("deleteSubscribeByIds", subApi.DeleteSubscribeByIds)
 		subRouter.PUT("updateSubscribe", subApi.UpdateSubscribe)
+		// 以下为自行增加的增删改
+		subRouter.GET("selfGetSub", subApi.SelfGetSub)
+		subRouter.POST("selfCreateSub", subApi.SelfCreateSub)
+		subRouter.POST("selfDeleteSub", subApi.SelfDeleteSub)
 	}
 	{
 		subRouterWithoutRecord.GET("findSubscribe", subApi.FindSubscribe)
 		subRouterWithoutRecord.GET("getSubscribeList", subApi.GetSubscribeList)
-	}
-	{
-		subRouterWithoutAuth.GET("getSubscribePublic", subApi.GetSubscribePublic)
-		subRouterWithoutAuth.POST("selfCreateSub", subApi.SelfCreateSub)
-		subRouterWithoutAuth.POST("deleteSubscribePublic", subApi.DeleteSubscribePublic)
 	}
 }
