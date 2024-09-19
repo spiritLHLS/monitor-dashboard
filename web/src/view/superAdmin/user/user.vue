@@ -45,7 +45,7 @@
         />
         <el-table-column
           align="left"
-          label="TGID"
+          label="Phone"
           min-width="180"
           prop="phone"
         />
@@ -176,7 +176,7 @@
           <el-input v-model="userInfo.nickName" />
         </el-form-item>
         <el-form-item
-          label="TGID"
+          label="Phone"
           prop="phone"
         >
           <el-input v-model="userInfo.phone" />

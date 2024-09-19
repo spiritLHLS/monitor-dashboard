@@ -173,6 +173,7 @@ export const useUserStore = defineStore('user', () => {
 
           console.log("User info:", userInfo.value);
           if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
+            console.log(userInfo)
             ElMessage.error('请联系管理员进行授权');
           } else {
             console.log("Redirecting to:", userInfo.value.authority.defaultRouter);

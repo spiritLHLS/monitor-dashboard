@@ -195,7 +195,7 @@ func (eusrApi *EcsUsersApi) AdminChangePassword(c *gin.Context) {
 	response.OkWithData("返回数据", c)
 }
 
-// GetUserInfo 前端用户信息查询
+// SelfGetUserInfo 前端用户信息查询
 // @Tags EcsUsers
 // @Summary 方法介绍
 // @accept application/json
@@ -203,7 +203,7 @@ func (eusrApi *EcsUsersApi) AdminChangePassword(c *gin.Context) {
 // @Param data query ecsusersReq.EcsUsersSearch true "成功"
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /eusr/getUserInfo [GET]
-func (eusrApi *EcsUsersApi) GetUserInfo(c *gin.Context) {
+func (eusrApi *EcsUsersApi) SelfGetUserInfo(c *gin.Context) {
 	// 请添加自己的业务逻辑
 	id := utils.GetUserID(c)
 	if id == 0 {

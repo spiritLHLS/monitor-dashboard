@@ -6,7 +6,6 @@ import (
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/model"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/service"
-	tgrUtils "github.com/flipped-aurora/gin-vue-admin/server/plugin/client/utils"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -52,7 +51,7 @@ func (p *RegisterApi) Register(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 	} else {
 		response.OkWithDetailed(systemRes.LoginResponse{
-			User:      tgrUtils.ConvertEcsUserToSysUser(user),
+			User:      user,
 			Token:     token,
 			ExpiresAt: claims.RegisteredClaims.ExpiresAt.Unix() * 1000,
 		}, "登录成功", c)
@@ -104,7 +103,7 @@ func (p *RegisterApi) Login(c *gin.Context) {
 		maxAge := int(claims.RegisteredClaims.ExpiresAt.Unix() - time.Now().Unix())
 		utils.SetToken(c, token, maxAge)
 		response.OkWithDetailed(systemRes.LoginResponse{
-			User:      tgrUtils.ConvertEcsUserToSysUser(user),
+			User:      user,
 			Token:     token,
 			ExpiresAt: claims.RegisteredClaims.ExpiresAt.Unix() * 1000,
 		}, "登录成功", c)

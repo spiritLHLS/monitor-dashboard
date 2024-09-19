@@ -24,7 +24,7 @@ func (s *EcsUsersRouter) InitEcsUsersRouter(Router *gin.RouterGroup, PublicRoute
 	{
 		eusrRouterWithoutAuth.GET("getEcsUsersPublic", eusrApi.GetEcsUsersPublic)
 		eusrRouterWithoutAuth.PUT("adminChangePassword", eusrApi.AdminChangePassword)
-		eusrRouterWithoutAuth.GET("getUserInfo", eusrApi.GetUserInfo)
+		eusrRouterWithoutAuth.GET("selfGetUserInfo", eusrApi.SelfGetUserInfo)
 		eusrRouterWithoutAuth.POST("selfModifyInfo", eusrApi.SelfModifyInfo)
 	}
 }

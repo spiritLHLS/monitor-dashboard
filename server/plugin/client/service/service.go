@@ -38,7 +38,7 @@ func (e *RegisterService) Code(tgid string) (err error) {
 	return nil
 }
 
-func (e *RegisterService) Register(register model.RegisterReq) (string, request.CustomClaims, ecsusers.EcsUsers, error) {
+func (e *RegisterService) Register(register model.RegisterReq) (string, request.CustomClaims, system.SysUser, error) {
 	// 定义错误消息常量
 	const (
 		errTGCodeRetrieval = "存储的TG验证码获取错误: %v"
@@ -55,30 +55,30 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 	// 验证TG码
 	code, err := gvaGlobal.GVA_REDIS.Get(ctx, register.Tgid).Result()
 	if err != nil {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errTGCodeRetrieval, err)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errTGCodeRetrieval, err)
 	}
 	if register.Code != code {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errTGCodeMismatch, register.Code)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errTGCodeMismatch, register.Code)
 	}
 	// 检查用户是否在特定频道中
 	_, err = service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, register.Tgid, tgrGlobal.GlobalConfig.ChannelId)
 	if err != nil {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errNotInChannel)
+		return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
 	}
 	// 验证登录要求符合的格式
 	if err := utils.Verify(register, utils.LoginVerify); err != nil {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errLoginStatus, err)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errLoginStatus, err)
 	}
 	// 验证图片验证码
 	if !base64Captcha.DefaultMemStore.Verify(register.CaptchaId, register.Captcha, true) {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errCaptcha)
+		return "", request.CustomClaims{}, system.SysUser{}, errors.New(errCaptcha)
 	}
 	// 检查用户名和密码是否为空
 	if register.Username == "" {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errEmptyUsername)
+		return "", request.CustomClaims{}, system.SysUser{}, errors.New(errEmptyUsername)
 	}
 	if register.Password == "" {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errEmptyPassword)
+		return "", request.CustomClaims{}, system.SysUser{}, errors.New(errEmptyPassword)
 	}
 	// 创建用户的订阅账户(表)
 	var euser *ecsusers.EcsUsers
@@ -90,7 +90,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 	euser.AuthorityID = tgrGlobal.GlobalConfig.AuthorityId
 	// 创建用户的订阅账户
 	if err := eusrService.CreateEcsUsers(euser); err != nil {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errAccountCreation, err)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errAccountCreation, err)
 	}
 	// 同时创建对应的系统账户：用户的ID、用户的用户名、密码、uuid相对应 - 避免casbin无法鉴权
 	sysUser := &system.SysUser{
@@ -115,7 +115,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 	// 创建用户账户
 	if err := tx.Create(sysUser).Select("ID").Error; err != nil {
 		tx.Rollback()
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errAccountCreation, err)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errAccountCreation, err)
 	}
 	// 创建用户角色
 	userAuthority := &system.SysUserAuthority{
@@ -124,18 +124,18 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 	}
 	if err := tx.Create(userAuthority).Error; err != nil {
 		tx.Rollback()
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errRoleCreation, err)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errRoleCreation, err)
 	}
 	// 提交事务
 	if err := tx.Commit().Error; err != nil {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, err
+		return "", request.CustomClaims{}, system.SysUser{}, err
 	}
 	// 登录
 	token, claims, err := utils.LoginToken(euser)
 	if err != nil {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errLoginStatus, err)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errLoginStatus, err)
 	}
-	return token, claims, *euser, err
+	return token, claims, *sysUser, err
 }
 
 func (e *RegisterService) ChangePassword(changer model.ChangePasswordReq) error {
@@ -193,7 +193,7 @@ func interfaceToInt(v interface{}) (i int) {
 	return
 }
 
-func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, request.CustomClaims, ecsusers.EcsUsers, error) {
+func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, request.CustomClaims, system.SysUser, error) {
 	// 定义错误消息常量
 	const (
 		errAdminNotFound     = "检测不到管理员账户"
@@ -203,11 +203,12 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 		errLoginFailed       = "用户名不存在或者密码错误: %v"
 		errUserDisabled      = "用户被禁止登录"
 		errCaptcha           = "验证码错误"
+		errSysLoginFailed    = "系统用户通过uuid查询失败"
 	)
 	// 检查用户是否为管理员
 	admins := strings.Split(tgrGlobal.GlobalConfig.Admins, ",")
 	if len(admins) == 0 {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errAdminNotFound)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errAdminNotFound)
 	}
 	var isAdmin bool
 	for _, a := range admins {
@@ -221,7 +222,7 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 		var ecsUser ecsusers.EcsUsers
 		if err := gvaGlobal.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("username = ?", loginUser.Username).
 			First(&ecsUser).Error; err != nil {
-			return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errUserNotFound, err)
+			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errUserNotFound, err)
 		}
 		// 暂时去除TG验证
 		//if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, ecsUser.TGID,
@@ -231,7 +232,7 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 	}
 	// 验证登录信息是否符合逻辑
 	if err := utils.Verify(loginUser, utils.LoginVerify); err != nil {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errLoginVerification, err)
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errLoginVerification, err)
 	}
 	// 处理验证码逻辑
 	openCaptcha := gvaGlobal.GVA_CONFIG.Captcha.OpenCaptcha
@@ -249,21 +250,27 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 		u, err := eusrService.Login(loginUser.Username, loginUser.Password)
 		if err != nil {
 			gvaGlobal.BlackCache.Increment(key, 1)
-			return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errLoginFailed, err)
+			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errLoginFailed, err)
 		}
 		if *u.IsFrozen {
 			gvaGlobal.GVA_LOG.Error("登陆失败! 用户被冻结，禁止登录!")
 			gvaGlobal.BlackCache.Increment(key, 1)
-			return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errUserDisabled)
+			return "", request.CustomClaims{}, system.SysUser{}, errors.New(errUserDisabled)
 		}
 		token, claims, err := utils.LoginToken(u)
 		if err != nil {
 			gvaGlobal.BlackCache.Increment(key, 1)
-			return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errLoginFailed, err)
+			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errLoginFailed, err)
 		}
-		return token, claims, u, err
+		var sysUser system.SysUser
+		err = gvaGlobal.GVA_DB.Model(&system.SysUser{}).Where("uuid = ?", u.UUID).First(sysUser).Error
+		if err != nil {
+			gvaGlobal.BlackCache.Increment(key, 1)
+			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errSysLoginFailed, err)
+		}
+		return token, claims, sysUser, err
 	}
 	// 验证码错误，增加计数
 	gvaGlobal.BlackCache.Increment(key, 1)
-	return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errCaptcha)
+	return "", request.CustomClaims{}, system.SysUser{}, errors.New(errCaptcha)
 }

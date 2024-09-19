@@ -217,7 +217,7 @@
     >
       <el-form :model="phoneForm">
         <el-form-item
-          label="TGID"
+          label="Phone"
           label-width="120px"
         >
           <el-input

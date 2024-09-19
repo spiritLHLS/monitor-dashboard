@@ -125,20 +125,21 @@ export const adminChangePassword = (data) => {
   })
 }
 
-// GetUserInfo 方法介绍
+// selfGetUserInfo 方法介绍
 // @Tags EcsUsers
 // @Summary 方法介绍
 // @accept application/json
 // @Produce application/json
 // @Param data query ecsusersReq.EcsUsersSearch true "成功"
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
-// @Router /eusr/getUserInfo [GET]
-export const getUserInfo = () => {
+// @Router /eusr/selfGetUserInfo [GET]
+export const selfGetUserInfo = () => {
   return service({
-    url: '/eusr/getUserInfo',
+    url: '/eusr/selfGetUserInfo',
     method: 'GET'
   })
 }
+
 // SelfModifyInfo 仅认证用户修改自己的信息
 // @Tags EcsUsers
 // @Summary 仅认证用户修改自己的信息
