@@ -167,11 +167,7 @@ func (subApi *SubscribeApi) SelfGetSub(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	uuid := searchInfo.UserUuid
-	if uuid.String() == "" {
-		response.FailWithMessage("用户UUID不能为空", c)
-		return
-	}
+	uuid := utils.GetUserUuid(c)
 	list, total, err := subService.SelfGetSub(uuid, searchInfo)
 	if err != nil {
 		global.GVA_LOG.Error("获取订阅失败!", zap.Error(err))
@@ -202,11 +198,11 @@ func (subApi *SubscribeApi) SelfCreateSub(c *gin.Context) {
 		return
 	}
 	uuid := utils.GetUserUuid(c)
-	if uuid.String() != createReq.UserUuid.String() {
-		response.FailWithMessage("无权对其他用户进行操作", c)
+	if createReq.ProductId == nil {
+		response.FailWithMessage("ProductId不能为空", c)
 		return
 	}
-	err = subService.SelfCreateSub(createReq.UserUuid, *createReq.ProductId, createReq.NotifyChannel)
+	err = subService.SelfCreateSub(uuid, *createReq.ProductId, createReq.NotifyChannel)
 	if err != nil {
 		global.GVA_LOG.Error("创建订阅失败!", zap.Error(err))
 		response.FailWithMessage("创建订阅失败", c)
@@ -231,11 +227,11 @@ func (subApi *SubscribeApi) SelfDeleteSub(c *gin.Context) {
 		return
 	}
 	uuid := utils.GetUserUuid(c)
-	if uuid.String() != deleteReq.UserUuid.String() {
-		response.FailWithMessage("无权对其他用户进行操作", c)
+	if deleteReq.ProductId == nil {
+		response.FailWithMessage("ProductId不能为空", c)
 		return
 	}
-	err = subService.SelfDeleteSub(deleteReq.UserUuid, *deleteReq.ProductId)
+	err = subService.SelfDeleteSub(uuid, *deleteReq.ProductId)
 	if err != nil {
 		global.GVA_LOG.Error("删除订阅失败!", zap.Error(err))
 		response.FailWithMessage("删除订阅失败", c)
@@ -260,11 +256,11 @@ func (subApi *SubscribeApi) SelfUpdateSub(c *gin.Context) {
 		return
 	}
 	uuid := utils.GetUserUuid(c)
-	if uuid.String() != updateReq.UserUuid.String() {
-		response.FailWithMessage("无权对其他用户进行操作", c)
+	if updateReq.ProductId == nil {
+		response.FailWithMessage("ProductId不能为空", c)
 		return
 	}
-	err = subService.SelfUpdateSub(updateReq.UserUuid, *updateReq.ProductId, updateReq.NotifyChannel)
+	err = subService.SelfUpdateSub(uuid, *updateReq.ProductId, updateReq.NotifyChannel)
 	if err != nil {
 		global.GVA_LOG.Error("更新订阅失败!", zap.Error(err))
 		response.FailWithMessage("更新订阅失败", c)

@@ -2,7 +2,7 @@
     <div class="product-dashboard">
         <div class="content-wrapper">
             <aside class="sidebar">
-                <h1 class="site-title">商品与订阅管理</h1>
+                <h1 class="site-title">订阅配置</h1>
                 <el-form @submit.prevent="handleSearch" class="search-form">
                     <el-input v-for="(field, key) in searchFields" :key="key" v-model="searchInfo[key]"
                         :placeholder="field.placeholder" class="search-input">
@@ -27,8 +27,15 @@
 
             <main class="main-content">
                 <el-card class="table-card">
+                    <div class="batch-actions" v-if="displayMode === 'all'">
+                        <el-button type="primary" @click="handleBatchSubscribe" :disabled="selectedProducts.length === 0">
+                            批量订阅
+                        </el-button>
+                    </div>
                     <el-table v-loading="loading" :data="tableData" style="width: 100%"
-                        :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange">
+                        :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange"
+                        @selection-change="handleSelectionChange">
+                        <el-table-column type="selection" width="55" v-if="displayMode === 'all'" />
                         <el-table-column v-for="col in tableColumns" :key="col.prop" :prop="col.prop" :label="col.label"
                             :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip>
                             <template #default="{ row }" v-if="col.prop === 'actions'">
@@ -112,6 +119,8 @@ const sortBy = ref('stock')
 const sortOrder = ref('desc')
 const detailsVisible = ref(false)
 const selectedProduct = ref({})
+const selectedProducts = ref([])
+const subscribedProductIds = ref(new Set())
 
 const processData = (data) => {
     return data
@@ -144,8 +153,21 @@ const getTableData = async () => {
 
         if (response.code === 0) {
             tableData.value = response.data.list.map(item => ({
-                ...item,
-                isSubscribed: displayMode.value === 'subscribed'
+                id: item.ID,
+                createdAt: item.CreatedAt,
+                updatedAt: item.UpdatedAt,
+                tag: item.tag,
+                cpu: item.cpu,
+                memory: item.memory,
+                disk: item.disk,
+                traffic: item.traffic,
+                portSpeed: item.portSpeed,
+                location: item.location,
+                price: item.price,
+                additional: item.additional,
+                oldStock: item.oldStock,
+                stock: item.stock,
+                isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.ID)
             }))
             total.value = response.data.total
         } else {
@@ -156,6 +178,17 @@ const getTableData = async () => {
         ElMessage.error('获取数据出错')
     } finally {
         loading.value = false
+    }
+}
+
+const getSubscribedProducts = async () => {
+    try {
+        const response = await selfGetSub({ page: 1, pageSize: 1000 })
+        if (response.code === 0) {
+            subscribedProductIds.value = new Set(response.data.list.map(item => item.ID))
+        }
+    } catch (error) {
+        console.error('获取已订阅商品出错:', error)
     }
 }
 
@@ -197,10 +230,11 @@ const handleDisplayModeChange = () => {
 
 const handleSubscribe = async (row) => {
     try {
-        const response = await selfCreateSub({ productId: row.id, notifyChannel: 'default' })
+        const response = await selfCreateSub({product_id: row.id, notify_channel: 'telegram_bot' })
         if (response.code === 0) {
             ElMessage.success('订阅成功')
             row.isSubscribed = true
+            subscribedProductIds.value.add(row.id)
         } else {
             ElMessage.error(response.message || '订阅失败')
         }
@@ -212,7 +246,7 @@ const handleSubscribe = async (row) => {
 
 const handleUnsubscribe = async (row) => {
     try {
-        const response = await selfDeleteSub({ productId: row.id })
+        const response = await selfDeleteSub({ product_id: row.id })
         if (response.code === 0) {
             ElMessage.success('取消订阅成功')
             if (displayMode.value === 'subscribed') {
@@ -220,6 +254,7 @@ const handleUnsubscribe = async (row) => {
             } else {
                 row.isSubscribed = false
             }
+            subscribedProductIds.value.delete(row.id)
         } else {
             ElMessage.error(response.message || '取消订阅失败')
         }
@@ -241,15 +276,28 @@ const handleCloseDetails = () => {
     detailsVisible.value = false
 }
 
+const handleSelectionChange = (selection) => {
+    selectedProducts.value = selection
+}
+
+const handleBatchSubscribe = async () => {
+    for (const product of selectedProducts.value) {
+        if (!product.isSubscribed) {
+            await handleSubscribe(product)
+        }
+    }
+    getTableData()
+}
+
 watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
     getTableData()
 })
 
-onMounted(() => {
+onMounted(async () => {
+    await getSubscribedProducts()
     getTableData()
 })
 </script>
-
 
 <style scoped>
 .product-dashboard {
@@ -315,6 +363,10 @@ onMounted(() => {
 .table-card {
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     border-radius: 4px;
+}
+
+.batch-actions {
+    margin-bottom: 16px;
 }
 
 .pagination-wrapper {

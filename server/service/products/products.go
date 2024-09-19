@@ -268,9 +268,9 @@ func (pdService *ProductsService) buildPublicQueryConditions(db *gorm.DB, info p
 	if info.Stock != nil {
 		db = db.Where("stock > ?", info.Stock)
 	} else {
-		db = db.Where("cpu <> ?", "")
-		db = db.Where("memory <> ?", "")
-		db = db.Where("disk <> ?", "")
+		//db = db.Where("cpu <> ?", "")
+		//db = db.Where("memory <> ?", "")
+		//db = db.Where("disk <> ?", "")
 		db = db.Where("price <> ? AND price IS NOT NULL", "").Order("LENGTH(tag)")
 	}
 	return db
