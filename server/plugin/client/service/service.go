@@ -101,7 +101,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 		Phone:       "",
 		AuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
 		Authority: system.SysAuthority{
-			DefaultRouter: "dash",
+			DefaultRouter: tgrGlobal.GlobalConfig.DefaultRouter,
 			AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
 		},
 	}
@@ -263,10 +263,14 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errLoginFailed, err)
 		}
 		var sysUser system.SysUser
-		err = gvaGlobal.GVA_DB.Model(&system.SysUser{}).Where("uuid = ?", u.UUID).First(sysUser).Error
+		err = gvaGlobal.GVA_DB.Model(&system.SysUser{}).Where("uuid = ?", u.UUID).First(&sysUser).Error
 		if err != nil {
 			gvaGlobal.BlackCache.Increment(key, 1)
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errSysLoginFailed, err)
+		}
+		sysUser.Authority = system.SysAuthority{
+			DefaultRouter: tgrGlobal.GlobalConfig.DefaultRouter,
+			AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
 		}
 		return token, claims, sysUser, err
 	}

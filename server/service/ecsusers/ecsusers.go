@@ -7,6 +7,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
 	ecsusersReq "github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	tgrGlobal "github.com/flipped-aurora/gin-vue-admin/server/plugin/client/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
@@ -55,7 +56,7 @@ func (eusrService *EcsUsersService) CreateEcsUsers(eusr *ecsusers.EcsUsers) erro
 		Phone:       "",
 		AuthorityId: eusr.AuthorityID,
 		Authority: system.SysAuthority{
-			DefaultRouter: "dash",
+			DefaultRouter: tgrGlobal.GlobalConfig.DefaultRouter,
 			AuthorityId:   eusr.AuthorityID,
 		},
 	}

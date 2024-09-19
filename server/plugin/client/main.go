@@ -9,12 +9,13 @@ import (
 type RegisterPlugin struct {
 }
 
-func CreateRegisterPlug(AuthorityId uint, TgBotToken string, CodeLength int, ChannelId string, Admins string) *RegisterPlugin {
+func CreateRegisterPlug(AuthorityId uint, DefaultRouter string, TgBotToken string, CodeLength int, ChannelId string, Admins string) *RegisterPlugin {
 	global.GlobalConfig.AuthorityId = AuthorityId
 	global.GlobalConfig.TgBotToken = TgBotToken
 	global.GlobalConfig.CodeLength = CodeLength
 	global.GlobalConfig.ChannelId = ChannelId
 	global.GlobalConfig.Admins = Admins
+	global.GlobalConfig.DefaultRouter = DefaultRouter
 	return &RegisterPlugin{}
 }
 
