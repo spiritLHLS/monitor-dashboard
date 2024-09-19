@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
 	"github.com/gofrs/uuid/v5"
 	"time"
 )
@@ -14,5 +14,5 @@ type SubscribeSearch struct {
 	Status         *int       `json:"status" form:"status" `
 	NotifyChannel  string     `json:"notify_channel" form:"notify_channel" `
 	LastUpdate     *time.Time `json:"last_update" form:"last_update" `
-	request.PageInfo
+	productsReq.ProductsSearch
 }

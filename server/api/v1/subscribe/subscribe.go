@@ -6,6 +6,7 @@ import (
 	productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/subscribe"
 	subscribeReq "github.com/flipped-aurora/gin-vue-admin/server/model/subscribe/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -171,13 +172,18 @@ func (subApi *SubscribeApi) SelfGetSub(c *gin.Context) {
 		response.FailWithMessage("用户UUID不能为空", c)
 		return
 	}
-	subs, err := subService.SelfGetSub(uuid)
+	list, total, err := subService.SelfGetSub(uuid, searchInfo)
 	if err != nil {
 		global.GVA_LOG.Error("获取订阅失败!", zap.Error(err))
 		response.FailWithMessage("获取订阅失败", c)
 		return
 	}
-	response.OkWithDetailed(gin.H{"subscriptions": subs}, "获取成功", c)
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     searchInfo.Page,
+		PageSize: searchInfo.PageSize,
+	}, "获取成功", c)
 }
 
 // SelfCreateSub 前端用户创建关联的商品推送记录
@@ -193,6 +199,11 @@ func (subApi *SubscribeApi) SelfCreateSub(c *gin.Context) {
 	err := c.ShouldBindJSON(&createReq)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	uuid := utils.GetUserUuid(c)
+	if uuid.String() != createReq.UserUuid.String() {
+		response.FailWithMessage("无权对其他用户进行操作", c)
 		return
 	}
 	err = subService.SelfCreateSub(createReq.UserUuid, *createReq.ProductId, createReq.NotifyChannel)
@@ -219,6 +230,11 @@ func (subApi *SubscribeApi) SelfDeleteSub(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	uuid := utils.GetUserUuid(c)
+	if uuid.String() != deleteReq.UserUuid.String() {
+		response.FailWithMessage("无权对其他用户进行操作", c)
+		return
+	}
 	err = subService.SelfDeleteSub(deleteReq.UserUuid, *deleteReq.ProductId)
 	if err != nil {
 		global.GVA_LOG.Error("删除订阅失败!", zap.Error(err))
@@ -226,6 +242,35 @@ func (subApi *SubscribeApi) SelfDeleteSub(c *gin.Context) {
 		return
 	}
 	response.OkWithMessage("删除订阅成功", c)
+}
+
+// SelfUpdateSub 前端用户更新自己已订阅的商品信息
+// @Tags Subscribe
+// @Summary 前端用户更新自己已订阅的商品信息
+// @accept application/json
+// @Produce application/json
+// @Param data body subscribeReq.UpdateSubscribeRequest true "更新订阅请求"
+// @Success 200 {object} response.Response{msg=string} "成功"
+// @Router /sub/selfUpdateSub [POST]
+func (subApi *SubscribeApi) SelfUpdateSub(c *gin.Context) {
+	var updateReq subscribeReq.SubscribeSearch
+	err := c.ShouldBindJSON(&updateReq)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	uuid := utils.GetUserUuid(c)
+	if uuid.String() != updateReq.UserUuid.String() {
+		response.FailWithMessage("无权对其他用户进行操作", c)
+		return
+	}
+	err = subService.SelfUpdateSub(updateReq.UserUuid, *updateReq.ProductId, updateReq.NotifyChannel)
+	if err != nil {
+		global.GVA_LOG.Error("更新订阅失败!", zap.Error(err))
+		response.FailWithMessage("更新订阅失败", c)
+		return
+	}
+	response.OkWithMessage("更新订阅成功", c)
 }
 
 // SelfGetAllPd 前端用户获取所有的商品
@@ -255,28 +300,4 @@ func (subApi *SubscribeApi) SelfGetAllPd(c *gin.Context) {
 		Page:     searchInfo.Page,
 		PageSize: searchInfo.PageSize,
 	}, "获取成功", c)
-}
-
-// SelfUpdateSub 前端用户更新自己已订阅的商品信息
-// @Tags Subscribe
-// @Summary 前端用户更新自己已订阅的商品信息
-// @accept application/json
-// @Produce application/json
-// @Param data body subscribeReq.UpdateSubscribeRequest true "更新订阅请求"
-// @Success 200 {object} response.Response{msg=string} "成功"
-// @Router /sub/selfUpdateSub [POST]
-func (subApi *SubscribeApi) SelfUpdateSub(c *gin.Context) {
-	var updateReq subscribeReq.SubscribeSearch
-	err := c.ShouldBindJSON(&updateReq)
-	if err != nil {
-		response.FailWithMessage(err.Error(), c)
-		return
-	}
-	err = subService.SelfUpdateSub(updateReq.UserUuid, *updateReq.ProductId, updateReq.NotifyChannel)
-	if err != nil {
-		global.GVA_LOG.Error("更新订阅失败!", zap.Error(err))
-		response.FailWithMessage("更新订阅失败", c)
-		return
-	}
-	response.OkWithMessage("更新订阅成功", c)
 }
