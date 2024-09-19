@@ -166,7 +166,6 @@ func (subService *SubscribeService) buildQueryConditions(db *gorm.DB, info produ
 		"tag": info.Tag, "cpu": info.Cpu, "memory": info.Memory,
 		"disk": info.Disk, "traffic": info.Traffic, "port_speed": info.PortSpeed,
 		"location": info.Location, "price": info.Price, "additional": info.Additional,
-		"url": info.Url, "billing_type": info.BillingType,
 	}
 	for field, value := range stringFields {
 		if value != "" {
@@ -179,22 +178,6 @@ func (subService *SubscribeService) buildQueryConditions(db *gorm.DB, info produ
 	}
 	if info.Stock != nil {
 		db = db.Where("stock > ?", info.Stock)
-	}
-	if info.MultiCheck != nil {
-		db = db.Where("multiCheck = ?", info.Intervals)
-	}
-	if info.Intervals != nil {
-		db = db.Where("intervals < ?", info.Intervals)
-	}
-	if info.PushIntervals != nil {
-		db = db.Where("push_intervals < ?", info.PushIntervals)
-	}
-	// 其他字段查询
-	if info.MessageId != "" {
-		db = db.Where("message_id = ?", info.MessageId)
-	}
-	if info.PushTime != nil {
-		db = db.Where("push_time > ?", info.PushTime)
 	}
 	return db
 }
