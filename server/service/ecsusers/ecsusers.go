@@ -335,10 +335,15 @@ func (eusrService *EcsUsersService) GetEcsUsersPublic() {
 
 // SelfModifyInfo 仅认证用户修改自己的信息
 // Author [yourname](https://github.com/yourname)
-func (eusrService *EcsUsersService) SelfModifyInfo(uuid uuid.UUID, eusr *ecsusers.EcsUsers) (err error) {
-	if uuid != eusr.UUID {
-		return errors.New("你不能修改除了用户本身以外的用户信息")
+func (eusrService *EcsUsersService) SelfModifyInfo(eusr *ecsusers.EcsSubUsers) (err error) {
+	// 只在密码字段有值时更新密码
+	if eusr.Password != "" {
+		eusr.Password = utils.BcryptHash(eusr.Password)
+	} else {
+		// 如果密码为空，从更新字段中移除密码
+		eusr.Password = ""
 	}
-	err = global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", eusr.UUID).Updates(&eusr).Error
+	// 使用 Updates 方法进行部分更新
+	err = global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", eusr.UUID).Updates(eusr).Error
 	return
 }

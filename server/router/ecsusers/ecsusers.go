@@ -16,15 +16,16 @@ func (s *EcsUsersRouter) InitEcsUsersRouter(Router *gin.RouterGroup, PublicRoute
 		eusrRouter.DELETE("deleteEcsUsers", eusrApi.DeleteEcsUsers)
 		eusrRouter.DELETE("deleteEcsUsersByIds", eusrApi.DeleteEcsUsersByIds)
 		eusrRouter.PUT("updateEcsUsers", eusrApi.UpdateEcsUsers)
+		// 以下为自己实现增加的
+		eusrRouter.PUT("adminChangePassword", eusrApi.AdminChangePassword)
+		eusrRouter.GET("selfGetUserInfo", eusrApi.SelfGetUserInfo)
+		eusrRouter.POST("selfModifyInfo", eusrApi.SelfModifyInfo)
 	}
 	{
 		eusrRouterWithoutRecord.GET("findEcsUsers", eusrApi.FindEcsUsers)
 		eusrRouterWithoutRecord.GET("getEcsUsersList", eusrApi.GetEcsUsersList)
 	}
 	{
-		eusrRouterWithoutAuth.GET("getEcsUsersPublic", eusrApi.GetEcsUsersPublic)
-		eusrRouterWithoutAuth.PUT("adminChangePassword", eusrApi.AdminChangePassword)
-		eusrRouterWithoutAuth.GET("selfGetUserInfo", eusrApi.SelfGetUserInfo)
-		eusrRouterWithoutAuth.POST("selfModifyInfo", eusrApi.SelfModifyInfo)
+		eusrRouterWithoutAuth.GET("getEcsUsersPublic", eusrApi.GetEcsUsersPublic) // 示例
 	}
 }

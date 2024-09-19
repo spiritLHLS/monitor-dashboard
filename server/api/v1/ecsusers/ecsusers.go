@@ -1,6 +1,7 @@
 package ecsusers
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
@@ -204,12 +205,18 @@ func (eusrApi *EcsUsersApi) AdminChangePassword(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /eusr/getUserInfo [GET]
 func (eusrApi *EcsUsersApi) SelfGetUserInfo(c *gin.Context) {
-	// 请添加自己的业务逻辑
 	id := utils.GetUserID(c)
 	if id == 0 {
 		response.FailWithMessage("失败", c)
 		return
 	}
+	// 通过cookie中的token获取id比对，如果不是同一用户，则不予信息获取
+	currentID := utils.GetUserID(c)
+	if id != currentID {
+		response.FailWithMessage("无权获取其他用户的信息", c)
+		return
+	}
+	// 正常进行信息获取
 	user, err := eusrService.GetUserInfo(id)
 	if err != nil {
 		global.GVA_LOG.Error("失败!", zap.Error(err))
@@ -228,11 +235,25 @@ func (eusrApi *EcsUsersApi) SelfGetUserInfo(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /eusr/selfModifyInfo [POST]
 func (eusrApi *EcsUsersApi) SelfModifyInfo(c *gin.Context) {
-	//err := eusrService.SelfModifyInfo()
-	//if err != nil {
-	//	global.GVA_LOG.Error("失败!", zap.Error(err))
-	//	response.FailWithMessage("失败", c)
-	//	return
-	//}
-	response.OkWithData("返回数据", c)
+	var eusr ecsusers.EcsSubUsers
+	err := c.ShouldBindJSON(&eusr)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	// 通过cookie中的token获取uuid比对，如果不是同一用户，则不予修改更新
+	currentUUID := utils.GetUserUuid(c)
+	currentUUIDStr := fmt.Sprintf("%d", currentUUID)
+	if eusr.UUID.String() != currentUUIDStr {
+		response.FailWithMessage("无权修改其他用户的信息", c)
+		return
+	}
+	// 进行修改更新
+	err = eusrService.SelfModifyInfo(&eusr)
+	if err != nil {
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		response.FailWithMessage("更新失败:"+err.Error(), c)
+		return
+	}
+	response.OkWithMessage("更新成功", c)
 }

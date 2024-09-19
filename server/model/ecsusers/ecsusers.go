@@ -27,13 +27,14 @@ type EcsUsers struct {
 	AuthorityID  uint      `json:"authorityID" form:"authorityID" gorm:"default:8881;column:authority_id;comment:用户角色;"`                                                //用户角色
 }
 
-// 订阅用户客户端需要返回个人信息时需要返回的内容
+// 订阅用户客户端可自行更新的内容
 type EcsSubUsers struct {
 	UUID     uuid.UUID `json:"uuid" form:"uuid" gorm:"column:uuid;comment:用户唯一标识;"`                                                                                 //唯一标识
 	Nickname string    `json:"nickname" form:"nickname" gorm:"default:新用户;column:nickname;comment:用户昵称;" binding:"required"`                                        //昵称
 	Avatar   string    `json:"avatar" form:"avatar" gorm:"default:https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png;column:avatar;comment:用户头像URL;"` //头像
 	TGID     string    `json:"tgID" form:"tgID" gorm:"column:tg_id;comment:Telegram ID;" binding:"required"`                                                        //TGID
 	Email    string    `json:"email" form:"email" gorm:"column:email;comment:用户邮箱;"`                                                                                //邮箱
+	Password string    `json:"password" form:"password" gorm:"column:password;comment:用户密码;" binding:"required"`                                                    //密码
 	//QQNumber     string    `json:"qqNumber" form:"qqNumber" gorm:"column:qq_number;comment:QQ号码;"`                                                                      //QQ号
 	//WeChatNumber string    `json:"weChatNumber" form:"weChatNumber" gorm:"column:we_chat_number;comment:微信号码;"`                                                         //微信号
 	//PushChannel1 string    `json:"pushChannel1" form:"pushChannel1" gorm:"column:push_channel1;comment:推送渠道1;"`                                                         //推送渠道1

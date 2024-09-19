@@ -222,7 +222,7 @@
         >
           <el-input
             v-model="phoneForm.phone"
-            placeholder="请输入TGID"
+            placeholder="请输入Phone"
             autocomplete="off"
           />
         </el-form-item>
