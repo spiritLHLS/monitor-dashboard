@@ -2,7 +2,7 @@
   <div>
     <div class="gva-form-box">
       <el-form :model="formData" ref="elFormRef" label-position="right" :rules="rule" label-width="80px">
-        <el-form-item label="用户ID:" prop="user_uuid">
+        <el-form-item label="用户UUID:" prop="user_uuid">
           <el-input v-model.number="formData.user_uuid" :clearable="true" placeholder="请输入" />
         </el-form-item>
         <el-form-item label="商品ID:" prop="product_id">

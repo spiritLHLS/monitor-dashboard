@@ -156,11 +156,11 @@
         <el-form-item label="昵称:" prop="nickname">
           <el-input v-model="formData.nickname" :clearable="true" placeholder="请输入昵称" />
         </el-form-item>
-        <el-form-item label="头像:" prop="avatar">
-          <SelectImage v-model="formData.avatar" file-type="image" />
-        </el-form-item>
         <el-form-item label="密码:" prop="password">
           <el-input v-model="formData.password" :clearable="true" placeholder="请输入密码" :disabled="type === 'update'" />
+        </el-form-item>
+        <el-form-item label="头像:" prop="avatar">
+          <SelectImage v-model="formData.avatar" file-type="image" />
         </el-form-item>
         <el-form-item label="是否冻结:" prop="isFrozen">
           <el-switch v-model="formData.isFrozen" active-color="#13ce66" inactive-color="#ff4949" active-text="是"

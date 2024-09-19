@@ -63,7 +63,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 	// 检查用户是否在特定频道中
 	_, err = service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, register.Tgid, tgrGlobal.GlobalConfig.ChannelId)
 	if err != nil {
-		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errNotInChannel, err)
+		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errNotInChannel)
 	}
 	// 验证登录要求符合的格式
 	if err := utils.Verify(register, utils.LoginVerify); err != nil {
@@ -101,7 +101,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 		Phone:       "",
 		AuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
 		Authority: system.SysAuthority{
-			DefaultRouter: "dashboard",
+			DefaultRouter: "dash",
 			AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
 		},
 	}
@@ -113,7 +113,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 		}
 	}()
 	// 创建用户账户
-	if err := tx.Create(sysUser).Error; err != nil {
+	if err := tx.Create(sysUser).Select("ID").Error; err != nil {
 		tx.Rollback()
 		return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errAccountCreation, err)
 	}
@@ -198,7 +198,7 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 	const (
 		errAdminNotFound     = "检测不到管理员账户"
 		errUserNotFound      = "检测不到该用户：%v"
-		errNotInChannel      = "检测到用户不在频道中：%v"
+		errNotInChannel      = "检测到用户不在频道中"
 		errLoginVerification = "登录验证失败: %v"
 		errLoginFailed       = "用户名不存在或者密码错误: %v"
 		errUserDisabled      = "用户被禁止登录"
@@ -223,10 +223,11 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 			First(&ecsUser).Error; err != nil {
 			return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errUserNotFound, err)
 		}
-		if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, ecsUser.TGID,
-			tgrGlobal.GlobalConfig.ChannelId); err != nil {
-			return "", request.CustomClaims{}, ecsusers.EcsUsers{}, fmt.Errorf(errNotInChannel, err)
-		}
+		// 暂时去除TG验证
+		//if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, ecsUser.TGID,
+		//	tgrGlobal.GlobalConfig.ChannelId); err != nil {
+		//	return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errNotInChannel)
+		//}
 	}
 	// 验证登录信息是否符合逻辑
 	if err := utils.Verify(loginUser, utils.LoginVerify); err != nil {

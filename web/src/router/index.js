@@ -49,6 +49,18 @@ const routes = [{
   name: 'About',
   component: () => import('@/view/about/index.vue')
 },
+// 写入可以访问的路由
+{
+  path: '/person',
+  name: 'person',
+  component: () => import('@/view/person/person.vue')
+},
+{
+  path: '/dash',
+  name: 'dash',
+  component: () => import('@/view/dashboard/index.vue')
+},
+// 结束
 {
   path: '/:catchAll(.*)',
   meta: {

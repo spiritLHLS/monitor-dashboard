@@ -6,6 +6,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
 	ecsusersReq "github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
@@ -29,11 +30,50 @@ func (eusrService *EcsUsersService) CreateEcsUsers(eusr *ecsusers.EcsUsers) erro
 	// 生成 UUID
 	var err error
 	eusr.UUID, err = uuid.NewV4()
+	eusr.AuthorityID = uint(global.GVA_VP.GetInt("tgr.authority_id"))
 	if err != nil {
 		return fmt.Errorf("生成 UUID 失败: %w", err)
 	}
-	// 创建用户
-	return global.GVA_DB.Create(eusr).Error
+	// 开始事务
+	tx := global.GVA_DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	// 创建订阅的用户
+	if err := tx.Create(eusr).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 创建对应的系统用户
+	sysUser := &system.SysUser{
+		UUID:        eusr.UUID,
+		Username:    eusr.Username,
+		Password:    eusr.Password,
+		NickName:    eusr.Nickname,
+		Phone:       "",
+		AuthorityId: eusr.AuthorityID,
+		Authority: system.SysAuthority{
+			DefaultRouter: "dash",
+			AuthorityId:   eusr.AuthorityID,
+		},
+	}
+	// 使用 Select 方法来返回插入后的 ID
+	if err := tx.Create(sysUser).Select("ID").Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 保存用户权限关系
+	if err := tx.Create(&system.SysUserAuthority{
+		SysUserId:               sysUser.ID,
+		SysAuthorityAuthorityId: sysUser.AuthorityId,
+	}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 提交事务
+	return tx.Commit().Error
 }
 
 // 验证必填字段
@@ -83,15 +123,93 @@ func checkUniqueness(eusr *ecsusers.EcsUsers) error {
 // DeleteEcsUsers 删除订阅用户记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (eusrService *EcsUsersService) DeleteEcsUsers(ID string) (err error) {
-	err = global.GVA_DB.Delete(&ecsusers.EcsUsers{}, "id = ?", ID).Error
-	return err
+	// 开始事务
+	tx := global.GVA_DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	// 查询订阅用户，获取UUID
+	var ecsUser ecsusers.EcsUsers
+	if err := tx.Where("id = ?", ID).First(&ecsUser).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 根据UUID查询系统用户
+	var sysUser system.SysUser
+	if err := tx.Where("uuid = ?", ecsUser.UUID).First(&sysUser).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 删除用户权限关系
+	if err := tx.Where("sys_user_id = ?", sysUser.ID).Delete(&system.SysUserAuthority{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 删除系统用户
+	if err := tx.Delete(&sysUser).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 删除订阅用户
+	if err := tx.Delete(&ecsUser).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 提交事务
+	return tx.Commit().Error
 }
 
 // DeleteEcsUsersByIds 批量删除订阅用户记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (eusrService *EcsUsersService) DeleteEcsUsersByIds(IDs []string) (err error) {
-	err = global.GVA_DB.Delete(&[]ecsusers.EcsUsers{}, "id in ?", IDs).Error
-	return err
+	// 开始事务
+	tx := global.GVA_DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	// 查询所有相关的订阅用户
+	var ecsUsers []ecsusers.EcsUsers
+	if err := tx.Where("id IN ?", IDs).Find(&ecsUsers).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 提取所有UUID
+	var uuids []string
+	for _, user := range ecsUsers {
+		uuids = append(uuids, user.UUID.String())
+	}
+	// 查询对应的系统用户
+	var sysUsers []system.SysUser
+	if err := tx.Where("uuid IN ?", uuids).Find(&sysUsers).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 提取所有系统用户ID
+	var sysUserIDs []uint
+	for _, user := range sysUsers {
+		sysUserIDs = append(sysUserIDs, user.ID)
+	}
+	// 删除用户权限关系
+	if err := tx.Where("sys_user_id IN ?", sysUserIDs).Delete(&system.SysUserAuthority{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 删除系统用户
+	if err := tx.Delete(&sysUsers).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 删除订阅用户
+	if err := tx.Delete(&ecsUsers).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 提交事务
+	return tx.Commit().Error
 }
 
 // UpdateEcsUsers 更新订阅用户记录
@@ -212,4 +330,14 @@ func (eusrService *EcsUsersService) GetUserInfo(id uint) (user ecsusers.EcsUsers
 func (eusrService *EcsUsersService) GetEcsUsersPublic() {
 	// 此方法为获取数据源定义的数据
 	// 请自行实现
+}
+
+// SelfModifyInfo 仅认证用户修改自己的信息
+// Author [yourname](https://github.com/yourname)
+func (eusrService *EcsUsersService) SelfModifyInfo(uuid uuid.UUID, eusr *ecsusers.EcsUsers) (err error) {
+	if uuid != eusr.UUID {
+		return errors.New("你不能修改除了用户本身以外的用户信息")
+	}
+	err = global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", eusr.UUID).Updates(&eusr).Error
+	return
 }

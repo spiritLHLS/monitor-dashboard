@@ -6,6 +6,7 @@ import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 Nprogress.configure({ showSpinner: false, ease: 'ease', speed: 500 })
 
+// 这里仅列入无需登录就能访问的页面路由 对应 src\router\index.js 的内容
 const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About', 'Redirect']
 
 const getRouter = async(userStore) => {
@@ -99,7 +100,7 @@ router.beforeEach(async(to, from) => {
           if (router.hasRoute(userStore.userInfo.authority.defaultRouter)) {
             return { ...to, replace: true }
           } else {
-            return { path: '/layout/404' }
+            return { path: '/layout/404' } // /layout/404 --> /layout/dash
           }
         } else {
           return {
@@ -111,7 +112,7 @@ router.beforeEach(async(to, from) => {
         if (to.matched.length) {
           return true
         } else {
-          return { path: '/layout/404' }
+          return { path: '/layout/404' } // /layout/404 --> /layout/person
         }
       }
     }

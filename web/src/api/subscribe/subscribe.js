@@ -108,3 +108,16 @@ export const getSubscribePublic = () => {
     method: 'get',
   })
 }
+// SelfCreateSub 仅当前用户创建当前用户关联的商品推送记录
+// @Tags Subscribe
+// @Summary 仅当前用户创建当前用户关联的商品推送记录
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /sub/selfCreateSub [POST]
+export const selfCreateSub = () => {
+  return service({
+    url: '/sub/selfCreateSub',
+    method: 'POST'
+  })
+}

@@ -139,3 +139,16 @@ export const getUserInfo = () => {
     method: 'GET'
   })
 }
+// SelfModifyInfo 仅认证用户修改自己的信息
+// @Tags EcsUsers
+// @Summary 仅认证用户修改自己的信息
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/selfModifyInfo [POST]
+export const selfModifyInfo = () => {
+  return service({
+    url: '/eusr/selfModifyInfo',
+    method: 'POST'
+  })
+}

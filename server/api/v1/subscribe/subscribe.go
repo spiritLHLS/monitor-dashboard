@@ -169,3 +169,22 @@ func (subApi *SubscribeApi) GetSubscribePublic(c *gin.Context) {
        "info": "不需要鉴权的订阅接口信息",
     }, "获取成功", c)
 }
+// SelfCreateSub 仅当前用户创建当前用户关联的商品推送记录
+// @Tags Subscribe
+// @Summary 仅当前用户创建当前用户关联的商品推送记录
+// @accept application/json
+// @Produce application/json
+// @Param data query subscribeReq.SubscribeSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /sub/selfCreateSub [POST]
+func (subApi *SubscribeApi)SelfCreateSub(c *gin.Context) {
+    // 请添加自己的业务逻辑
+    err := subService.SelfCreateSub()
+    if err != nil {
+        global.GVA_LOG.Error("失败!", zap.Error(err))
+   		response.FailWithMessage("失败", c)
+   		return
+   	}
+   	response.OkWithData("返回数据",c)
+}
+

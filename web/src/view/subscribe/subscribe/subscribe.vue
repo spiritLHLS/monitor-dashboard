@@ -25,7 +25,7 @@
         </el-form-item>
         <template v-if="showAllQuery">
           <div class="row">
-            <el-form-item label="用户ID" prop="user_uuid">
+            <el-form-item label="用户UUID" prop="user_uuid">
               <el-input v-model.number="searchInfo.user_uuid" placeholder="搜索条件" />
             </el-form-item>
             <el-form-item label="商品ID" prop="product_id">
@@ -63,7 +63,7 @@
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
 
-        <el-table-column align="left" label="用户ID" prop="user_uuid" width="120" />
+        <el-table-column align="left" label="用户UUID" prop="user_uuid" width="120" />
         <el-table-column align="left" label="商品ID" prop="product_id" width="120" />
         <el-table-column align="left" label="订阅状态" prop="status" width="120" />
         <el-table-column align="left" label="通知渠道" prop="notify_channel" width="120" />
@@ -100,8 +100,8 @@
       </template>
 
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-        <el-form-item label="用户ID:" prop="user_uuid">
-          <el-input v-model.number="formData.user_uuid" :clearable="true" placeholder="请输入用户ID" />
+        <el-form-item label="用户UUID:" prop="user_uuid">
+          <el-input v-model.number="formData.user_uuid" :clearable="true" placeholder="请输入用户UUID" />
         </el-form-item>
         <el-form-item label="商品ID:" prop="product_id">
           <el-input v-model.number="formData.product_id" :clearable="true" placeholder="请输入商品ID" />
@@ -121,7 +121,7 @@
 
     <el-drawer destroy-on-close size="800" v-model="detailShow" :show-close="true" :before-close="closeDetailShow">
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="用户ID">
+        <el-descriptions-item label="用户UUID">
           {{ detailFrom.user_uuid }}
         </el-descriptions-item>
         <el-descriptions-item label="商品ID">

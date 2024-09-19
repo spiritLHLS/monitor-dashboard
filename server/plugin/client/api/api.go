@@ -10,6 +10,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"time"
 )
 
 type RegisterApi struct{}
@@ -100,6 +101,8 @@ func (p *RegisterApi) Login(c *gin.Context) {
 		global.GVA_LOG.Error("用户登录失败", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
 	} else {
+		maxAge := int(claims.RegisteredClaims.ExpiresAt.Unix() - time.Now().Unix())
+		utils.SetToken(c, token, maxAge)
 		response.OkWithDetailed(systemRes.LoginResponse{
 			User:      tgrUtils.ConvertEcsUserToSysUser(user),
 			Token:     token,

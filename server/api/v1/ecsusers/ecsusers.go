@@ -218,3 +218,21 @@ func (eusrApi *EcsUsersApi) GetUserInfo(c *gin.Context) {
 	}
 	response.OkWithData(user, c)
 }
+
+// SelfModifyInfo 仅认证用户修改自己的信息
+// @Tags EcsUsers
+// @Summary 仅认证用户修改自己的信息
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/selfModifyInfo [POST]
+func (eusrApi *EcsUsersApi) SelfModifyInfo(c *gin.Context) {
+	//err := eusrService.SelfModifyInfo()
+	//if err != nil {
+	//	global.GVA_LOG.Error("失败!", zap.Error(err))
+	//	response.FailWithMessage("失败", c)
+	//	return
+	//}
+	response.OkWithData("返回数据", c)
+}
