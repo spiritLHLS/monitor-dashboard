@@ -1,7 +1,6 @@
 package ecsusers
 
 import (
-	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
@@ -210,12 +209,6 @@ func (eusrApi *EcsUsersApi) SelfGetUserInfo(c *gin.Context) {
 		response.FailWithMessage("失败", c)
 		return
 	}
-	// 通过cookie中的token获取id比对，如果不是同一用户，则不予信息获取
-	currentID := utils.GetUserID(c)
-	if id != currentID {
-		response.FailWithMessage("无权获取其他用户的信息", c)
-		return
-	}
 	// 正常进行信息获取
 	user, err := eusrService.GetUserInfo(id)
 	if err != nil {
@@ -243,7 +236,7 @@ func (eusrApi *EcsUsersApi) SelfModifyInfo(c *gin.Context) {
 	}
 	// 通过cookie中的token获取uuid比对，如果不是同一用户，则不予修改更新
 	currentUUID := utils.GetUserUuid(c)
-	currentUUIDStr := fmt.Sprintf("%d", currentUUID)
+	currentUUIDStr := currentUUID.String()
 	if eusr.UUID.String() != currentUUIDStr {
 		response.FailWithMessage("无权修改其他用户的信息", c)
 		return

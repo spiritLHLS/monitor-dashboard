@@ -94,3 +94,12 @@ func (subService *SubscribeService)SelfCreateSub() (err error) {
     return db.Error
 }
 
+
+// DeleteSubscribePublic 前端用户删除自己已订阅的商品
+// Author [yourname](https://github.com/yourname)
+func (subService *SubscribeService)DeleteSubscribePublic() (err error) {
+	// 请在这里实现自己的业务逻辑
+	db := global.GVA_DB.Model(&subscribe.Subscribe{})
+    return db.Error
+}
+

@@ -147,9 +147,10 @@ export const selfGetUserInfo = () => {
 // @Produce application/json
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /eusr/selfModifyInfo [POST]
-export const selfModifyInfo = () => {
+export const selfModifyInfo = (data) => {
   return service({
     url: '/eusr/selfModifyInfo',
-    method: 'POST'
+    method: 'POST',
+    data
   })
 }

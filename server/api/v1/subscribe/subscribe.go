@@ -188,3 +188,22 @@ func (subApi *SubscribeApi)SelfCreateSub(c *gin.Context) {
    	response.OkWithData("返回数据",c)
 }
 
+// DeleteSubscribePublic 前端用户删除自己已订阅的商品
+// @Tags Subscribe
+// @Summary 前端用户删除自己已订阅的商品
+// @accept application/json
+// @Produce application/json
+// @Param data query subscribeReq.SubscribeSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /sub/deleteSubscribePublic [POST]
+func (subApi *SubscribeApi)DeleteSubscribePublic(c *gin.Context) {
+    // 请添加自己的业务逻辑
+    err := subService.DeleteSubscribePublic()
+    if err != nil {
+        global.GVA_LOG.Error("失败!", zap.Error(err))
+   		response.FailWithMessage("失败", c)
+   		return
+   	}
+   	response.OkWithData("返回数据",c)
+}
+

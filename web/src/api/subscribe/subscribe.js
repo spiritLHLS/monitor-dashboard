@@ -121,3 +121,16 @@ export const selfCreateSub = () => {
     method: 'POST'
   })
 }
+// DeleteSubscribePublic 前端用户删除自己已订阅的商品
+// @Tags Subscribe
+// @Summary 前端用户删除自己已订阅的商品
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /sub/deleteSubscribePublic [POST]
+export const deleteSubscribePublic = () => {
+  return service({
+    url: '/sub/deleteSubscribePublic',
+    method: 'POST'
+  })
+}

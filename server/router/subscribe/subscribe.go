@@ -24,5 +24,6 @@ func (s *SubscribeRouter) InitSubscribeRouter(Router *gin.RouterGroup, PublicRou
 	{
 		subRouterWithoutAuth.GET("getSubscribePublic", subApi.GetSubscribePublic)
 		subRouterWithoutAuth.POST("selfCreateSub", subApi.SelfCreateSub)
+		subRouterWithoutAuth.POST("deleteSubscribePublic", subApi.DeleteSubscribePublic)
 	}
 }
