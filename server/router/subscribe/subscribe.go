@@ -28,5 +28,6 @@ func (s *SubscribeRouter) InitSubscribeRouter(Router *gin.RouterGroup, PublicRou
 	}
 	{
 		subRouterWithoutAuth.GET("selfGetAllPd", subApi.SelfGetAllPd)
+		subRouterWithoutAuth.POST("selfUpdateSub", subApi.SelfUpdateSub)
 	}
 }

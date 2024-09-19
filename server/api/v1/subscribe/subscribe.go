@@ -3,6 +3,7 @@ package subscribe
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/subscribe"
 	subscribeReq "github.com/flipped-aurora/gin-vue-admin/server/model/subscribe/request"
 	"github.com/gin-gonic/gin"
@@ -159,12 +160,24 @@ func (subApi *SubscribeApi) GetSubscribeList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /sub/selfGetSub [get]
 func (subApi *SubscribeApi) SelfGetSub(c *gin.Context) {
-	// 此接口不需要鉴权
-	// 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
-	subService.SelfGetSub()
-	response.OkWithDetailed(gin.H{
-		"info": "不需要鉴权的订阅接口信息",
-	}, "获取成功", c)
+	var searchInfo subscribeReq.SubscribeSearch
+	err := c.ShouldBindQuery(&searchInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	uuid := searchInfo.UserUuid
+	if uuid.String() == "" {
+		response.FailWithMessage("用户UUID不能为空", c)
+		return
+	}
+	subs, err := subService.SelfGetSub(uuid)
+	if err != nil {
+		global.GVA_LOG.Error("获取订阅失败!", zap.Error(err))
+		response.FailWithMessage("获取订阅失败", c)
+		return
+	}
+	response.OkWithDetailed(gin.H{"subscriptions": subs}, "获取成功", c)
 }
 
 // SelfCreateSub 前端用户创建关联的商品推送记录
@@ -172,18 +185,23 @@ func (subApi *SubscribeApi) SelfGetSub(c *gin.Context) {
 // @Summary 仅当前用户创建当前用户关联的商品推送记录
 // @accept application/json
 // @Produce application/json
-// @Param data query subscribeReq.SubscribeSearch true "成功"
-// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Param data body subscribeReq.CreateSubscribeRequest true "创建订阅请求"
+// @Success 200 {object} response.Response{msg=string} "成功"
 // @Router /sub/selfCreateSub [POST]
 func (subApi *SubscribeApi) SelfCreateSub(c *gin.Context) {
-	// 请添加自己的业务逻辑
-	err := subService.SelfCreateSub()
+	var createReq subscribeReq.SubscribeSearch
+	err := c.ShouldBindJSON(&createReq)
 	if err != nil {
-		global.GVA_LOG.Error("失败!", zap.Error(err))
-		response.FailWithMessage("失败", c)
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	response.OkWithData("返回数据", c)
+	err = subService.SelfCreateSub(createReq.UserUuid, *createReq.ProductId, createReq.NotifyChannel)
+	if err != nil {
+		global.GVA_LOG.Error("创建订阅失败!", zap.Error(err))
+		response.FailWithMessage("创建订阅失败", c)
+		return
+	}
+	response.OkWithMessage("创建订阅成功", c)
 }
 
 // SelfDeleteSub 前端用户删除自己已订阅的商品
@@ -191,35 +209,74 @@ func (subApi *SubscribeApi) SelfCreateSub(c *gin.Context) {
 // @Summary 前端用户删除自己已订阅的商品
 // @accept application/json
 // @Produce application/json
-// @Param data query subscribeReq.SubscribeSearch true "成功"
-// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Param data body subscribeReq.DeleteSubscribeRequest true "删除订阅请求"
+// @Success 200 {object} response.Response{msg=string} "成功"
 // @Router /sub/selfDeleteSub [POST]
 func (subApi *SubscribeApi) SelfDeleteSub(c *gin.Context) {
-	// 请添加自己的业务逻辑
-	err := subService.SelfDeleteSub()
+	var deleteReq subscribeReq.SubscribeSearch
+	err := c.ShouldBindJSON(&deleteReq)
 	if err != nil {
-		global.GVA_LOG.Error("失败!", zap.Error(err))
-		response.FailWithMessage("失败", c)
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	response.OkWithData("返回数据", c)
+	err = subService.SelfDeleteSub(deleteReq.UserUuid, *deleteReq.ProductId)
+	if err != nil {
+		global.GVA_LOG.Error("删除订阅失败!", zap.Error(err))
+		response.FailWithMessage("删除订阅失败", c)
+		return
+	}
+	response.OkWithMessage("删除订阅成功", c)
 }
+
 // SelfGetAllPd 前端用户获取所有的商品
 // @Tags Subscribe
 // @Summary 前端用户获取所有的商品
 // @accept application/json
 // @Produce application/json
-// @Param data query subscribeReq.SubscribeSearch true "成功"
+// @Param data query productsReq.ProductsSearch true "分页获取商品列表"
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /sub/selfGetAllPd [GET]
-func (subApi *SubscribeApi)SelfGetAllPd(c *gin.Context) {
-    // 请添加自己的业务逻辑
-    err := subService.SelfGetAllPd()
-    if err != nil {
-        global.GVA_LOG.Error("失败!", zap.Error(err))
-   		response.FailWithMessage("失败", c)
-   		return
-   	}
-   	response.OkWithData("返回数据",c)
+func (subApi *SubscribeApi) SelfGetAllPd(c *gin.Context) {
+	var searchInfo productsReq.ProductsSearch
+	err := c.ShouldBindQuery(&searchInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	list, total, err := subService.SelfGetAllPd(searchInfo)
+	if err != nil {
+		global.GVA_LOG.Error("获取商品列表失败!", zap.Error(err))
+		response.FailWithMessage("获取商品列表失败", c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     searchInfo.Page,
+		PageSize: searchInfo.PageSize,
+	}, "获取成功", c)
 }
 
+// SelfUpdateSub 前端用户更新自己已订阅的商品信息
+// @Tags Subscribe
+// @Summary 前端用户更新自己已订阅的商品信息
+// @accept application/json
+// @Produce application/json
+// @Param data body subscribeReq.UpdateSubscribeRequest true "更新订阅请求"
+// @Success 200 {object} response.Response{msg=string} "成功"
+// @Router /sub/selfUpdateSub [POST]
+func (subApi *SubscribeApi) SelfUpdateSub(c *gin.Context) {
+	var updateReq subscribeReq.SubscribeSearch
+	err := c.ShouldBindJSON(&updateReq)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	err = subService.SelfUpdateSub(updateReq.UserUuid, *updateReq.ProductId, updateReq.NotifyChannel)
+	if err != nil {
+		global.GVA_LOG.Error("更新订阅失败!", zap.Error(err))
+		response.FailWithMessage("更新订阅失败", c)
+		return
+	}
+	response.OkWithMessage("更新订阅成功", c)
+}

@@ -102,10 +102,11 @@ export const getSubscribeList = (params) => {
 // @Param data query subscribeReq.SubscribeSearch true "分页获取订阅列表"
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /sub/selfGetSub [get]
-export const selfGetSub = () => {
+export const selfGetSub = (params) => {
   return service({
     url: '/sub/selfGetSub',
     method: 'get',
+    params
   })
 }
 
@@ -116,10 +117,11 @@ export const selfGetSub = () => {
 // @Produce application/json
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /sub/selfCreateSub [POST]
-export const selfCreateSub = () => {
+export const selfCreateSub = (data) => {
   return service({
     url: '/sub/selfCreateSub',
-    method: 'POST'
+    method: 'POST',
+    data
   })
 }
 
@@ -130,12 +132,14 @@ export const selfCreateSub = () => {
 // @Produce application/json
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /sub/selfDeleteSub [POST]
-export const selfDeleteSub = () => {
+export const selfDeleteSub = (data) => {
   return service({
     url: '/sub/selfDeleteSub',
-    method: 'POST'
+    method: 'POST',
+    data
   })
 }
+
 // SelfGetAllPd 前端用户获取所有的商品
 // @Tags Subscribe
 // @Summary 前端用户获取所有的商品
@@ -143,9 +147,26 @@ export const selfDeleteSub = () => {
 // @Produce application/json
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /sub/selfGetAllPd [GET]
-export const selfGetAllPd = () => {
+export const selfGetAllPd = (params) => {
   return service({
     url: '/sub/selfGetAllPd',
-    method: 'GET'
+    method: 'GET',
+    params
   })
 }
+
+// SelfUpdateSub 前端用户更新自己已订阅的商品信息
+// @Tags Subscribe
+// @Summary 前端用户更新自己已订阅的商品信息
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /sub/selfUpdateSub [POST]
+export const selfUpdateSub = (data) => {
+  return service({
+    url: '/sub/selfUpdateSub',
+    method: 'POST',
+    data
+  })
+}
+
