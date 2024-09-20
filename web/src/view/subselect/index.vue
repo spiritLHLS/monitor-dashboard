@@ -27,15 +27,39 @@
 
             <main class="main-content">
                 <el-card class="table-card">
-                    <div class="batch-actions" v-if="displayMode === 'all'">
-                        <el-button type="primary" @click="handleBatchSubscribe" :disabled="selectedProducts.length === 0">
-                            批量订阅
-                        </el-button>
+                    <div class="batch-actions">
+                        <template v-if="displayMode === 'all'">
+                            <el-button type="primary" @click="handleBatchSubscribe"
+                                :disabled="selectedProducts.length === 0">
+                                批量订阅
+                            </el-button>
+                            <el-select v-model="batchNotifyChannel" placeholder="选择通知方式" style="margin-left: 10px;">
+                                <el-option label="Telegram" value="telegram_bot" />
+                                <el-option label="Email" value="email" />
+                                <el-option label="微信" value="wechat" />
+                            </el-select>
+                        </template>
+                        <template v-else>
+                            <el-button type="primary" @click="handleBatchModifySubscribe"
+                                :disabled="selectedProducts.length === 0">
+                                批量修改订阅
+                            </el-button>
+                            <el-select v-model="batchModifyNotifyChannel" placeholder="选择通知方式"
+                                style="margin-left: 10px;">
+                                <el-option label="Telegram" value="telegram_bot" />
+                                <el-option label="Email" value="email" />
+                                <el-option label="微信" value="wechat" />
+                            </el-select>
+                            <el-button type="danger" @click="handleBatchUnsubscribe"
+                                :disabled="selectedProducts.length === 0" style="margin-left: 10px;">
+                                批量取消订阅
+                            </el-button>
+                        </template>
                     </div>
                     <el-table v-loading="loading" :data="tableData" style="width: 100%"
                         :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange"
                         @selection-change="handleSelectionChange">
-                        <el-table-column type="selection" width="55" v-if="displayMode === 'all'" />
+                        <el-table-column type="selection" width="55" />
                         <el-table-column v-for="col in tableColumns" :key="col.prop" :prop="col.prop" :label="col.label"
                             :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip>
                             <template #default="{ row }" v-if="col.prop === 'actions'">
@@ -47,6 +71,9 @@
                             </template>
                             <template #default="{ row }" v-else-if="col.prop === 'stock'">
                                 {{ row.stock === 1000 ? '有' : row.stock }}
+                            </template>
+                            <template #default="{ row }" v-else-if="col.prop === 'notify_channel'">
+                                {{ getNotifyChannelLabel(row.notify_channel) }}
                             </template>
                         </el-table-column>
                     </el-table>
@@ -63,8 +90,17 @@
 
         <el-dialog v-model="detailsVisible" title="商品详情" width="50%" :before-close="handleCloseDetails">
             <el-descriptions :column="1" border>
-                <el-descriptions-item v-for="col in tableColumns" :key="col.prop" :label="col.label">
-                    {{ col.prop === 'stock' && selectedProduct[col.prop] === 1000 ? '有' : selectedProduct[col.prop] }}
+                <el-descriptions-item v-for="col in tableColumns.filter(col => col.prop !== 'actions')" :key="col.prop"
+                    :label="col.label">
+                    <template v-if="col.prop === 'stock'">
+                        {{ selectedProduct[col.prop] === 1000 ? '有' : selectedProduct[col.prop] }}
+                    </template>
+                    <template v-else-if="col.prop === 'notify_channel'">
+                        {{ getNotifyChannelLabel(selectedProduct[col.prop]) }}
+                    </template>
+                    <template v-else>
+                        {{ selectedProduct[col.prop] }}
+                    </template>
                 </el-descriptions-item>
             </el-descriptions>
         </el-dialog>
@@ -77,7 +113,7 @@ import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { selfGetAllPd } from '@/api/subscribe/subscribe'
-import { selfGetSub, selfCreateSub, selfDeleteSub } from '@/api/subscribe/subscribe'
+import { selfGetSub, selfCreateSub, selfDeleteSub, selfUpdateSub } from '@/api/subscribe/subscribe'
 
 const router = useRouter()
 
@@ -95,17 +131,18 @@ const searchFields = {
 }
 
 const tableColumns = [
-    { label: '商家', prop: 'tag', minWidth: '120', sortable: true },
+    { label: '商家', prop: 'tag', minWidth: '90', sortable: true },
     { label: 'CPU', prop: 'cpu', minWidth: '100', sortable: true },
     { label: '内存', prop: 'memory', minWidth: '100', sortable: true },
     { label: '磁盘', prop: 'disk', minWidth: '100', sortable: true },
     { label: '流量', prop: 'traffic', minWidth: '100', sortable: true },
     { label: '端口', prop: 'portSpeed', minWidth: '80', sortable: true },
-    { label: '地点', prop: 'location', minWidth: '140', sortable: true },
+    { label: '地点', prop: 'location', minWidth: '130', sortable: true },
     { label: '价格', prop: 'price', minWidth: '150', sortable: true },
-    { label: '库存', prop: 'stock', minWidth: '100', sortable: true },
+    { label: '库存', prop: 'stock', minWidth: '80', sortable: true },
     { label: '其他', prop: 'additional', minWidth: '100' },
     { label: '操作', prop: 'actions', minWidth: '220' },
+    { label: '订阅渠道', prop: 'notify_channel', minWidth: '120' },
 ]
 
 const searchInfo = ref(Object.fromEntries(Object.keys(searchFields).map(key => [key, ''])))
@@ -121,12 +158,23 @@ const detailsVisible = ref(false)
 const selectedProduct = ref({})
 const selectedProducts = ref([])
 const subscribedProductIds = ref(new Set())
+const batchNotifyChannel = ref('telegram_bot')
+const batchModifyNotifyChannel = ref('telegram_bot')
 
 const processData = (data) => {
     return data
         .replace(/<[^>]+>/g, '')
         .trim()
         .replace(/\s+/g, ' ');
+}
+
+const getNotifyChannelLabel = (value) => {
+    const channelMap = {
+        'telegram_bot': 'Telegram',
+        'email': 'Email',
+        'wechat': '微信'
+    }
+    return channelMap[value] || value
 }
 
 const getTableData = async () => {
@@ -167,6 +215,7 @@ const getTableData = async () => {
                 additional: item.additional,
                 oldStock: item.oldStock,
                 stock: item.stock,
+                notify_channel: item.notify_channel,
                 isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.ID)
             }))
             total.value = response.data.total
@@ -230,10 +279,11 @@ const handleDisplayModeChange = () => {
 
 const handleSubscribe = async (row) => {
     try {
-        const response = await selfCreateSub({product_id: row.id, notify_channel: 'telegram_bot' })
+        const response = await selfCreateSub({ product_id: row.id, notify_channel: batchNotifyChannel.value })
         if (response.code === 0) {
             ElMessage.success('订阅成功')
             row.isSubscribed = true
+            row.notify_channel = batchNotifyChannel.value
             subscribedProductIds.value.add(row.id)
         } else {
             ElMessage.error(response.message || '订阅失败')
@@ -253,6 +303,7 @@ const handleUnsubscribe = async (row) => {
                 tableData.value = tableData.value.filter(item => item.id !== row.id)
             } else {
                 row.isSubscribed = false
+                row.notify_channel = null
             }
             subscribedProductIds.value.delete(row.id)
         } else {
@@ -287,6 +338,35 @@ const handleBatchSubscribe = async () => {
         }
     }
     getTableData()
+}
+
+const handleBatchUnsubscribe = async () => {
+    for (const product of selectedProducts.value) {
+        if (product.isSubscribed) {
+            await handleUnsubscribe(product)
+        }
+    }
+    getTableData()
+}
+
+const handleBatchModifySubscribe = async () => {
+    try {
+        for (const product of selectedProducts.value) {
+            if (product.isSubscribed) {
+                const response = await selfUpdateSub({ product_id: product.id, notify_channel: batchModifyNotifyChannel.value })
+                if (response.code === 0) {
+                    product.notify_channel = batchModifyNotifyChannel.value
+                } else {
+                    ElMessage.error(`修改商品 ${product.id} 订阅失败: ${response.message}`)
+                }
+            }
+        }
+        ElMessage.success('批量修改订阅成功')
+        getTableData()
+    } catch (error) {
+        console.error('批量修改订阅出错:', error)
+        ElMessage.error('批量修改订阅出错')
+    }
 }
 
 watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
@@ -367,6 +447,8 @@ onMounted(async () => {
 
 .batch-actions {
     margin-bottom: 16px;
+    display: flex;
+    align-items: center;
 }
 
 .pagination-wrapper {
@@ -441,6 +523,20 @@ onMounted(async () => {
     border-color: #33a06f;
 }
 
+:deep(.el-button--danger) {
+    background-color: #f56c6c;
+    border-color: #f56c6c;
+}
+
+:deep(.el-button--danger:hover) {
+    background-color: #f78989;
+    border-color: #f78989;
+}
+
+:deep(.el-select) {
+    width: 120px;
+}
+
 @media (max-width: 768px) {
     .content-wrapper {
         flex-direction: column;
@@ -464,6 +560,16 @@ onMounted(async () => {
     .reset-button {
         margin: 8px 0;
         max-width: 48%;
+    }
+
+    .batch-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .batch-actions .el-button,
+    .batch-actions .el-select {
+        margin-bottom: 10px;
     }
 }
 </style>

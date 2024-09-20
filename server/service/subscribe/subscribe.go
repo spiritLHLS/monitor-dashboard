@@ -127,18 +127,22 @@ func (subService *SubscribeService) buildQueryConditions(db *gorm.DB, info inter
 }
 
 // SelfGetSub 前端用户获取自己已订阅的商品
-func (subService *SubscribeService) SelfGetSub(uuid uuid.UUID, info subscribeReq.SubscribeSearch) (list []products.SubProducts, total int64, err error) {
+func (subService *SubscribeService) SelfGetSub(uuid uuid.UUID, info subscribeReq.SubscribeSearch) (list []subscribeReq.SubProductsWithNotify, total int64, err error) {
 	var subs []subscribe.Subscribe
 	if err = global.GVA_DB.Where("user_uuid = ?", uuid).Find(&subs).Error; err != nil {
 		return nil, 0, err
 	}
 	if len(subs) == 0 {
-		return []products.SubProducts{}, 0, fmt.Errorf("subscription not found")
+		return []subscribeReq.SubProductsWithNotify{}, 0, nil
 	}
+	// 创建一个map来存储ProductId和NotifyChannel的对应关系
+	notifyChannelMap := make(map[int]string)
 	productIDs := make([]int, len(subs))
 	for i, sub := range subs {
 		productIDs[i] = *sub.ProductId
+		notifyChannelMap[*sub.ProductId] = sub.NotifyChannel
 	}
+	var pds []products.Products
 	db := global.GVA_DB.Model(&products.Products{}).Where("id IN ?", productIDs)
 	db = subService.buildQueryConditions(db, info)
 	err = db.Count(&total).Error
@@ -148,8 +152,30 @@ func (subService *SubscribeService) SelfGetSub(uuid uuid.UUID, info subscribeReq
 	if info.PageSize > 0 {
 		db = db.Limit(info.PageSize).Offset(info.PageSize * (info.Page - 1))
 	}
-	err = db.Find(&list).Error
-	return
+	err = db.Find(&pds).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	// 将Products转换为SubProducts，并添加NotifyChannel
+	list = make([]subscribeReq.SubProductsWithNotify, len(pds))
+	for i, prod := range pds {
+		list[i] = subscribeReq.SubProductsWithNotify{
+			GVA_MODEL:     prod.GVA_MODEL,
+			Tag:           prod.Tag,
+			Cpu:           prod.Cpu,
+			Memory:        prod.Memory,
+			Disk:          prod.Disk,
+			Traffic:       prod.Traffic,
+			PortSpeed:     prod.PortSpeed,
+			Location:      prod.Location,
+			Price:         prod.Price,
+			Additional:    prod.Additional,
+			OldStock:      prod.OldStock,
+			Stock:         prod.Stock,
+			NotifyChannel: notifyChannelMap[int(prod.ID)], // 从map中获取对应的NotifyChannel
+		}
+	}
+	return list, total, nil
 }
 
 // SelfCreateSub 前端用户创建关联的商品推送记录
@@ -182,7 +208,6 @@ func (subService *SubscribeService) SelfUpdateSub(uuid uuid.UUID, pdid int, noti
 	result := global.GVA_DB.Model(&subscribe.Subscribe{}).
 		Where("user_uuid = ? AND product_id = ?", uuid, pdid).
 		Update("notify_channel", notifyChannel)
-
 	if result.Error != nil {
 		return result.Error
 	}
@@ -193,7 +218,7 @@ func (subService *SubscribeService) SelfUpdateSub(uuid uuid.UUID, pdid int, noti
 }
 
 // SelfGetAllPd 前端用户获取所有的商品
-func (subService *SubscribeService) SelfGetAllPd(info productsReq.ProductsSearch) (list []products.SubProducts, total int64, err error) {
+func (subService *SubscribeService) SelfGetAllPd(info productsReq.ProductsSearch) (list []subscribeReq.SubProducts, total int64, err error) {
 	db := global.GVA_DB.Model(&products.Products{})
 	db = subService.buildQueryConditions(db, info)
 	if err = db.Count(&total).Error; err != nil {
