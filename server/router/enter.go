@@ -5,6 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/router/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/findallpd"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/partitions"
+	"github.com/flipped-aurora/gin-vue-admin/server/router/privmsg"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/products"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/shops"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/subscribe"
@@ -24,4 +25,5 @@ type RouterGroup struct {
 	Findallpd  findallpd.RouterGroup
 	Ecsusers   ecsusers.RouterGroup
 	Subscribe  subscribe.RouterGroup
+	Privmsg    privmsg.RouterGroup
 }

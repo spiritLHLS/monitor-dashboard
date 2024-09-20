@@ -37,6 +37,7 @@ server/service/partitions
 server/service/products
 server/service/shops
 server/service/tgchannel
+server/service/privmsg
 server/plugin/spiders
 server/plugin/allpdspiders
 server/plugin/telegrampush

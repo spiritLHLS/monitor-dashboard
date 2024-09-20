@@ -5,6 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/findallpd"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/partitions"
+	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/privmsg"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/products"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/shops"
 	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/subscribe"
@@ -24,4 +25,5 @@ type ApiGroup struct {
 	FindallpdApiGroup  findallpd.ApiGroup
 	EcsusersApiGroup   ecsusers.ApiGroup
 	SubscribeApiGroup  subscribe.ApiGroup
+	PrivmsgApiGroup    privmsg.ApiGroup
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/service/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/findallpd"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/partitions"
+	"github.com/flipped-aurora/gin-vue-admin/server/service/privmsg"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/products"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/shops"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/subscribe"
@@ -24,4 +25,5 @@ type ServiceGroup struct {
 	FindallpdServiceGroup  findallpd.ServiceGroup
 	EcsusersServiceGroup   ecsusers.ServiceGroup
 	SubscribeServiceGroup  subscribe.ServiceGroup
+	PrivmsgServiceGroup    privmsg.ServiceGroup
 }
