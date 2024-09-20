@@ -489,4 +489,32 @@ const closeDetailShow = () => {
 
 </script>
 
-<style></style>
+<style>
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1px;
+  /* 行与行之间的间距 */
+}
+
+.row .el-form-item {
+  flex: 1;
+  /* 使每个表单项占据相等的空间 */
+  margin-right: 10px;
+  /* 表单项之间的间距 */
+}
+
+.el-table .cell {
+  /* 文本超出容器部分隐藏 */
+  overflow: hidden;
+  /* 超出部分使用省略号代替 */
+  text-overflow: ellipsis;
+  /* 不换行 */
+  white-space: nowrap;
+}
+
+.demo-form-inline .el-input {
+  width: 160px;
+  /* 输入框的宽度 */
+}
+</style>

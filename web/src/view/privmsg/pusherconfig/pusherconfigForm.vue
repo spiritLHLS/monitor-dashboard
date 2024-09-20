@@ -131,4 +131,9 @@ const back = () => {
 
 </script>
 
-<style></style>
+<style>
+.demo-form-inline .el-input {
+  width: 130px;
+  /* 输入框的宽度 */
+}
+</style>

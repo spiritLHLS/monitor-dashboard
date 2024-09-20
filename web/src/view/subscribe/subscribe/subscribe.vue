@@ -107,7 +107,10 @@
           <el-input v-model.number="formData.product_id" :clearable="true" placeholder="请输入商品ID" />
         </el-form-item>
         <el-form-item label="订阅状态:" prop="status">
-          <el-input v-model.number="formData.status" :clearable="true" placeholder="请输入订阅状态" />
+          <el-select v-model="formData.status" placeholder="请选择订阅状态">
+            <el-option label="启用" :value="0"></el-option>
+            <el-option label="冻结" :value="1"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="通知渠道:" prop="notify_channel">
           <el-input v-model="formData.notify_channel" :clearable="true" placeholder="请输入通知渠道" />
@@ -171,7 +174,7 @@ const showAllQuery = ref(false)
 const formData = ref({
   user_uuid: undefined,
   product_id: undefined,
-  status: undefined,
+  status: 0,
   notify_channel: '',
   last_update: new Date(),
 })
