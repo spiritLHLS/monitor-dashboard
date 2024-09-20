@@ -21,6 +21,9 @@
             :disabled-date="time => searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
         </el-form-item>
         <template v-if="showAllQuery">
+          <el-form-item label="商品ID" prop="product_id">
+            <el-input v-model="searchInfo.product_id" placeholder="搜索条件" />
+          </el-form-item>
           <el-form-item label="原链接" prop="redirectUrl">
             <el-input v-model="searchInfo.redirectUrl" placeholder="搜索条件" />
           </el-form-item>
@@ -54,7 +57,7 @@
         <el-table-column align="left" label="日期" prop="createdAt" width="170">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-
+        <el-table-column align="left" label="商品ID" prop="product_id" width="100" />
         <el-table-column align="left" label="原链接" prop="redirectUrl" width="500" />
         <el-table-column align="left" label="短代码" prop="shortCode" width="200" />
         <el-table-column align="left" label="操作" fixed="right" min-width="330">
@@ -93,6 +96,9 @@
       </template>
 
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
+        <el-form-item label="商品ID:" prop="product_id">
+          <el-input v-model="formData.product_id" :clearable="true" placeholder="请输入商品ID" />
+        </el-form-item>
         <el-form-item label="原链接:" prop="redirectUrl">
           <el-input v-model="formData.redirectUrl" :clearable="true" placeholder="请输入原链接" />
         </el-form-item>
@@ -105,6 +111,9 @@
 
     <el-drawer destroy-on-close size="800" v-model="detailShow" :show-close="true" :before-close="closeDetailShow">
       <el-descriptions column="1" border>
+        <el-descriptions-item label="商品ID">
+          {{ detailFrom.product_id }}
+        </el-descriptions-item>
         <el-descriptions-item label="原链接">
           {{ detailFrom.redirectUrl }}
         </el-descriptions-item>
@@ -144,6 +153,7 @@ const showAllQuery = ref(false)
 
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
+  product_id: undefined,
   redirectUrl: '',
   shortCode: '',
 })
@@ -369,6 +379,7 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
+    product_id: undefined,
     redirectUrl: '',
     shortCode: '',
   }

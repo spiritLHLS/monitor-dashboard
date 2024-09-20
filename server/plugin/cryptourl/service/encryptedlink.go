@@ -80,11 +80,14 @@ func (s *EL) GetEncryptedLinkInfoList(info request.EncryptedLinkSearch) (list []
 	if info.StartCreatedAt != nil && info.EndCreatedAt != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", info.StartCreatedAt, info.EndCreatedAt)
 	}
+	if info.ProductId != nil {
+		db = db.Where("product_id = ?", info.ProductId)
+	}
 	if info.RedirectUrl != "" {
-		db = db.Where("redirect_url LIKE ?", info.RedirectUrl)
+		db = db.Where("redirect_url LIKE ?", "%"+info.RedirectUrl+"%")
 	}
 	if info.ShortCode != "" {
-		db = db.Where("short_url = ?", info.ShortCode)
+		db = db.Where("short_code LIKE ?", "%"+info.ShortCode+"%")
 	}
 	err = db.Count(&total).Error
 	if err != nil {

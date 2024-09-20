@@ -2,6 +2,9 @@
   <div>
     <div class="gva-form-box">
       <el-form :model="formData" ref="elFormRef" label-position="right" :rules="rule" label-width="80px">
+        <el-form-item label="商品ID:" prop="product_id">
+          <el-input v-model="formData.product_id" :clearable="true" placeholder="请输入商品ID，没有就不填" />
+        </el-form-item>
         <el-form-item label="跳转链接:" prop="redirectUrl">
           <el-input v-model="formData.redirectUrl" :clearable="true" placeholder="请输入跳转链接" />
         </el-form-item>
@@ -40,6 +43,7 @@ const router = useRouter()
 
 const type = ref('')
 const formData = ref({
+  product_id: undefined,
   redirectUrl: '',
   shortCode: '',
 })
