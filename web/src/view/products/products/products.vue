@@ -59,30 +59,36 @@
             <el-form-item label="爬虫类型" prop="billingType">
               <el-input v-model="searchInfo.billingType" placeholder="搜索条件" />
             </el-form-item>
+            <el-form-item label="推送库存" prop="pushStock">
+              <el-input v-model.number="searchInfo.pushStock" placeholder="搜索条件" />
+            </el-form-item>
+            <el-form-item label="推送库存" prop="pushStock">
+              <el-input v-model.number="searchInfo.pushStock" placeholder="搜索条件" />
+            </el-form-item>
             <el-form-item label="历史库存" prop="oldStock">
               <el-input v-model.number="searchInfo.oldStock" placeholder="搜索条件" />
             </el-form-item>
+          </div>
+          <div class="row">
             <el-form-item label="现有库存" prop="stock">
               <el-input v-model.number="searchInfo.stock" placeholder="搜索条件" />
             </el-form-item>
             <el-form-item label="爬虫间隔" prop="intervals">
               <el-input v-model.number="searchInfo.intervals" placeholder="搜索条件" />
             </el-form-item>
-          </div>
-          <div class="row">
             <el-form-item label="消息编号" prop="messageId">
               <el-input v-model="searchInfo.messageId" placeholder="搜索条件" />
             </el-form-item>
             <el-form-item label="推送间隔" prop="pushIntervals">
               <el-input v-model.number="searchInfo.pushIntervals" placeholder="搜索条件" />
             </el-form-item>
-            <el-form-item label="多重检测" prop="multiCheck">
-              <el-input v-model="searchInfo.multiCheck" placeholder="搜索条件" />
-            </el-form-item>
-            <el-form-item label="推送时间" prop="pushTime">
-              <el-date-picker v-model="searchInfo.pushTime" type="datetime" placeholder="搜索条件"></el-date-picker>
-            </el-form-item>
           </div>
+          <el-form-item label="多重检测" prop="multiCheck">
+            <el-input v-model="searchInfo.multiCheck" placeholder="搜索条件" />
+          </el-form-item>
+          <el-form-item label="推送时间" prop="pushTime">
+            <el-date-picker v-model="searchInfo.pushTime" type="datetime" placeholder="搜索条件"></el-date-picker>
+          </el-form-item>
         </template>
 
         <el-form-item>
@@ -99,6 +105,18 @@
         <el-button type="primary" icon="plus" @click="openDialog">新增</el-button>
         <el-button icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length"
           @click="onDelete">删除</el-button>
+        <!-- 修改推送库存对话框 -->
+        <el-dialog v-model="modifyPushStockDialogVisible" title="修改推送库存" width="30%">
+          <el-form label-width="120px">
+            <el-form-item label="新的推送库存">
+              <el-input v-model.number="modifyPushStock" placeholder="请输入新的推送库存"></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="modifyPushStockDialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="confirmmodifyPushStock">确定</el-button>
+          </div>
+        </el-dialog>
         <!-- 修改历史库存对话框 -->
         <el-dialog v-model="modifyOldStockDialogVisible" title="修改历史库存" width="30%">
           <el-form label-width="120px">
@@ -199,6 +217,8 @@
           </div>
         </el-dialog>
         <el-button icon="edit" class="table-button" style="margin-left: 10px;" :disabled="!multipleSelection.length"
+          @click="updatePushStock">改推送库存</el-button>
+        <el-button icon="edit" class="table-button" style="margin-left: 10px;" :disabled="!multipleSelection.length"
           @click="updateOldStock">改历史库存</el-button>
         <el-button icon="edit" class="table-button" style="margin-left: 10px;" :disabled="!multipleSelection.length"
           @click="updateIntervals">改爬取间隔</el-button>
@@ -228,6 +248,7 @@
         <el-table-column align="left" label="价格" prop="price" width="80" />
         <el-table-column align="left" label="链接" prop="url" width="90" />
         <el-table-column align="left" label="爬虫类型" prop="billingType" width="90" />
+        <el-table-column align="left" label="推送库存" prop="pushStock" width="80" />
         <el-table-column align="left" label="历史库存" prop="oldStock" width="80" />
         <el-table-column align="left" label="现有库存" prop="stock" width="80" />
         <el-table-column align="left" label="爬虫间隔" prop="intervals" width="80" />
@@ -290,6 +311,9 @@
             <el-option label="multi" value="multi"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="推送库存:" prop="pushStock">
+          <el-input v-model.number="formData.pushStock" type="number" :clearable="true" placeholder="请输入一对一推送库存" />
+        </el-form-item>
         <el-form-item label="历史库存:" prop="oldStock">
           <el-input v-model.number="formData.oldStock" type="number" :clearable="true" placeholder="请输入" />
         </el-form-item>
@@ -300,13 +324,15 @@
           <el-input v-model.number="formData.multiCheck" type="number" :clearable="true" placeholder="请输入重复检测的次数" />
         </el-form-item>
         <el-form-item label="爬虫间隔:" prop="intervals">
-          <el-input v-model.number="formData.intervals" type="number" :clearable="true" placeholder="请输入爬虫间隔，以秒为单位，写-1则不爬虫" />
+          <el-input v-model.number="formData.intervals" type="number" :clearable="true"
+            placeholder="请输入爬虫间隔，以秒为单位，写-1则不爬虫" />
         </el-form-item>
         <el-form-item label="消息编号:" prop="messageId">
           <el-input v-model="formData.messageId" :clearable="true" placeholder="请输入消息编号" />
         </el-form-item>
         <el-form-item label="推送间隔:" prop="pushIntervals">
-          <el-input v-model.number="formData.pushIntervals" type="number" :clearable="true" placeholder="请输入推送间隔，以天为单位，写-1则不推送" />
+          <el-input v-model.number="formData.pushIntervals" type="number" :clearable="true"
+            placeholder="请输入推送间隔，以天为单位，写-1则不推送" />
         </el-form-item>
         <el-form-item label="推送时间:" prop="pushTime">
           <el-date-picker v-model="formData.pushTime" type="date" style="width:100%" placeholder="选择日期"
@@ -383,6 +409,9 @@
         <el-descriptions-item label="爬虫类型">
           {{ detailFrom.billingType }}
         </el-descriptions-item>
+        <el-descriptions-item label="推送库存">
+          {{ detailFrom.pushStock }}
+        </el-descriptions-item>
         <el-descriptions-item label="历史库存">
           {{ detailFrom.oldStock }}
         </el-descriptions-item>
@@ -456,6 +485,7 @@ const formData = ref({
   additional: '',
   url: '',
   billingType: '',
+  pushStock: 0,
   oldStock: 0,
   stock: 0,
   multiCheck: 0,
@@ -726,6 +756,7 @@ const closeDialog = () => {
     additional: '',
     url: '',
     billingType: '',
+    pushStock: 0,
     oldStock: 0,
     stock: 0,
     multiCheck: 0,
@@ -749,11 +780,9 @@ const enterDialog = async () => {
         res = await createProducts(formData.value)
         break
       case 'update':
-        // formData.value.oldStock = Number(formData.value.oldStock)
         res = await updateProducts(formData.value)
         break
       default:
-        // formData.value.oldStock = Number(formData.value.oldStock)
         res = await createProducts(formData.value)
         break
     }
@@ -775,6 +804,7 @@ const modifyAdditionalDialogVisible = ref(false)
 const modifyBillingTypeDialogVisible = ref(false)
 const modifyTGTAGDialogVisible = ref(false)
 const modifyMessageIDDialogVisible = ref(false)
+const modifyPushStockDialogVisible = ref(false)
 const modifyOldStockDialogVisible = ref(false)
 const modifyMultiCheckDialogVisible = ref(false)
 
@@ -862,6 +892,18 @@ const updateMultiCheck = async () => {
   modifyMultiCheckDialogVisible.value = true
 }
 
+// 更新所选记录的PushStock的方法
+const updatePushStock = async () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage({
+      type: 'warning',
+      message: '请选择要修改的记录'
+    })
+    return
+  }
+  modifyPushStockDialogVisible.value = true
+}
+
 // 更新所选记录的OldStock的方法
 const updateOldStock = async () => {
   if (multipleSelection.value.length === 0) {
@@ -881,6 +923,7 @@ const modifyBillingType = ref("")
 const modifyAdditional = ref("")
 const modifyTGTAG = ref("")
 const modifyMessageID = ref("")
+const modifyPushStock = ref(0)
 const modifyOldStock = ref(0)
 const modifyMultiCheck = ref(0)
 
@@ -964,6 +1007,15 @@ const confirmmodifyMultiCheck = async () => {
   modifyMultiCheckDialogVisible.value = false
 }
 
+// 确认修改PushStock
+const confirmmodifyPushStock = async () => {
+  // 获取用户输入的新值
+  const newPushStock = modifyPushStock.value
+  // 调用更新函数
+  await updateSelectedRecords(newPushStock, 'pushStock')
+  // 关闭对话框
+  modifyPushStockDialogVisible.value = false
+}
 
 // 确认修改OldStock
 const confirmmodifyOldStock = async () => {
@@ -1043,6 +1095,7 @@ const closeDetailShow = () => {
     additional: '',
     url: '',
     billingType: '',
+    pushStock: 0,
     oldStock: 0,
     stock: 0,
     intervals: 0,

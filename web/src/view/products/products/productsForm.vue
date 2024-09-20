@@ -14,6 +14,9 @@
             <el-option label="multi" value="multi"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="推送库存:" prop="pushStock">
+          <el-input v-model.number="formData.pushStock" type="number" :clearable="true" placeholder="请输入" />
+        </el-form-item>
         <el-form-item label="历史库存:" prop="oldStock">
           <el-input v-model.number="formData.oldStock" type="number" :clearable="true" placeholder="请输入" />
         </el-form-item>
@@ -113,6 +116,7 @@ const formData = ref({
   additional: '',
   url: '',
   billingType: '',
+  pushStock: 0,
   oldStock: 0,
   stock: 0,
   multiCheck: 0,
