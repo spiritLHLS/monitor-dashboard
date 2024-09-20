@@ -81,7 +81,7 @@ func (s *EL) GetEncryptedLinkInfoList(info request.EncryptedLinkSearch) (list []
 		db = db.Where("created_at BETWEEN ? AND ?", info.StartCreatedAt, info.EndCreatedAt)
 	}
 	if info.RedirectUrl != "" {
-		db = db.Where("redirect_url = ?", info.RedirectUrl)
+		db = db.Where("redirect_url LIKE ?", info.RedirectUrl)
 	}
 	if info.ShortCode != "" {
 		db = db.Where("short_url = ?", info.ShortCode)
