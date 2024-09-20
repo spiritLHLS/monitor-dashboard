@@ -41,6 +41,7 @@ server/service/privmsg
 server/plugin/spiders
 server/plugin/allpdspiders
 server/plugin/telegrampush
+server/plugin/obopush
 
 *.iml
 web/.pnpm-debug.log

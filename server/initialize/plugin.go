@@ -4,6 +4,8 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/allpdspiders"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/obopush"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/spiders"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegrampush"
@@ -31,6 +33,10 @@ func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicGroup *gin.RouterGroup, 
 	PluginInit(PrivateGroup, telegrampush.CreateTelegramPushPlug())
 	// 多节点爬虫插件注册
 	PluginInit(PublicGroup, spiders.CreateSpidersPlug())
-	// 商家所有商品爬虫推送信息插件注册
+	// 商家最新商品爬虫推送信息插件注册
 	PluginInit(PublicGroup, allpdspiders.CreateAllPdSpidersPlug())
+	// 生成加密链接的插件注册
+	PluginInitV2(engine, cryptourl.Plugin)
+	// 一对一商品消息推送插件注册
+	PluginInitV2(engine, obopush.Plugin)
 }

@@ -174,7 +174,7 @@ const showAllQuery = ref(false)
 const formData = ref({
   user_uuid: undefined,
   product_id: undefined,
-  status: 0,
+  status: undefined,
   notify_channel: '',
   last_update: new Date(),
 })
