@@ -1,5 +1,16 @@
 <template>
     <div class="product-dashboard">
+        <header class="top-bar">
+            <div class="left-section">
+                <img src="https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png" alt="Logo" class="logo">
+                <nav class="nav-links">
+                    <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
+                    <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
+                    <el-button type="primary" @click="openExternalLink('https://www.spiritlhl.net')">一键虚拟化项目</el-button>
+                    <el-button type="primary" @click="router.push('/home')">返回</el-button>
+                </nav>
+            </div>
+        </header>
         <div class="content-wrapper">
             <aside class="sidebar">
                 <h1 class="site-title">订阅配置</h1>
@@ -13,10 +24,10 @@
                         </template>
                     </el-input>
                     <div class="display-toggle">
-                        <el-radio-group v-model="displayMode" @change="handleDisplayModeChange">
-                            <el-radio-button label="all">所有商品</el-radio-button>
-                            <el-radio-button label="subscribed">已订阅商品</el-radio-button>
-                        </el-radio-group>
+                        <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
+                            @click="handleDisplayModeChange('all')">所有商品</span>
+                        <span :class="['toggle-option', { 'active': displayMode === 'subscribed' }]"
+                            @click="handleDisplayModeChange('subscribed')">已订阅商品</span>
                     </div>
                     <div class="button-group">
                         <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
@@ -108,7 +119,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
@@ -141,7 +152,7 @@ const tableColumns = [
     { label: '价格', prop: 'price', minWidth: '150', sortable: true },
     { label: '库存', prop: 'stock', minWidth: '80', sortable: true },
     { label: '其他', prop: 'additional', minWidth: '100' },
-    { label: '操作', prop: 'actions', minWidth: '220' },
+    { label: '操作', prop: 'actions', minWidth: '200' },
     { label: '订阅渠道', prop: 'notify_channel', minWidth: '120' },
 ]
 
@@ -195,7 +206,7 @@ const getTableData = async () => {
         let response
         if (displayMode.value === 'all') {
             response = await selfGetAllPd(params)
-        } else {
+        } else if (displayMode.value === 'subscribed') {
             response = await selfGetSub(params)
         }
 
@@ -219,6 +230,7 @@ const getTableData = async () => {
                 isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.ID)
             }))
             total.value = response.data.total
+            console.log('Updated tableData:', tableData.value)
         } else {
             ElMessage.error(response.message || '获取数据失败')
         }
@@ -272,9 +284,13 @@ const handleSortChange = ({ prop, order }) => {
     getTableData()
 }
 
-const handleDisplayModeChange = () => {
+const handleDisplayModeChange = (mode) => {
+    displayMode.value = mode
     page.value = 1
     getTableData()
+    nextTick(() => {
+        console.log('Display mode changed to:', displayMode.value)
+    })
 }
 
 const handleSubscribe = async (row) => {
@@ -369,6 +385,10 @@ const handleBatchModifySubscribe = async () => {
     }
 }
 
+const openExternalLink = (url) => {
+    window.open(url, '_blank')
+}
+
 watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
     getTableData()
 })
@@ -378,7 +398,6 @@ onMounted(async () => {
     getTableData()
 })
 </script>
-
 <style scoped>
 .product-dashboard {
     display: flex;
@@ -387,6 +406,36 @@ onMounted(async () => {
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: #f0f6f0;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #e8f5e8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.left-section {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+    width: auto;
+    margin-right: 20px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-links .el-button {
+    font-size: 14px;
+    padding: 8px 16px;
 }
 
 .content-wrapper {
@@ -418,7 +467,27 @@ onMounted(async () => {
 }
 
 .display-toggle {
+    display: flex;
+    background-color: #f0f6f0;
+    border-radius: 20px;
+    padding: 4px;
     margin: 12px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-option {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    color: #2f3f2f;
+}
+
+.toggle-option.active {
+    background-color: #42b883;
+    color: #ffffff;
 }
 
 .button-group {
@@ -538,38 +607,42 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .left-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .logo {
+        margin-bottom: 10px;
+    }
+
+    .nav-links {
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .nav-links .el-button {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
     .content-wrapper {
         flex-direction: column;
     }
 
     .sidebar {
         width: 100%;
-        max-height: 300px;
-        padding: 16px;
+        margin-bottom: 20px;
     }
 
     .main-content {
-        height: calc(100vh - 300px);
-    }
-
-    .button-group {
-        flex-direction: row;
-    }
-
-    .search-button,
-    .reset-button {
-        margin: 8px 0;
-        max-width: 48%;
-    }
-
-    .batch-actions {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .batch-actions .el-button,
-    .batch-actions .el-select {
-        margin-bottom: 10px;
+        padding: 10px;
     }
 }
 </style>
