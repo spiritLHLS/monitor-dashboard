@@ -30,6 +30,13 @@ rm_file/
 /server/__debug_bin*
 server/uploads/
 server/config.yaml
+server/service/ecsusers
+server/service/subscribe
+server/service/findallpd
+server/service/partitions
+server/service/products
+server/service/shops
+server/service/tgchannel
 server/plugin/spiders
 server/plugin/allpdspiders
 server/plugin/telegrampush
