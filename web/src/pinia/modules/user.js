@@ -85,8 +85,13 @@ export const useUserStore = defineStore('user', () => {
     if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
       ElMessage.error('请联系管理员进行授权')
     } else {
-      await router.replace({ name: userInfo.value.authority.defaultRouter })
+      if (userInfo.value.authority.AuthorityId === 888 || userInfo.value.authority.AuthorityId === 8881) {
+        await router.replace({ name: 'dashboard' })
+      } else {
+        await router.replace({ name: userInfo.value.authority.defaultRouter })
+      }
     }
+    
 
     const isWin = ref(/windows/i.test(navigator.userAgent))
     if (isWin.value) {

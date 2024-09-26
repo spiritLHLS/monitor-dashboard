@@ -60,6 +60,11 @@ const routes = [{
   name: 'dash',
   component: () => import('@/view/dashboard/index.vue')
 },
+{
+  path: '/dashboard',
+  name: 'dashboard',
+  component: () => import('@/view/controlarea/index.vue')
+},
 // 结束
 {
   path: '/:catchAll(.*)',
