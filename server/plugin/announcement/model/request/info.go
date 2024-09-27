@@ -11,9 +11,6 @@ type InfoSearch struct {
 	request.PageInfo
 }
 
-// TODO 写一个通配搜索的公告接口
 type InfoTitleSearch struct {
-	Title   string `json:"title" form:"title" gorm:"column:title;comment:公告标题;"`                 //标题
-	Content string `json:"content" form:"content" gorm:"column:content;comment:公告内容;type:text;"` //内容
-	UserID  *int   `json:"userID" form:"userID" gorm:"column:user_id;comment:发布者;"`              //作者
+	Title string `json:"title" form:"title" gorm:"column:title;comment:公告标题;"` //标题
 }

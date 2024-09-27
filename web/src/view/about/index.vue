@@ -41,23 +41,22 @@ export default {
     const error = ref(null)
     const announcement = ref({})
 
-    const fetchAnnouncement = () => {
+    const fetchAnnouncement = async () => {
       isFetching.value = true
-      GetInfoPublic()
-        .then(response => {
-          if (response.code === 0) {
-            announcement.value = response.data
-          } else {
-            error.value = response.msg
-          }
-        })
-        .catch(err => {
-          console.error('Error fetching announcement:', err)
-          error.value = '网络错误，请稍后再试'
-        })
-        .finally(() => {
-          isFetching.value = false
-        })
+      error.value = null
+      try {
+        const response = await GetInfoPublic({Title: "关于本站点"})
+        if (response.code === 0) {
+          announcement.value = response.data
+        } else {
+          error.value = response.msg || '获取公告失败'
+        }
+      } catch (err) {
+        console.error('Error fetching announcement:', err)
+        error.value = '网络错误，请稍后再试'
+      } finally {
+        isFetching.value = false
+      }
     }
 
     const openExternalLink = (url) => {

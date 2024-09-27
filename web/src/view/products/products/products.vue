@@ -1105,7 +1105,6 @@ const closeDetailShow = () => {
   }
 }
 
-
 </script>
 
 <style>

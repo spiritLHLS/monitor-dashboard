@@ -79,7 +79,7 @@ func (s *info) GetInfoDataSource() (res map[string][]map[string]any, err error) 
 
 // GetHomeAboutInfo 根据标题获取公告记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (s *info) GetHomeAboutInfo() (info model.Info, err error) {
-	err = global.GVA_DB.Where("title LIKE ?", "关于本项目").First(&info).Error
+func (s *info) GetHomeAboutInfo(title string) (info model.Info, err error) {
+	err = global.GVA_DB.Where("title LIKE ?", title).First(&info).Error
 	return
 }

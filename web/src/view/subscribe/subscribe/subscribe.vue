@@ -51,10 +51,27 @@
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button type="primary" icon="plus" @click="openDialog">新增</el-button>
+        <el-button type="primary" icon="edit" @click="openBatchStatusDialog"
+          :disabled="!multipleSelection.length">批量修改订阅状态</el-button>
         <el-button icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length"
           @click="onDelete">删除</el-button>
-
       </div>
+      <el-dialog v-model="batchStatusDialogVisible" title="批量修改订阅状态" width="30%">
+        <el-form :model="batchStatusForm">
+          <el-form-item label="订阅状态">
+            <el-select v-model="batchStatusForm.status" placeholder="请选择订阅状态">
+              <el-option label="启用" :value="0"></el-option>
+              <el-option label="冻结" :value="1"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="batchStatusDialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="confirmBatchStatusChange">确定</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <el-table ref="multipleTable" style="width: 100%" tooltip-effect="dark" :data="tableData" row-key="ID"
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
@@ -142,6 +159,23 @@
       </el-descriptions>
     </el-drawer>
 
+    <el-dialog v-model="batchStatusDialogVisible" title="批量修改订阅状态" width="30%">
+      <el-form :model="batchStatusForm">
+        <el-form-item label="订阅状态">
+          <el-select v-model="batchStatusForm.status" placeholder="请选择订阅状态">
+            <el-option label="启用" :value="0"></el-option>
+            <el-option label="冻结" :value="1"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="batchStatusDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmBatchStatusChange">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -175,8 +209,6 @@ const formData = ref({
   notify_channel: '',
   last_update: new Date(),
 })
-
-
 
 // 验证规则
 const rule = reactive({
@@ -273,7 +305,6 @@ const setOptions = async () => {
 // 获取需要的字典 可能为空 按需保留
 setOptions()
 
-
 // 多选数据
 const multipleSelection = ref([])
 // 多选
@@ -338,7 +369,6 @@ const updateSubscribeFunc = async (row) => {
   }
 }
 
-
 // 删除行
 const deleteSubscribeFunc = async (row) => {
   const res = await deleteSubscribe({ ID: row.ID })
@@ -401,18 +431,15 @@ const enterDialog = async () => {
   })
 }
 
-
 const detailFrom = ref({})
 
 // 查看详情控制标记
 const detailShow = ref(false)
 
-
 // 打开详情弹窗
 const openDetailShow = () => {
   detailShow.value = true
 }
-
 
 // 打开详情
 const getDetails = async (row) => {
@@ -424,13 +451,59 @@ const getDetails = async (row) => {
   }
 }
 
-
 // 关闭详情弹窗
 const closeDetailShow = () => {
   detailShow.value = false
   detailFrom.value = {}
 }
 
+// 批量修改状态相关
+const batchStatusDialogVisible = ref(false)
+const batchStatusForm = ref({
+  status: undefined
+})
+
+// 打开批量修改状态弹窗
+const openBatchStatusDialog = () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage({
+      type: 'warning',
+      message: '请选择要修改的数据'
+    })
+    return
+  }
+  batchStatusDialogVisible.value = true
+}
+
+// 确认批量修改状态
+const confirmBatchStatusChange = async () => {
+  if (batchStatusForm.value.status === undefined) {
+    ElMessage({
+      type: 'warning',
+      message: '请选择要修改的状态'
+    })
+    return
+  }
+
+  const updatePromises = multipleSelection.value.map(item => 
+    updateSubscribe({ ...item, status: batchStatusForm.value.status })
+  )
+
+  try {
+    await Promise.all(updatePromises)
+    ElMessage({
+      type: 'success',
+      message: '批量修改成功'
+    })
+    batchStatusDialogVisible.value = false
+    getTableData()
+  } catch (error) {
+    ElMessage({
+      type: 'error',
+      message: '批量修改失败，请重试'
+    })
+  }
+}
 
 </script>
 
@@ -439,27 +512,20 @@ const closeDetailShow = () => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1px;
-  /* 行与行之间的间距 */
 }
 
 .row .el-form-item {
   flex: 1;
-  /* 使每个表单项占据相等的空间 */
   margin-right: 10px;
-  /* 表单项之间的间距 */
 }
 
 .el-table .cell {
-  /* 文本超出容器部分隐藏 */
   overflow: hidden;
-  /* 超出部分使用省略号代替 */
   text-overflow: ellipsis;
-  /* 不换行 */
   white-space: nowrap;
 }
 
 .demo-form-inline .el-input {
   width: 160px;
-  /* 输入框的宽度 */
 }
 </style>
