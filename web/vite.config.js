@@ -1,7 +1,4 @@
 import legacyPlugin from '@vitejs/plugin-legacy'
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { viteLogo } from './src/core/config'
 import Banner from 'vite-plugin-banner'
 import * as path from 'path'
@@ -9,7 +6,6 @@ import * as dotenv from 'dotenv'
 import * as fs from 'fs'
 import vuePlugin from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import fullImportPlugin from './vitePlugin/fullImport/fullImport.js'
 import VueFilePathPlugin from './vitePlugin/componentName/index.js'
 import { svgBuilder } from 'vite-auto-import-svg'
 import { AddSecret } from './vitePlugin/secret'
@@ -80,6 +76,13 @@ export default ({
       manifest: false, // 是否产出manifest.json
       sourcemap: false, // 是否产出sourcemap.json
       outDir: 'dist', // 产出目录
+      terserOptions: {
+        compress: {
+          //生产环境时移除console
+          drop_console: true,
+          drop_debugger: true,
+        },
+      },
       rollupOptions,
     },
     esbuild,
@@ -94,28 +97,6 @@ export default ({
       [Banner(`\n Build based on gin-vue-admin \n Time : ${timestamp}`)],
       VueFilePathPlugin("./src/pathInfo.json")
     ],
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@use "@/style/element/index.scss" as *;`,
-        }
-      }
-    },
-  }
-
-  if (NODE_ENV === 'development') {
-    config.plugins.push(
-      fullImportPlugin()
-    )
-  } else {
-    config.plugins.push(AutoImport({
-        resolvers: [ElementPlusResolver()]
-      }),
-      Components({
-        resolvers: [ElementPlusResolver({
-          importStyle: 'sass'
-        })]
-      }))
   }
   return config
 }
