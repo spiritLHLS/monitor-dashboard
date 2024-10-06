@@ -92,7 +92,7 @@ func (e *FileUploadAndDownloadService) UploadFile(header *multipart.FileHeader, 
 	oss := upload.NewOss()
 	filePath, key, uploadErr := oss.UploadFile(header)
 	if uploadErr != nil {
-		return file, uploadErr
+		panic(uploadErr)
 	}
 	s := strings.Split(header.Filename, ".")
 	f := example.ExaFileUploadAndDownload{
