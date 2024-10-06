@@ -43,7 +43,6 @@ type AutoCode struct {
 }
 
 type DataSource struct {
-	DBName      string `json:"dbName"`
 	Table       string `json:"table"`
 	Label       string `json:"label"`
 	Value       string `json:"value"`
