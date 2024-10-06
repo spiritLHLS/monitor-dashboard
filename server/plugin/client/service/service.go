@@ -268,9 +268,16 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 			gvaGlobal.BlackCache.Increment(key, 1)
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errSysLoginFailed, err)
 		}
-		sysUser.Authority = system.SysAuthority{
-			DefaultRouter: tgrGlobal.GlobalConfig.DefaultRouter,
-			AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
+		if !isAdmin {
+			sysUser.Authority = system.SysAuthority{
+				DefaultRouter: tgrGlobal.GlobalConfig.DefaultRouter,
+				AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
+			}
+		} else {
+			sysUser.Authority = system.SysAuthority{
+				DefaultRouter: "home",
+				AuthorityId:   888,
+			}
 		}
 		return token, claims, sysUser, err
 	}

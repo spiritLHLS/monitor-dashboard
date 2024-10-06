@@ -18,6 +18,7 @@ export const useUserStore = defineStore('user', () => {
     nickName: '',
     headerImg: '',
     authority: {},
+    authorityId: 0,
   })
   const token = ref(window.localStorage.getItem('token') || cookie.get('x-token') || '')
   const setUserInfo = (val) => {
@@ -81,18 +82,15 @@ export const useUserStore = defineStore('user', () => {
     asyncRouters.forEach(asyncRouter => {
       router.addRoute(asyncRouter)
     })
-
-    if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
-      ElMessage.error('请联系管理员进行授权')
+    if (userInfo.value.authorityId === 888 || userInfo.value.authorityId === 8881) {
+      await router.replace({ name: 'dashboard' })
     } else {
-      if (userInfo.value.authority.AuthorityId === 888 || userInfo.value.authority.AuthorityId === 8881) {
-        await router.replace({ name: 'dashboard' })
-      } else {
-        await router.replace({ name: userInfo.value.authority.defaultRouter })
+      if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
+        ElMessage.error('请联系管理员进行授权')
       }
+      await router.replace({ name: userInfo.value.authority.defaultRouter })
     }
     
-
     const isWin = ref(/windows/i.test(navigator.userAgent))
     if (isWin.value) {
       window.localStorage.setItem('osType', 'WIN')
@@ -163,9 +161,9 @@ export const useUserStore = defineStore('user', () => {
       text: '登录中，请稍候...',
       });
       try {
-      console.log("try login");
+      // console.log("try login");
       const res = await TGRLogin(loginInfo);
-      console.log("Login response:", res);
+      // console.log("Login response:", res);
       if (res.code === 0) {
           setUserInfo(res.data.user);
           setToken(res.data.token);
@@ -176,14 +174,14 @@ export const useUserStore = defineStore('user', () => {
           router.addRoute(asyncRouter);
           });
 
-          console.log("User info:", userInfo.value);
-          if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
-            console.log(userInfo)
-            ElMessage.error('请联系管理员进行授权');
+          // console.log("User info:", userInfo.value);
+          if (userInfo.value.authorityId === 888 || userInfo.value.authorityId === 8881) {
+            await router.replace({ name: 'dashboard' })
           } else {
-            console.log("Redirecting to:", userInfo.value.authority.defaultRouter);
-            await router.replace({ name: userInfo.value.authority.defaultRouter });
-            console.log("Redirected successfully.");
+            if (!router.hasRoute(userInfo.value.authority.defaultRouter)) {
+              ElMessage.error('请联系管理员进行授权')
+            }
+            await router.replace({ name: userInfo.value.authority.defaultRouter })
           }
           loadingInstance.value.close();
           const isWin = ref(/windows/i.test(navigator.userAgent));
@@ -195,7 +193,7 @@ export const useUserStore = defineStore('user', () => {
           return true;
       }
       } catch (e) {
-      console.log("Login error:", e);
+      // console.log("Login error:", e);
       loadingInstance.value.close();
       }
       loadingInstance.value.close();
