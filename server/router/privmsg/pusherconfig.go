@@ -5,24 +5,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PusherConfigRouter struct {}
+type PusherConfigRouter struct{}
 
-// InitPusherConfigRouter 初始化 推送配置 路由信息
-func (s *PusherConfigRouter) InitPusherConfigRouter(Router *gin.RouterGroup,PublicRouter *gin.RouterGroup) {
+func (s *PusherConfigRouter) InitPusherConfigRouter(Router *gin.RouterGroup, PublicRouter *gin.RouterGroup) {
 	pcRouter := Router.Group("pc").Use(middleware.OperationRecord())
 	pcRouterWithoutRecord := Router.Group("pc")
 	pcRouterWithoutAuth := PublicRouter.Group("pc")
 	{
-		pcRouter.POST("createPusherConfig", pcApi.CreatePusherConfig)   // 新建推送配置
-		pcRouter.DELETE("deletePusherConfig", pcApi.DeletePusherConfig) // 删除推送配置
-		pcRouter.DELETE("deletePusherConfigByIds", pcApi.DeletePusherConfigByIds) // 批量删除推送配置
-		pcRouter.PUT("updatePusherConfig", pcApi.UpdatePusherConfig)    // 更新推送配置
+		pcRouter.POST("createPusherConfig", pcApi.CreatePusherConfig)
+		pcRouter.DELETE("deletePusherConfig", pcApi.DeletePusherConfig)
+		pcRouter.DELETE("deletePusherConfigByIds", pcApi.DeletePusherConfigByIds)
+		pcRouter.PUT("updatePusherConfig", pcApi.UpdatePusherConfig)
+
+		pcRouter.GET("getPublicPushStatus", pcApi.GetPublicPushStatus)
+		pcRouter.POST("controlPublicPushStatus", pcApi.ControlPublicPushStatus)
+		pcRouter.GET("getTelegramBotPushStatus", pcApi.GetTelegramBotPushStatus)
+		pcRouter.POST("controlTelegramBotPushStatus", pcApi.ControlTelegramBotPushStatus)
 	}
 	{
-		pcRouterWithoutRecord.GET("findPusherConfig", pcApi.FindPusherConfig)        // 根据ID获取推送配置
-		pcRouterWithoutRecord.GET("getPusherConfigList", pcApi.GetPusherConfigList)  // 获取推送配置列表
+		pcRouterWithoutRecord.GET("findPusherConfig", pcApi.FindPusherConfig)
+		pcRouterWithoutRecord.GET("getPusherConfigList", pcApi.GetPusherConfigList)
 	}
 	{
-	    pcRouterWithoutAuth.GET("getPusherConfigPublic", pcApi.GetPusherConfigPublic)  // 推送配置开放接口
+		pcRouterWithoutAuth.GET("getPusherConfigPublic", pcApi.GetPusherConfigPublic)
 	}
 }

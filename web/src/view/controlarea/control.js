@@ -121,3 +121,61 @@ export const controlPublicRegister = (data) => {
         data
     })
 }
+
+// GetPublicPushStatus 获取整体推送是否启用
+// @Tags PusherConfig
+// @Summary 获取整体推送是否启用
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /pc/getPublicPushStatus [GET]
+export const getPublicPushStatus = () => {
+    return service({
+        url: '/pc/getPublicPushStatus',
+        method: 'GET'
+    })
+}
+
+// ControlPublicPushStatus 修改整体推送是否启用
+// @Tags PusherConfig
+// @Summary 修改整体推送是否启用
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /pc/controlPublicPushStatus [POST]
+export const controlPublicPushStatus = (data) => {
+    return service({
+        url: '/pc/controlPublicPushStatus',
+        method: 'POST',
+        data
+    })
+}
+
+// GetTelegramBotPushStatus 获取是否启用TG的BOT进行推送
+// @Tags PusherConfig
+// @Summary 获取是否启用TG的BOT进行推送
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /pc/getTelegramBotPushStatus [GET]
+export const getTelegramBotPushStatus = () => {
+    return service({
+        url: '/pc/getTelegramBotPushStatus',
+        method: 'GET'
+    })
+}
+
+// ControlTelegramBotPushStatus 修改是否启用TG的BOT进行推送
+// @Tags PusherConfig
+// @Summary 修改是否启用TG的BOT进行推送
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /pc/controlTelegramBotPushStatus [POST]
+export const controlTelegramBotPushStatus = (data) => {
+    return service({
+        url: '/pc/controlTelegramBotPushStatus',
+        method: 'POST',
+        data
+    })
+}

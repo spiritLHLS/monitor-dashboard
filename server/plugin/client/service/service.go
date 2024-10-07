@@ -39,6 +39,9 @@ func (e *RegisterService) Code(tgid string) (err error) {
 }
 
 func (e *RegisterService) Register(register model.RegisterReq) (string, request.CustomClaims, system.SysUser, error) {
+	if !ecsusers.EcsUserPublicRegisterStatus {
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("管理员未开放公共注册权限，请联系管理员或使用邀请码注册")
+	}
 	// 定义错误消息常量
 	const (
 		errTGCodeRetrieval = "存储的TG验证码获取错误: %v"

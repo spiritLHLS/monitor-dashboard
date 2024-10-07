@@ -1,86 +1,64 @@
 <template>
   <div class="control-panel">
-    <button class="control-button spider" @click="toggleSpiderStatus">
-      <icon-spider :class="{ active: spiderStatus }" />
-      <span>{{ spiderStatus ? '关闭商品爬虫' : '启用商品爬虫' }}</span>
-    </button>
-    
-    <button class="control-button telegram" @click="toggleTelegramStatus">
-      <icon-telegram :class="{ active: telegramStatus }" />
-      <span>{{ telegramStatus ? '关闭频道推送' : '启用频道推送' }}</span>
-    </button>
-    
-    <button class="control-button products" @click="toggleFAProductsCheckStatus">
-      <icon-products :class="{ active: faProductsStatus }" />
-      <span>{{ faProductsStatus ? '关闭追新爬虫' : '启用追新爬虫' }}</span>
-    </button>
-
-    <button class="control-button register" @click="togglePublicRegisterStatus">
-      <icon-register :class="{ active: publicRegisterStatus }" />
-      <span>{{ publicRegisterStatus ? '关闭公开注册' : '启用公开注册' }}</span>
-    </button>
+    <div v-for="(control, key) in controls" :key="key" class="control-item">
+      <label class="switch">
+        <input type="checkbox" :checked="control.status" @change="toggleStatus(key)">
+        <span class="slider"></span>
+      </label>
+      <span class="control-label">{{ control.label }}</span>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import {
   controlSpiders, getSpidersStatus, controlTelegramPush, getTelegramPushStatus,
-  controlFAProductsCheck, getFAProductsCheckStatus, getPublicRegisterStatus, controlPublicRegister
+  controlFAProductsCheck, getFAProductsCheckStatus, getPublicRegisterStatus, controlPublicRegister,
+  getPublicPushStatus, controlPublicPushStatus, getTelegramBotPushStatus, controlTelegramBotPushStatus
 } from '@/view/controlarea/control.js'
 
-const initializeStatus = async (statusRef, getStatusFunc) => {
-  try {
-    const statusData = await getStatusFunc();
-    statusRef.value = statusData.data;
-  } catch (error) {
-    console.error('Error initializing status:', error);
-  }
-};
+const controls = reactive({
+  spider: { status: false, label: '商品爬虫', getStatus: getSpidersStatus, controlFunc: controlSpiders, controlKey: 'enable_spiders' },
+  telegram: { status: false, label: '频道推送', getStatus: getTelegramPushStatus, controlFunc: controlTelegramPush, controlKey: 'enable_tgpush' },
+  products: { status: false, label: '追新爬虫', getStatus: getFAProductsCheckStatus, controlFunc: controlFAProductsCheck, controlKey: 'enable_allpdspiders' },
+  register: { status: false, label: '公开注册', getStatus: getPublicRegisterStatus, controlFunc: controlPublicRegister, controlKey: 'enable_public_register' },
+  publicPush: { status: false, label: '一对一推送', getStatus: getPublicPushStatus, controlFunc: controlPublicPushStatus, controlKey: 'enable_public_push' },
+  tgBot: { status: false, label: 'TG机器人推送', getStatus: getTelegramBotPushStatus, controlFunc: controlTelegramBotPushStatus, controlKey: 'enable_tg_bot_push' }
+})
 
-const toggleStatus = async (statusRef, controlStatusFunc, controlKey) => {
-  try {
-    const newStatus = !statusRef.value;
-    const controlObj = { [controlKey]: newStatus };
-    const statusData = await controlStatusFunc(controlObj);
-    statusRef.value = statusData.data;
-  } catch (error) {
-    console.error('Error toggling status:', error)
+const initializeStatuses = async () => {
+  for (const key in controls) {
+    try {
+      const statusData = await controls[key].getStatus();
+      controls[key].status = statusData.data;
+    } catch (error) {
+      console.error(`Error initializing ${key} status:`, error);
+    }
   }
 }
 
-// Spider
-const spiderStatus = ref(false)
-const fetchSpiderStatus = () => initializeStatus(spiderStatus, getSpidersStatus)
-const toggleSpiderStatus = () => toggleStatus(spiderStatus, controlSpiders, 'enable_spiders')
-
-// Telegram
-const telegramStatus = ref(false)
-const fetchTelegramStatus = () => initializeStatus(telegramStatus, getTelegramPushStatus)
-const toggleTelegramStatus = () => toggleStatus(telegramStatus, controlTelegramPush, 'enable_tgpush')
-
-// FA Products Check
-const faProductsStatus = ref(false)
-const fetchFAProductsCheckStatus = () => initializeStatus(faProductsStatus, getFAProductsCheckStatus)
-const toggleFAProductsCheckStatus = () => toggleStatus(faProductsStatus, controlFAProductsCheck, 'enable_allpdspiders')
-
-// Public Register
-const publicRegisterStatus = ref(false)
-const fetchPublicRegisterStatus = () => initializeStatus(publicRegisterStatus, getPublicRegisterStatus)
-const togglePublicRegisterStatus = () => toggleStatus(publicRegisterStatus, controlPublicRegister, 'enable_public_register')
+const toggleStatus = async (key) => {
+  try {
+    const control = controls[key];
+    const newStatus = !control.status;
+    const controlObj = { [control.controlKey]: newStatus };
+    const statusData = await control.controlFunc(controlObj);
+    control.status = statusData.data;
+  } catch (error) {
+    console.error(`Error toggling ${key} status:`, error);
+  }
+}
 
 // 初始获取状态
-fetchSpiderStatus()
-fetchTelegramStatus()
-fetchFAProductsCheckStatus()
-fetchPublicRegisterStatus()
+initializeStatuses()
 </script>
 
 <style scoped lang="scss">
 .control-panel {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
   padding: 30px;
   background: #f5f7fa;
@@ -88,46 +66,61 @@ fetchPublicRegisterStatus()
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.control-button {
+.control-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 250px;
-  padding: 15px 20px;
-  border: none;
-  border-radius: 50px;
-  background: #ffffff;
-  color: #333;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:active {
-    transform: translateY(1px);
-  }
-
-  span {
-    margin-left: 10px;
-  }
+  gap: 15px;
 }
 
-.spider { &:hover, &.active { background: #4CAF50; color: white; } }
-.telegram { &:hover, &.active { background: #2196F3; color: white; } }
-.products { &:hover, &.active { background: #FF9800; color: white; } }
-.register { &:hover, &.active { background: #9C27B0; color: white; } }
+.control-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
 
-.icon-spider, .icon-telegram, .icon-products, .icon-register {
-  font-size: 24px;
-  transition: all 0.3s ease;
-  
-  &.active {
-    transform: scale(1.2);
-  }
+/* 开关样式 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
 }
 </style>
