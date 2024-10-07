@@ -40,9 +40,13 @@ func initBizRouter(routers ...*gin.RouterGroup) {
 	{
 		subscribeRouter := router.RouterGroupApp.Subscribe
 		subscribeRouter.InitSubscribeRouter(privateGroup, publicGroup)
-	} // 占位方法，保证文件可以正确加载，避免go空变量检测报错，请勿删除。
+	}
 	{
 		privmsgRouter := router.RouterGroupApp.Privmsg
 		privmsgRouter.InitPusherConfigRouter(privateGroup, publicGroup)
+	} // 占位方法，保证文件可以正确加载，避免go空变量检测报错，请勿删除。
+	{
+		invite_codesRouter := router.RouterGroupApp.Invite_codes
+		invite_codesRouter.InitInviteCodesRouter(privateGroup, publicGroup)
 	}
 }
