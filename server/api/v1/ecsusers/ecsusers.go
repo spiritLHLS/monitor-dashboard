@@ -250,3 +250,34 @@ func (eusrApi *EcsUsersApi) SelfModifyInfo(c *gin.Context) {
 	}
 	response.OkWithMessage("更新成功", c)
 }
+
+// GetPublicRegisterStatus 获取是否公开注册
+// @Tags EcsUsers
+// @Summary 获取是否公开注册
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getPublicRegisterStatus [GET]
+func (eusrApi *EcsUsersApi) GetPublicRegisterStatus(c *gin.Context) {
+	response.OkWithDetailed(ecsusers.EcsUserPublicRegisterStatus, "查询成功", c)
+}
+
+// ControlPublicRegister 启用关闭公开注册
+// @Tags EcsUsers
+// @Summary 启用关闭公开注册
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/controlPublicRegister [POST]
+func (eusrApi *EcsUsersApi) ControlPublicRegister(c *gin.Context) {
+	var control ecsusers.RegisterControl
+	if err := c.ShouldBindJSON(&control); err != nil {
+		response.FailWithMessage("修改失败", c)
+	}
+	if ecsusers.EcsUserPublicRegisterStatus != control.EnablePublicRegister {
+		ecsusers.EcsUserPublicRegisterStatus = control.EnablePublicRegister
+	}
+	response.OkWithDetailed(ecsusers.EcsUserPublicRegisterStatus, "修改成功", c)
+}

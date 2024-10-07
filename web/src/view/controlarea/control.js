@@ -92,3 +92,32 @@ export const getFAProductsCheckStatus = () => {
         method: 'post',
     })
 }
+
+// GetPublicRegisterStatus 获取是否公开注册
+// @Tags EcsUsers
+// @Summary 获取是否公开注册
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getPublicRegisterStatus [GET]
+export const getPublicRegisterStatus = () => {
+    return service({
+        url: '/eusr/getPublicRegisterStatus',
+        method: 'GET'
+    })
+}
+
+// ControlPublicRegister 启用关闭公开注册
+// @Tags EcsUsers
+// @Summary 启用关闭公开注册
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/controlPublicRegister [POST]
+export const controlPublicRegister = (data) => {
+    return service({
+        url: '/eusr/controlPublicRegister',
+        method: 'POST',
+        data
+    })
+}

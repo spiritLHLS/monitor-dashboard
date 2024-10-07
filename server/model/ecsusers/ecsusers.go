@@ -70,3 +70,9 @@ func (u EcsUsers) GetUserInfo() any {
 func (EcsUsers) TableName() string {
 	return "ecs_users"
 }
+
+var EcsUserPublicRegisterStatus = false
+
+type RegisterControl struct {
+	EnablePublicRegister bool `json:"enable_public_register"`
+}

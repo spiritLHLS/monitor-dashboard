@@ -2,17 +2,22 @@
   <div class="control-panel">
     <button class="control-button spider" @click="toggleSpiderStatus">
       <icon-spider :class="{ active: spiderStatus }" />
-      <span>{{ spiderStatus ? '关闭爬虫' : '启用爬虫' }}</span>
+      <span>{{ spiderStatus ? '关闭商品爬虫' : '启用商品爬虫' }}</span>
     </button>
     
     <button class="control-button telegram" @click="toggleTelegramStatus">
       <icon-telegram :class="{ active: telegramStatus }" />
-      <span>{{ telegramStatus ? '关闭推送' : '启用推送' }}</span>
+      <span>{{ telegramStatus ? '关闭频道推送' : '启用频道推送' }}</span>
     </button>
     
     <button class="control-button products" @click="toggleFAProductsCheckStatus">
       <icon-products :class="{ active: faProductsStatus }" />
-      <span>{{ faProductsStatus ? '关闭商品爬虫' : '启用商品爬虫' }}</span>
+      <span>{{ faProductsStatus ? '关闭追新爬虫' : '启用追新爬虫' }}</span>
+    </button>
+
+    <button class="control-button register" @click="togglePublicRegisterStatus">
+      <icon-register :class="{ active: publicRegisterStatus }" />
+      <span>{{ publicRegisterStatus ? '关闭公开注册' : '启用公开注册' }}</span>
     </button>
   </div>
 </template>
@@ -21,7 +26,7 @@
 import { ref } from 'vue'
 import {
   controlSpiders, getSpidersStatus, controlTelegramPush, getTelegramPushStatus,
-  controlFAProductsCheck, getFAProductsCheckStatus
+  controlFAProductsCheck, getFAProductsCheckStatus, getPublicRegisterStatus, controlPublicRegister
 } from '@/view/controlarea/control.js'
 
 const initializeStatus = async (statusRef, getStatusFunc) => {
@@ -59,10 +64,16 @@ const faProductsStatus = ref(false)
 const fetchFAProductsCheckStatus = () => initializeStatus(faProductsStatus, getFAProductsCheckStatus)
 const toggleFAProductsCheckStatus = () => toggleStatus(faProductsStatus, controlFAProductsCheck, 'enable_allpdspiders')
 
+// Public Register
+const publicRegisterStatus = ref(false)
+const fetchPublicRegisterStatus = () => initializeStatus(publicRegisterStatus, getPublicRegisterStatus)
+const togglePublicRegisterStatus = () => toggleStatus(publicRegisterStatus, controlPublicRegister, 'enable_public_register')
+
 // 初始获取状态
 fetchSpiderStatus()
 fetchTelegramStatus()
 fetchFAProductsCheckStatus()
+fetchPublicRegisterStatus()
 </script>
 
 <style scoped lang="scss">
@@ -109,9 +120,9 @@ fetchFAProductsCheckStatus()
 .spider { &:hover, &.active { background: #4CAF50; color: white; } }
 .telegram { &:hover, &.active { background: #2196F3; color: white; } }
 .products { &:hover, &.active { background: #FF9800; color: white; } }
+.register { &:hover, &.active { background: #9C27B0; color: white; } }
 
-// 这里假设您使用了一些图标组件，如果没有，可以使用字体图标或SVG图标替代
-.icon-spider, .icon-telegram, .icon-products {
+.icon-spider, .icon-telegram, .icon-products, .icon-register {
   font-size: 24px;
   transition: all 0.3s ease;
   
