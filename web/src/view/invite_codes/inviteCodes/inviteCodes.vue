@@ -62,7 +62,10 @@
         <el-button type="primary" icon="plus" @click="openDialog">新增</el-button>
         <el-button icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length"
           @click="onDelete">删除</el-button>
-
+        <el-button type="success" icon="plus" style="margin-left: 10px;"
+          @click="openBatchBuildDialog">批量创建邀请码</el-button>
+        <el-button type="warning" icon="download" style="margin-left: 10px;" :disabled="!multipleSelection.length"
+          @click="batchExport">批量导出邀请码</el-button>
       </div>
       <el-table ref="multipleTable" style="width: 100%" tooltip-effect="dark" :data="tableData" row-key="ID"
         @selection-change="handleSelectionChange">
@@ -158,6 +161,32 @@
       </el-descriptions>
     </el-drawer>
 
+    <!-- 新增批量创建邀请码的对话框 -->
+    <el-dialog v-model="batchBuildDialogVisible" title="批量创建邀请码" width="30%">
+      <el-form :model="batchBuildForm" label-width="120px">
+        <el-form-item label="创建数量">
+          <el-input-number v-model="batchBuildForm.count" :min="1" :max="1000"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="batchBuildDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmBatchBuild">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 批量导出邀请码的结果对话框 -->
+    <el-dialog v-model="exportDialogVisible" title="导出的邀请码" width="50%">
+      <el-input v-model="exportedCodes" type="textarea" :rows="10" placeholder="导出的邀请码将显示在这里" readonly></el-input>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="exportDialogVisible = false">关闭</el-button>
+          <el-button type="primary" @click="copyExportedCodes">复制</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -168,7 +197,9 @@ import {
   deleteInviteCodesByIds,
   updateInviteCodes,
   findInviteCodes,
-  getInviteCodesList
+  getInviteCodesList,
+  batchBuildCodes,
+  batchExportCodes
 } from '@/api/invite_codes/inviteCodes'
 
 // 全量引入格式化工具 请按需保留
@@ -463,6 +494,78 @@ const closeDetailShow = () => {
   detailFrom.value = {}
 }
 
+// 批量创建邀请码相关
+const batchBuildDialogVisible = ref(false)
+const batchBuildForm = reactive({
+  count: 1
+})
+
+const openBatchBuildDialog = () => {
+  batchBuildDialogVisible.value = true
+}
+
+const confirmBatchBuild = async () => {
+  try {
+    const res = await batchBuildCodes({ count: batchBuildForm.count })
+    if (res.code === 0) {
+      const createdCodes = res.data.Codes.split('\n')
+      ElMessage({
+        type: 'success',
+        message: `成功创建 ${createdCodes.length} 个邀请码`
+      })
+      batchBuildDialogVisible.value = false
+      getTableData()
+    }
+  } catch (error) {
+    ElMessage({
+      type: 'error',
+      message: '批量创建邀请码失败'
+    })
+  }
+}
+
+
+// 批量导出邀请码相关
+const exportDialogVisible = ref(false)
+const exportedCodes = ref('')
+
+const batchExport = async () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage({
+      type: 'warning',
+      message: '请选择要导出的邀请码'
+    })
+    return
+  }
+
+  try {
+    const IDs = multipleSelection.value.map(item => item.ID)
+    const res = await batchExportCodes({ IDs })
+    if (res.code === 0) {
+      exportedCodes.value = res.data.Codes
+      exportDialogVisible.value = true
+    }
+  } catch (error) {
+    ElMessage({
+      type: 'error',
+      message: '批量导出邀请码失败'
+    })
+  }
+}
+
+const copyExportedCodes = () => {
+  navigator.clipboard.writeText(exportedCodes.value).then(() => {
+    ElMessage({
+      type: 'success',
+      message: '邀请码已复制到剪贴板'
+    })
+  }, () => {
+    ElMessage({
+      type: 'error',
+      message: '复制失败，请手动复制'
+    })
+  })
+}
 
 </script>
 

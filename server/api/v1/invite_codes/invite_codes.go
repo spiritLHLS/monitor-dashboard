@@ -1,18 +1,15 @@
 package invite_codes
 
 import (
-	
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes"
-    invite_codesReq "github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes/request"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes"
+	invite_codesReq "github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes/request"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-type InviteCodesApi struct {}
-
-
+type InviteCodesApi struct{}
 
 // CreateInviteCodes 创建邀请码
 // @Tags InviteCodes
@@ -32,11 +29,11 @@ func (invcodeApi *InviteCodesApi) CreateInviteCodes(c *gin.Context) {
 	}
 	err = invcodeService.CreateInviteCodes(&invcode)
 	if err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
-		response.FailWithMessage("创建失败:" + err.Error(), c)
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		response.FailWithMessage("创建失败:"+err.Error(), c)
 		return
 	}
-    response.OkWithMessage("创建成功", c)
+	response.OkWithMessage("创建成功", c)
 }
 
 // DeleteInviteCodes 删除邀请码
@@ -52,8 +49,8 @@ func (invcodeApi *InviteCodesApi) DeleteInviteCodes(c *gin.Context) {
 	ID := c.Query("ID")
 	err := invcodeService.DeleteInviteCodes(ID)
 	if err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
-		response.FailWithMessage("删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("删除成功", c)
@@ -71,8 +68,8 @@ func (invcodeApi *InviteCodesApi) DeleteInviteCodesByIds(c *gin.Context) {
 	IDs := c.QueryArray("IDs[]")
 	err := invcodeService.DeleteInviteCodesByIds(IDs)
 	if err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
-		response.FailWithMessage("批量删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		response.FailWithMessage("批量删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("批量删除成功", c)
@@ -96,8 +93,8 @@ func (invcodeApi *InviteCodesApi) UpdateInviteCodes(c *gin.Context) {
 	}
 	err = invcodeService.UpdateInviteCodes(invcode)
 	if err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
-		response.FailWithMessage("更新失败:" + err.Error(), c)
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		response.FailWithMessage("更新失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("更新成功", c)
@@ -116,8 +113,8 @@ func (invcodeApi *InviteCodesApi) FindInviteCodes(c *gin.Context) {
 	ID := c.Query("ID")
 	reinvcode, err := invcodeService.GetInviteCodes(ID)
 	if err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
-		response.FailWithMessage("查询失败:" + err.Error(), c)
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		response.FailWithMessage("查询失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithData(reinvcode, c)
@@ -141,16 +138,16 @@ func (invcodeApi *InviteCodesApi) GetInviteCodesList(c *gin.Context) {
 	}
 	list, total, err := invcodeService.GetInviteCodesInfoList(pageInfo)
 	if err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败:" + err.Error(), c)
-        return
-    }
-    response.OkWithDetailed(response.PageResult{
-        List:     list,
-        Total:    total,
-        Page:     pageInfo.Page,
-        PageSize: pageInfo.PageSize,
-    }, "获取成功", c)
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败:"+err.Error(), c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
 }
 
 // GetInviteCodesPublic 不需要鉴权的邀请码接口
@@ -162,10 +159,62 @@ func (invcodeApi *InviteCodesApi) GetInviteCodesList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /invcode/getInviteCodesPublic [get]
 func (invcodeApi *InviteCodesApi) GetInviteCodesPublic(c *gin.Context) {
-    // 此接口不需要鉴权
-    // 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
-    invcodeService.GetInviteCodesPublic()
-    response.OkWithDetailed(gin.H{
-       "info": "不需要鉴权的邀请码接口信息",
-    }, "获取成功", c)
+	// 此接口不需要鉴权
+	// 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
+	invcodeService.GetInviteCodesPublic()
+	response.OkWithDetailed(gin.H{
+		"info": "不需要鉴权的邀请码接口信息",
+	}, "获取成功", c)
+}
+
+// BatchBuildCodes 批量生成邀请码
+// @Tags InviteCodes
+// @Summary 批量生成邀请码
+// @accept application/json
+// @Produce application/json
+// @Param data query invite_codesReq.InviteCodesSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/batchBuildCodes [POST]
+func (invcodeApi *InviteCodesApi) BatchBuildCodes(c *gin.Context) {
+	var invcode invite_codes.BatchBuildCodes
+	err := c.ShouldBindJSON(&invcode)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	content, err2 := invcodeService.BatchBuildCodes(*invcode.Count)
+	if err2 != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err2))
+		response.FailWithMessage("失败", c)
+		return
+	}
+	response.OkWithDetailed(gin.H{
+		"Codes": content,
+	}, "获取成功", c)
+}
+
+// BatchExportCodes 批量导出邀请码
+// @Tags InviteCodes
+// @Summary 批量导出邀请码
+// @accept application/json
+// @Produce application/json
+// @Param data query invite_codesReq.InviteCodesSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/batchExportCodes [POST]
+func (invcodeApi *InviteCodesApi) BatchExportCodes(c *gin.Context) {
+	var invcodes invite_codes.BatchExportCodes
+	err := c.ShouldBindJSON(&invcodes)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	content, err2 := invcodeService.BatchExportCodes(invcodes.IDs)
+	if err2 != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err2))
+		response.FailWithMessage("失败", c)
+		return
+	}
+	response.OkWithDetailed(gin.H{
+		"Codes": content,
+	}, "获取成功", c)
 }

@@ -108,3 +108,33 @@ export const getInviteCodesPublic = () => {
     method: 'get',
   })
 }
+
+// BatchBuildCodes 批量生成邀请码
+// @Tags InviteCodes
+// @Summary 批量生成邀请码
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/batchBuildCodes [POST]
+export const batchBuildCodes = (data) => {
+  return service({
+    url: '/invcode/batchBuildCodes',
+    method: 'POST',
+    data
+  })
+}
+
+// BatchExportCodes 批量导出邀请码
+// @Tags InviteCodes
+// @Summary 批量导出邀请码
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/batchExportCodes [POST]
+export const batchExportCodes = (data) => {
+  return service({
+    url: '/invcode/batchExportCodes',
+    method: 'POST',
+    data
+  })
+}
