@@ -40,6 +40,11 @@ const routes = [{
   component: () => import('@/view/home/index.vue')
 },
 {
+  path: '/home',
+  name: 'home',
+  component: () => import('@/view/home/index.vue')
+},
+{
   path: '/r/:shortCode',
   name: 'Redirect',
   component: () => import('@/view/redirect/redirect.vue')

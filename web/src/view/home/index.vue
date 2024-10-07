@@ -14,7 +14,24 @@
                 <el-button type="primary" @click="router.push('/login')">登录/注册</el-button>
             </div>
         </header>
-
+        <el-collapse v-model="activeCollapse" class="announcement-collapse">
+            <el-collapse-item name="1">
+                <template #title>
+                    <el-icon>
+                        <InfoFilled />
+                    </el-icon>
+                    <span>公告</span>
+                </template>
+                <div class="announcement-content">
+                    <div v-if="isFetching">加载中...</div>
+                    <div v-else-if="error">获取公告失败: {{ error }}</div>
+                    <div v-else>
+                        <h3>{{ announcement.title }}</h3>
+                        <div v-html="announcement.content"></div>
+                    </div>
+                </div>
+            </el-collapse-item>
+        </el-collapse>
         <div class="content-wrapper">
             <aside class="sidebar">
                 <h1 class="site-title">全球VPS余量监控</h1>
@@ -83,10 +100,34 @@
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
+import { Search, InfoFilled } from '@element-plus/icons-vue'
 import { getProductsPublic } from '@/api/products/products'
 import { useRouter } from 'vue-router'
 import { handleRedirect } from '@/plugin/cryptourl/api/encryptedlink'
+import { GetInfoPublic } from '@/plugin/announcement/api/info'
+
+const activeCollapse = ref(['1'])
+const isFetching = ref(false)
+const error = ref(null)
+const announcement = ref({})
+
+const fetchAnnouncement = async () => {
+    isFetching.value = true
+    error.value = null
+    try {
+        const response = await GetInfoPublic({ Title: "链接说明" })
+        if (response.code === 0) {
+            announcement.value = response.data
+        } else {
+            error.value = response.msg || '获取公告失败'
+        }
+    } catch (err) {
+        console.error('Error fetching announcement:', err)
+        error.value = '网络错误，请稍后再试'
+    } finally {
+        isFetching.value = false
+    }
+}
 
 const router = useRouter()
 
@@ -272,6 +313,7 @@ watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
 })
 
 onMounted(() => {
+    fetchAnnouncement()
     getTableData()
 })
 </script>
@@ -483,6 +525,35 @@ onMounted(() => {
     border-color: #33a06f;
 }
 
+.announcement-collapse {
+  margin: 10px 20px;
+  background-color: #f0f6f0;
+  border: 1px solid #e8f5e8;
+  border-radius: 4px;
+}
+
+:deep(.el-collapse-item__header) {
+  background-color: #e8f5e8;
+  color: #2f3f2f;
+  font-weight: bold;
+}
+
+:deep(.el-collapse-item__content) {
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.announcement-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2f3f2f;
+}
+
+.announcement-content h3 {
+  margin-bottom: 10px;
+  color: #42b883;
+}
+
 @media (max-width: 768px) {
     .top-bar {
         flex-direction: column;
@@ -542,5 +613,9 @@ onMounted(() => {
     .toggle-option {
         padding: 6px 8px;
     }
+
+    .announcement-collapse {
+    margin: 10px;
+  }
 }
 </style>
