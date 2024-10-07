@@ -16,10 +16,11 @@ func (s *EcsUsersRouter) InitEcsUsersRouter(Router *gin.RouterGroup, PublicRoute
 		eusrRouter.DELETE("deleteEcsUsers", eusrApi.DeleteEcsUsers)
 		eusrRouter.DELETE("deleteEcsUsersByIds", eusrApi.DeleteEcsUsersByIds)
 		eusrRouter.PUT("updateEcsUsers", eusrApi.UpdateEcsUsers)
-
 		eusrRouter.PUT("adminChangePassword", eusrApi.AdminChangePassword)
 		eusrRouter.GET("selfGetUserInfo", eusrApi.SelfGetUserInfo)
 		eusrRouter.POST("selfModifyInfo", eusrApi.SelfModifyInfo)
+		eusrRouter.GET("getPublicRegisterStatus", eusrApi.GetPublicRegisterStatus)
+		eusrRouter.POST("controlPublicRegister", eusrApi.ControlPublicRegister)
 	}
 	{
 		eusrRouterWithoutRecord.GET("findEcsUsers", eusrApi.FindEcsUsers)
@@ -27,7 +28,5 @@ func (s *EcsUsersRouter) InitEcsUsersRouter(Router *gin.RouterGroup, PublicRoute
 	}
 	{
 		eusrRouterWithoutAuth.GET("getEcsUsersPublic", eusrApi.GetEcsUsersPublic)
-		eusrRouterWithoutAuth.GET("getPublicRegisterStatus", eusrApi.GetPublicRegisterStatus)
-		eusrRouterWithoutAuth.POST("controlPublicRegister", eusrApi.ControlPublicRegister)
 	}
 }
