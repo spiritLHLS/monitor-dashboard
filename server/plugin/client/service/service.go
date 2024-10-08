@@ -227,11 +227,10 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 			First(&ecsUser).Error; err != nil {
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errUserNotFound, err)
 		}
-		// 暂时去除TG验证
-		//if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, ecsUser.TGID,
-		//	tgrGlobal.GlobalConfig.ChannelId); err != nil {
-		//	return "", request.CustomClaims{}, ecsusers.EcsUsers{}, errors.New(errNotInChannel)
-		//}
+		if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, ecsUser.TGID,
+			tgrGlobal.GlobalConfig.ChannelId); err != nil {
+			return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
+		}
 	}
 	// 验证登录信息是否符合逻辑
 	if err := utils.Verify(loginUser, utils.LoginVerify); err != nil {
