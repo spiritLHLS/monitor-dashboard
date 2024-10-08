@@ -16,6 +16,11 @@ func (s *InviteCodesRouter) InitInviteCodesRouter(Router *gin.RouterGroup, Publi
 		invcodeRouter.DELETE("deleteInviteCodes", invcodeApi.DeleteInviteCodes)
 		invcodeRouter.DELETE("deleteInviteCodesByIds", invcodeApi.DeleteInviteCodesByIds)
 		invcodeRouter.PUT("updateInviteCodes", invcodeApi.UpdateInviteCodes)
+
+		invcodeRouter.POST("batchBuildCodes", invcodeApi.BatchBuildCodes)
+		invcodeRouter.POST("batchExportCodes", invcodeApi.BatchExportCodes)
+		invcodeRouter.GET("getPublicInviteStatus", invcodeApi.GetPublicInviteStatus)
+		invcodeRouter.POST("controlPublicInvite", invcodeApi.ControlPublicInvite)
 	}
 	{
 		invcodeRouterWithoutRecord.GET("findInviteCodes", invcodeApi.FindInviteCodes)
@@ -23,7 +28,5 @@ func (s *InviteCodesRouter) InitInviteCodesRouter(Router *gin.RouterGroup, Publi
 	}
 	{
 		invcodeRouterWithoutAuth.GET("getInviteCodesPublic", invcodeApi.GetInviteCodesPublic)
-		invcodeRouterWithoutAuth.POST("batchBuildCodes", invcodeApi.BatchBuildCodes)
-		invcodeRouterWithoutAuth.POST("batchExportCodes", invcodeApi.BatchExportCodes)
 	}
 }

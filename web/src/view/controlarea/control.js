@@ -179,3 +179,32 @@ export const controlTelegramBotPushStatus = (data) => {
         data
     })
 }
+
+// GetPublicInviteStatus 获取是否启用邀请码注册
+// @Tags InviteCodes
+// @Summary 获取是否启用邀请码注册
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/getPublicInviteStatus [GET]
+export const getPublicInviteStatus = () => {
+    return service({
+        url: '/invcode/getPublicInviteStatus',
+        method: 'GET'
+    })
+}
+
+// ControlPublicInvite 修改是否使用邀请码注册
+// @Tags InviteCodes
+// @Summary 修改是否使用邀请码注册
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/controlPublicInvite [POST]
+export const controlPublicInvite = (data) => {
+    return service({
+        url: '/invcode/controlPublicInvite',
+        method: 'POST',
+        data
+    })
+}

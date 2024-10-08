@@ -1,21 +1,33 @@
 <template>
   <div class="control-panel">
-    <div v-for="(control, key) in controls" :key="key" class="control-item">
-      <label class="switch">
-        <input type="checkbox" :checked="control.status" @change="toggleStatus(key)">
-        <span class="slider"></span>
-      </label>
-      <span class="control-label">{{ control.label }}</span>
+    <div class="control-column">
+      <div v-for="(control, key) in leftControls" :key="key" class="control-item">
+        <label class="switch">
+          <input type="checkbox" :checked="control.status" @change="toggleStatus(key)">
+          <span class="slider"></span>
+        </label>
+        <span class="control-label">{{ control.label }}</span>
+      </div>
+    </div>
+    <div class="control-column">
+      <div v-for="(control, key) in rightControls" :key="key" class="control-item">
+        <label class="switch">
+          <input type="checkbox" :checked="control.status" @change="toggleStatus(key)">
+          <span class="slider"></span>
+        </label>
+        <span class="control-label">{{ control.label }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import {
   controlSpiders, getSpidersStatus, controlTelegramPush, getTelegramPushStatus,
   controlFAProductsCheck, getFAProductsCheckStatus, getPublicRegisterStatus, controlPublicRegister,
-  getPublicPushStatus, controlPublicPushStatus, getTelegramBotPushStatus, controlTelegramBotPushStatus
+  getPublicPushStatus, controlPublicPushStatus, getTelegramBotPushStatus, controlTelegramBotPushStatus,
+  getPublicInviteStatus, controlPublicInvite
 } from '@/view/controlarea/control.js'
 
 const controls = reactive({
@@ -24,7 +36,18 @@ const controls = reactive({
   products: { status: false, label: '追新爬虫', getStatus: getFAProductsCheckStatus, controlFunc: controlFAProductsCheck, controlKey: 'enable_allpdspiders' },
   register: { status: false, label: '公开注册', getStatus: getPublicRegisterStatus, controlFunc: controlPublicRegister, controlKey: 'enable_public_register' },
   publicPush: { status: false, label: '一对一推送', getStatus: getPublicPushStatus, controlFunc: controlPublicPushStatus, controlKey: 'enable_public_push' },
-  tgBot: { status: false, label: 'TG机器人推送', getStatus: getTelegramBotPushStatus, controlFunc: controlTelegramBotPushStatus, controlKey: 'enable_tg_bot_push' }
+  tgBot: { status: false, label: 'TG机器人推送', getStatus: getTelegramBotPushStatus, controlFunc: controlTelegramBotPushStatus, controlKey: 'enable_tg_bot_push' },
+  inviteCode: { status: false, label: '邀请码注册', getStatus: getPublicInviteStatus, controlFunc: controlPublicInvite, controlKey: 'enable_public_invite' }
+})
+
+const leftControls = computed(() => {
+  const keys = Object.keys(controls)
+  return Object.fromEntries(keys.slice(0, Math.ceil(keys.length / 2)).map(key => [key, controls[key]]))
+})
+
+const rightControls = computed(() => {
+  const keys = Object.keys(controls)
+  return Object.fromEntries(keys.slice(Math.ceil(keys.length / 2)).map(key => [key, controls[key]]))
 })
 
 const initializeStatuses = async () => {
@@ -57,13 +80,19 @@ initializeStatuses()
 <style scoped lang="scss">
 .control-panel {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 20px;
+  justify-content: space-between;
+  gap: 30px;
   padding: 30px;
   background: #f5f7fa;
   border-radius: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.control-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
 }
 
 .control-item {

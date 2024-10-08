@@ -1,6 +1,7 @@
 package invite_codes
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes"
@@ -217,4 +218,38 @@ func (invcodeApi *InviteCodesApi) BatchExportCodes(c *gin.Context) {
 	response.OkWithDetailed(gin.H{
 		"Codes": content,
 	}, "获取成功", c)
+}
+
+// GetPublicInviteStatus 获取是否启用邀请码注册
+// @Tags InviteCodes
+// @Summary 获取是否启用邀请码注册
+// @accept application/json
+// @Produce application/json
+// @Param data query invite_codesReq.InviteCodesSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/getPublicInviteStatus [GET]
+func (invcodeApi *InviteCodesApi) GetPublicInviteStatus(c *gin.Context) {
+	response.OkWithDetailed(invite_codes.PublicInviteCodesStatus, "查询成功", c)
+}
+
+// ControlPublicInvite 修改是否使用邀请码注册
+// @Tags InviteCodes
+// @Summary 修改是否使用邀请码注册
+// @accept application/json
+// @Produce application/json
+// @Param data query invite_codesReq.InviteCodesSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/controlPublicInvite [POST]
+func (invcodeApi *InviteCodesApi) ControlPublicInvite(c *gin.Context) {
+	var control invite_codes.InviteControl
+	if err := c.ShouldBindJSON(&control); err != nil {
+		response.FailWithMessage("入参失败", c)
+	}
+	if invite_codes.PublicInviteCodesStatus != control.EnablePublicInvite {
+		invite_codes.PublicInviteCodesStatus = control.EnablePublicInvite
+		if err := invcodeService.ControlPublicInvite(control.EnablePublicInvite); err != nil {
+			response.FailWithMessage(fmt.Sprintf("后台任务启动失败: %s", err.Error()), c)
+		}
+	}
+	response.OkWithDetailed(invite_codes.PublicInviteCodesStatus, "修改成功", c)
 }

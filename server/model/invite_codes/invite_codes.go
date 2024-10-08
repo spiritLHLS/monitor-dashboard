@@ -3,6 +3,7 @@ package invite_codes
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/robfig/cron/v3"
 	"time"
 )
 
@@ -28,4 +29,11 @@ type BatchBuildCodes struct {
 
 type BatchExportCodes struct {
 	IDs []*int `json:"IDs"`
+}
+
+var PublicInviteCodesStatus = false
+var TaskId cron.EntryID
+
+type InviteControl struct {
+	EnablePublicInvite bool `json:"enable_public_invite"`
 }
