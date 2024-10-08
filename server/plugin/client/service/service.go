@@ -45,7 +45,7 @@ func (e *RegisterService) Code(tgid string) (err error) {
 	if service.ServiceGroupApp == nil {
 		return errors.New("ServiceGroupApp 未初始化")
 	}
-	if model.ConfigCodeLength > 0 {
+	if model.ConfigCodeLength == 0 {
 		return errors.New("model.ConfigCodeLength 未初始化")
 	}
 	if model.ConfigTgBotToken == "" {

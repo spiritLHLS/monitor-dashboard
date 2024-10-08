@@ -50,7 +50,7 @@ var (
 	ConfigAuthorityId   uint
 	ConfigTgBotToken    string
 	ConfigCodeLength    int
-	ConfigChannelId     string
+	ConfigChannelId     string // 上面telegram的bot所在的频道的chat_id
 	ConfigAdmins        string
 	ConfigDefaultRouter string
 )
