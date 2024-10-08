@@ -48,3 +48,4 @@ server/plugin/obopush
 web/.pnpm-debug.log
 web/pnpm-lock.yaml
 web/src/plugin/spiders
+web/dist

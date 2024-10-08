@@ -15,7 +15,7 @@ type PusherConfig struct {
 	MaxCharactersPerPush  *int       `json:"maxCharactersPerPush" form:"maxCharactersPerPush" gorm:"column:max_characters_per_push;comment:;"`   //最大字符数
 	MaxPushesPerInterval  *int       `json:"maxPushesPerInterval" form:"maxPushesPerInterval" gorm:"column:max_pushes_per_interval;comment:;"`   //最大推送次数
 	IntervalSeconds       *int       `json:"intervalSeconds" form:"intervalSeconds" gorm:"column:interval_seconds;comment:;"`                    //使用间隔
-	CurrentIntervalPushes *int       `json:"currentIntervalPushes" form:"currentIntervalPushes" gorm:"column:current_interval_pushes;comment:;"` //已推送次数
+	CurrentIntervalPushes *int       `json:"currentIntervalPushes" form:"currentIntervalPushes" gorm:"column:current_interval_pushes;comment:;"` //已推送次数 暂时没啥用，轮换的时候直接轮换了，用不上
 	LastPushTime          *time.Time `json:"lastPushTime" form:"lastPushTime" gorm:"column:last_push_time;comment:;"`                            //最后一次推送时间
 	IsActive              *bool      `json:"isActive" form:"isActive" gorm:"column:is_active;comment:;"`                                         //配置激活
 }

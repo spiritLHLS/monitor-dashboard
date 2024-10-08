@@ -4,9 +4,9 @@
 const greenText = (text) => `\x1b[32m${text}\x1b[0m`
 
 const config = {
-  appName: 'Gin-Vue-Admin',
+  appName: 'ECS-SPIDERS',
   appLogo: 'logo.png',
-  showViteLogo: true,
+  showViteLogo: false,
   logs: [],
 }
 

@@ -1,5 +1,6 @@
 <template>
   <div class="user-dashboard">
+    <!-- 头部导航栏 -->
     <header class="top-bar">
       <div class="left-section">
         <img src="https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png" alt="Logo" class="logo">
@@ -11,6 +12,8 @@
         </nav>
       </div>
     </header>
+
+    <!-- 公告栏 -->
     <el-collapse v-model="activeCollapse" class="announcement-collapse">
       <el-collapse-item name="1">
         <template #title>
@@ -22,15 +25,16 @@
         <div class="announcement-content">
           <div v-if="isFetching">加载中...</div>
           <div v-else-if="error">获取公告失败: {{ error }}</div>
-          <div v-else-if="announcement && announcement.content">
-            <div v-html="announcement.content"></div>
-          </div>
+          <div v-else-if="announcement && announcement.content" v-html="announcement.content"></div>
           <div v-else>暂无公告</div>
         </div>
       </el-collapse-item>
     </el-collapse>
+
+    <!-- 主要内容区 -->
     <div class="content-wrapper">
       <div class="grid-container">
+        <!-- 用户侧边栏 -->
         <aside class="user-sidebar">
           <div class="user-card">
             <div class="avatar-container">
@@ -48,6 +52,8 @@
             </ul>
           </div>
         </aside>
+
+        <!-- 主要内容 -->
         <main class="main-content">
           <el-card class="info-card">
             <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -78,130 +84,108 @@
   </div>
 </template>
 
-<script>
-import { reactive, ref, onMounted } from 'vue'
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { selfModifyInfo, selfGetUserInfo } from '@/api/ecsusers/ecsusers.js'
 import SelectImage from '@/components/selectImage/selectImage.vue'
 import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
-export default {
-  name: 'Person',
-  components: {
-    SelectImage
-  },
-  setup() {
-    const router = useRouter()
-    const activeCollapse = ref(['1'])
-    const announcement = ref({ content: '' })
-    const isFetching = ref(false)
-    const error = ref(null)
-    const activeName = ref('info')
+const router = useRouter()
+const activeCollapse = ref(['1'])
+const announcement = ref({ content: '' })
+const isFetching = ref(false)
+const error = ref(null)
+const activeName = ref('info')
 
-    const userInfo = reactive({
-      uuid: '',
-      nickname: '',
-      avatar: '',
-      tgID: '',
-      email: '',
-    })
-    const newPassword = ref('')
+const userInfo = reactive({
+  uuid: '',
+  nickname: '',
+  avatar: '',
+  tgID: '',
+  email: '',
+})
 
-    const fetchAnnouncement = async () => {
-      isFetching.value = true
-      error.value = null
-      try {
-        const response = await GetInfoPublic({ Title: "推送说明" })
-        if (response.code === 0 && response.data) {
-          announcement.value = response.data
-        } else {
-          error.value = response.msg || '获取公告失败'
-        }
-      } catch (err) {
-        console.error('Error fetching announcement:', err)
-        error.value = '网络错误，请稍后再试'
-      } finally {
-        isFetching.value = false
-      }
+const newPassword = ref('')
+
+const fetchAnnouncement = async () => {
+  isFetching.value = true
+  error.value = null
+  try {
+    const response = await GetInfoPublic({ Title: "推送说明" })
+    if (response.code === 0 && response.data) {
+      announcement.value = response.data
+    } else {
+      error.value = response.msg || '获取公告失败'
     }
-
-    const updateAvatar = async () => {
-      await updateUserInfo()
-    }
-
-    const handleClick = (tab, event) => {
-      console.log(tab, event)
-    }
-
-    const updateUserInfo = async () => {
-      try {
-        const updateData = {
-          uuid: userInfo.uuid,
-          nickname: userInfo.nickname,
-          avatar: userInfo.avatar,
-          tgID: userInfo.tgID,
-          email: userInfo.email,
-        }
-
-        if (newPassword.value) {
-          updateData.password = newPassword.value
-        }
-
-        const res = await selfModifyInfo(updateData)
-        if (res.code === 0) {
-          ElMessage.success('更新信息成功')
-          if (newPassword.value) {
-            newPassword.value = ''
-          }
-        } else {
-          ElMessage.error('更新信息失败')
-        }
-      } catch (error) {
-        console.error('更新用户信息出错:', error)
-        ElMessage.error('更新用户信息出错')
-      }
-    }
-
-    const getUserInfo = async () => {
-      try {
-        const res = await selfGetUserInfo()
-        if (res.code === 0 && res.data) {
-          Object.assign(userInfo, res.data)
-        } else {
-          ElMessage.error('获取用户信息失败')
-        }
-      } catch (error) {
-        console.error('获取用户信息出错:', error)
-        ElMessage.error('获取用户信息出错')
-      }
-    }
-
-    const openExternalLink = (url) => {
-      window.open(url, '_blank')
-    }
-
-    onMounted(() => {
-      fetchAnnouncement()
-      getUserInfo()
-    })
-
-    return {
-      router,
-      activeCollapse,
-      announcement,
-      isFetching,
-      error,
-      activeName,
-      userInfo,
-      newPassword,
-      updateAvatar,
-      handleClick,
-      updateUserInfo,
-      openExternalLink
-    }
+  } catch (err) {
+    console.error('Error fetching announcement:', err)
+    error.value = '网络错误，请稍后再试'
+  } finally {
+    isFetching.value = false
   }
 }
+
+const updateAvatar = async () => {
+  await updateUserInfo()
+}
+
+const handleClick = (tab, event) => {
+  console.log(tab, event)
+}
+
+const updateUserInfo = async () => {
+  try {
+    const updateData = {
+      uuid: userInfo.uuid,
+      nickname: userInfo.nickname,
+      avatar: userInfo.avatar,
+      tgID: userInfo.tgID,
+      email: userInfo.email,
+    }
+
+    if (newPassword.value) {
+      updateData.password = newPassword.value
+    }
+
+    const res = await selfModifyInfo(updateData)
+    if (res.code === 0) {
+      ElMessage.success('更新信息成功')
+      if (newPassword.value) {
+        newPassword.value = ''
+      }
+    } else {
+      ElMessage.error('更新信息失败')
+    }
+  } catch (error) {
+    console.error('更新用户信息出错:', error)
+    ElMessage.error('更新用户信息出错')
+  }
+}
+
+const getUserInfo = async () => {
+  try {
+    const res = await selfGetUserInfo()
+    if (res.code === 0 && res.data) {
+      Object.assign(userInfo, res.data)
+    } else {
+      ElMessage.error('获取用户信息失败')
+    }
+  } catch (error) {
+    console.error('获取用户信息出错:', error)
+    ElMessage.error('获取用户信息出错')
+  }
+}
+
+const openExternalLink = (url) => {
+  window.open(url, '_blank')
+}
+
+onMounted(() => {
+  fetchAnnouncement()
+  getUserInfo()
+})
 </script>
 
 <style scoped>
