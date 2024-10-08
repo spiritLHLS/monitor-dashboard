@@ -9,7 +9,6 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
-	tgrGlobal "github.com/flipped-aurora/gin-vue-admin/server/plugin/client/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/model"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot/service"
 	gvaService "github.com/flipped-aurora/gin-vue-admin/server/service"
@@ -38,17 +37,40 @@ const (
 )
 
 func (e *RegisterService) Code(tgid string) (err error) {
-	// 制作四位数code
-	code := utils.RandomString(tgrGlobal.GlobalConfig.CodeLength)
-	// 发送code
-	_, err = service.ServiceGroupApp.SendTgMessage(tgrGlobal.GlobalConfig.TgBotToken, tgid,
+	// 参数验证
+	if tgid == "" {
+		return errors.New("tgid 不能为空")
+	}
+	// 检查 ServiceGroupApp
+	if service.ServiceGroupApp == nil {
+		return errors.New("ServiceGroupApp 未初始化")
+	}
+	if model.ConfigCodeLength > 0 {
+		return errors.New("model.ConfigCodeLength 未初始化")
+	}
+	if model.ConfigTgBotToken == "" {
+		return errors.New("model.ConfigTgBotToken 未初始化")
+	}
+	// 制作验证码
+	code := utils.RandomString(model.ConfigCodeLength)
+	if code == "" {
+		return errors.New("TG验证码未初始化")
+	}
+	// 发送验证码
+	_, err = service.ServiceGroupApp.SendTgMessage(model.ConfigTgBotToken, tgid,
 		fmt.Sprintf("验证码：<code>%v</code>", code), "html")
 	if err != nil {
-		return errors.New(fmt.Sprintf("发送TG验证码错误：%v", err))
+		return fmt.Errorf("发送TG验证码错误：%v", err)
 	}
-	// 存储code
+	// 存储验证码
 	ctx := context.Background()
-	gvaGlobal.GVA_REDIS.Set(ctx, tgid, code, 5*time.Minute)
+	if gvaGlobal.GVA_REDIS == nil {
+		return errors.New("Redis 客户端未初始化")
+	}
+	err = gvaGlobal.GVA_REDIS.Set(ctx, tgid, code, 5*time.Minute).Err()
+	if err != nil {
+		return fmt.Errorf("存储验证码到 Redis 失败: %v", err)
+	}
 	return nil
 }
 
@@ -64,7 +86,7 @@ func (e *RegisterService) commonRegisterLogic(register model.RegisterReq) (strin
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errTGCodeMismatch, register.Code)
 		}
 		// 检查用户是否在特定频道中
-		_, err = service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, register.Tgid, tgrGlobal.GlobalConfig.ChannelId)
+		_, err = service.ServiceGroupApp.IsTgMember(model.ConfigTgBotToken, register.Tgid, model.ConfigChannelId)
 		if err != nil {
 			return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
 		}
@@ -91,7 +113,7 @@ func (e *RegisterService) commonRegisterLogic(register model.RegisterReq) (strin
 	euser.Password = utils.BcryptHash(register.Password)
 	euser.Nickname = register.Username + " 订阅用户"
 	euser.TGID = register.Tgid
-	euser.AuthorityID = tgrGlobal.GlobalConfig.AuthorityId
+	euser.AuthorityID = model.ConfigAuthorityId
 	// 创建用户的订阅账户
 	if err := eusrService.CreateEcsUsers(euser); err != nil {
 		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errAccountCreation, err)
@@ -103,10 +125,10 @@ func (e *RegisterService) commonRegisterLogic(register model.RegisterReq) (strin
 		Password:    euser.Password,
 		NickName:    register.Username + " 订阅用户",
 		Phone:       "",
-		AuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
+		AuthorityId: model.ConfigAuthorityId,
 		Authority: system.SysAuthority{
-			DefaultRouter: tgrGlobal.GlobalConfig.DefaultRouter,
-			AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
+			DefaultRouter: model.ConfigDefaultRouter,
+			AuthorityId:   model.ConfigAuthorityId,
 		},
 	}
 	// 开始数据库事务
@@ -124,7 +146,7 @@ func (e *RegisterService) commonRegisterLogic(register model.RegisterReq) (strin
 	// 创建用户角色
 	userAuthority := &system.SysUserAuthority{
 		SysUserId:               sysUser.ID,
-		SysAuthorityAuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
+		SysAuthorityAuthorityId: model.ConfigAuthorityId,
 	}
 	if err := tx.Create(userAuthority).Error; err != nil {
 		tx.Rollback()
@@ -253,7 +275,7 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 		errSysLoginFailed    = "系统用户通过uuid查询失败"
 	)
 	// 检查用户是否为管理员
-	admins := strings.Split(tgrGlobal.GlobalConfig.Admins, ",")
+	admins := strings.Split(model.ConfigAdmins, ",")
 	if len(admins) == 0 {
 		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errAdminNotFound)
 	}
@@ -272,8 +294,8 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errUserNotFound, err)
 		}
 		if model.EnableTGLogin {
-			if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, ecsUser.TGID,
-				tgrGlobal.GlobalConfig.ChannelId); err != nil {
+			if _, err := service.ServiceGroupApp.IsTgMember(model.ConfigTgBotToken, ecsUser.TGID,
+				model.ConfigChannelId); err != nil {
 				return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
 			}
 		}
@@ -318,8 +340,8 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 		}
 		if !isAdmin {
 			sysUser.Authority = system.SysAuthority{
-				DefaultRouter: tgrGlobal.GlobalConfig.DefaultRouter,
-				AuthorityId:   tgrGlobal.GlobalConfig.AuthorityId,
+				DefaultRouter: model.ConfigDefaultRouter,
+				AuthorityId:   model.ConfigAuthorityId,
 			}
 		} else {
 			sysUser.Authority = system.SysAuthority{

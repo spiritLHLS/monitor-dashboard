@@ -44,3 +44,13 @@ type TGLoginControl struct {
 type TGRegisterControl struct {
 	EnableTGRegister bool `json:"enable_tg_register"`
 }
+
+// 设置默认的校验注册和登录的配置
+var (
+	ConfigAuthorityId   uint
+	ConfigTgBotToken    string
+	ConfigCodeLength    int
+	ConfigChannelId     string
+	ConfigAdmins        string
+	ConfigDefaultRouter string
+)
