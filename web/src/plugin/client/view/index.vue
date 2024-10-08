@@ -47,18 +47,24 @@
                 </div>
               </el-form-item>
 
-              <template v-if="registerType && showTGFields">
-                <el-form-item prop="tg_id">
-                  <el-input v-model="currentFormData.tg_id" placeholder="请输入TGID" prefix-icon="ChatDotSquare" />
-                </el-form-item>
+              <template v-if="registerType">
+                <template v-if="showTGFields">
+                  <el-form-item prop="tg_id">
+                    <el-input v-model="currentFormData.tg_id" placeholder="请输入TGID" prefix-icon="ChatDotSquare" />
+                  </el-form-item>
 
-                <el-form-item prop="code">
-                  <div class="tg-code-container">
-                    <el-input v-model="currentFormData.code" placeholder="请输入TG验证码" class="tg-code-input" />
-                    <el-button type="primary" @click="sendTGCode" class="send-tg-code-btn">
-                      发送验证码
-                    </el-button>
-                  </div>
+                  <el-form-item prop="code">
+                    <div class="tg-code-container">
+                      <el-input v-model="currentFormData.code" placeholder="请输入TG验证码" class="tg-code-input" />
+                      <el-button type="primary" @click="sendTGCode" class="send-tg-code-btn">
+                        发送验证码
+                      </el-button>
+                    </div>
+                  </el-form-item>
+                </template>
+
+                <el-form-item v-if="showInviteCodeField" prop="invite_code">
+                  <el-input v-model="currentFormData.invite_code" placeholder="请输入邀请码" prefix-icon="Ticket" />
                 </el-form-item>
               </template>
 
@@ -95,14 +101,16 @@
 
 <script setup>
 import { captcha } from "@/api/user";
-import { TGRGetCode, getTGRegisterStatus } from "@/plugin/client/api/api";
+import { TGRGetCode, getTGRegisterStatus, getPublicInviteStatus } from "@/plugin/client/api/api";
 import { reactive, ref, watch, onMounted, computed } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElLoading } from "element-plus";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/pinia/modules/user";
+import { useRouterStore } from "@/pinia/modules/router";
 
 const router = useRouter();
 const userStore = useUserStore();
+const routerStore = useRouterStore();
 
 const loginForm = ref(null);
 const passwordInput = ref(null);
@@ -122,6 +130,7 @@ const registerFormData = reactive({
   captchaId: "",
   tg_id: "",
   code: "",
+  invite_code: "",
 });
 
 const lock = ref("lock");
@@ -131,6 +140,7 @@ const currentFormData = ref(loginFormData);
 const loading = ref(false);
 const rememberMe = ref(false);
 const showTGFields = ref(false);
+const showInviteCodeField = ref(false);
 
 const checkUsername = (rule, value, callback) => {
   if (value.length < 5) {
@@ -161,6 +171,11 @@ const formRules = computed(() => ({
       code: [{ required: true, message: "请输入TG验证码", trigger: "blur" }],
     }
     : {}),
+  ...(registerType.value && showInviteCodeField.value
+    ? {
+      invite_code: [{ required: true, message: "请输入邀请码", trigger: "blur" }],
+    }
+    : {}),
 }));
 
 const loginVerify = async () => {
@@ -183,16 +198,25 @@ const changeLock = () => {
 
 const login = async () => {
   try {
-    await userStore.UserTgLogin(loginFormData);
-    if (rememberMe.value) {
-      localStorage.setItem('rememberedUser', JSON.stringify({
-        username: loginFormData.username,
-        password: loginFormData.password
-      }));
-    } else {
-      localStorage.removeItem('rememberedUser');
+    const res = await userStore.UserTgLogin(loginFormData);
+    if (res) {
+      if (rememberMe.value) {
+        localStorage.setItem('rememberedUser', JSON.stringify({
+          username: loginFormData.username,
+          password: loginFormData.password
+        }));
+      } else {
+        localStorage.removeItem('rememberedUser');
+      }
+      await routerStore.SetAsyncRouter();
+      const asyncRouters = routerStore.asyncRouters;
+      asyncRouters.forEach((asyncRouter) => {
+        router.addRoute(asyncRouter);
+      });
+      router.push({ name: userStore.userInfo.authority.defaultRouter });
+      return true;
     }
-    return true;
+    return false;
   } catch (error) {
     return false;
   }
@@ -202,11 +226,30 @@ const register = async () => {
   try {
     const dataToSend = { ...registerFormData };
     if (!showTGFields.value) {
-      delete dataToSend.tg_id;
-      delete dataToSend.code;
+      dataToSend.tg_id = "";
+      dataToSend.code = "";
     }
-    await userStore.UserTgRegister(dataToSend);
-    return true;
+    if (!showInviteCodeField.value) {
+      delete dataToSend.invite_code;
+    }
+
+    let res;
+    if (showInviteCodeField.value) {
+      res = await userStore.UserRegisterWithInvite(dataToSend);
+    } else {
+      res = await userStore.UserTgRegister(dataToSend);
+    }
+
+    if (res) {
+      await routerStore.SetAsyncRouter();
+      const asyncRouters = routerStore.asyncRouters;
+      asyncRouters.forEach((asyncRouter) => {
+        router.addRoute(asyncRouter);
+      });
+      router.push({ name: userStore.userInfo.authority.defaultRouter });
+      return true;
+    }
+    return false;
   } catch (error) {
     return false;
   }
@@ -305,15 +348,25 @@ onMounted(async () => {
   }
 
   try {
-    const response = await getTGRegisterStatus();
-    if (response.code === 0) {
-      showTGFields.value = response.data;
+    const [tgResponse, inviteResponse] = await Promise.all([
+      getTGRegisterStatus(),
+      getPublicInviteStatus()
+    ]);
+
+    if (tgResponse.code === 0) {
+      showTGFields.value = tgResponse.data;
     } else {
-      console.error('Failed to get TG register status:', response.msg);
+      console.error('Failed to get TG register status:', tgResponse.msg);
+    }
+
+    if (inviteResponse.code === 0) {
+      showInviteCodeField.value = inviteResponse.data;
+    } else {
+      console.error('Failed to get invite code status:', inviteResponse.msg);
     }
   } catch (error) {
-    console.error('Error fetching TG register status:', error);
-    ElMessage.error('获取TG注册状态失败');
+    console.error('Error fetching registration settings:', error);
+    ElMessage.error('获取注册设置失败');
   }
 });
 

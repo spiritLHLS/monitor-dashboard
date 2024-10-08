@@ -58,6 +58,30 @@ func (p *RegisterApi) Register(c *gin.Context) {
 	}
 }
 
+// @Tags RegisterWithInvite
+// @Summary 通过邀请码注册用户
+// @Produce  application/json
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"发送成功"}"
+// @Router /client/client [post]
+func (p *RegisterApi) RegisterWithInvite(c *gin.Context) {
+	var req model.RegisterWithInviteReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.GVA_LOG.Error("绑定JSON失败", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if token, claims, user, err := service.ServiceGroupApp.RegisterWithInvite(req); err != nil {
+		global.GVA_LOG.Error("注册用户失败", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+	} else {
+		response.OkWithDetailed(systemRes.LoginResponse{
+			User:      user,
+			Token:     token,
+			ExpiresAt: claims.RegisteredClaims.ExpiresAt.Unix() * 1000,
+		}, "登录成功", c)
+	}
+}
+
 // @Tags ChangePassword
 // @Summary 修改密码
 // @Produce  application/json

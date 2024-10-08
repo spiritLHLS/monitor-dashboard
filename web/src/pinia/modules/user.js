@@ -6,7 +6,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useRouterStore } from './router'
 import cookie from 'js-cookie'
-import { TGRRegister, TGRLogin } from '@/plugin/client/api/api'
+import { TGRRegister, RegisterWintInvite, TGRLogin } from '@/plugin/client/api/api'
 import {useAppStore} from "@/pinia";
 
 export const useUserStore = defineStore('user', () => {
@@ -155,6 +155,32 @@ export const useUserStore = defineStore('user', () => {
       }
       loadingInstance.value.close();
   };
+
+  const UserRegisterWithInvite = async (loginInfo) => {
+    loadingInstance.value = ElLoading.service({
+        fullscreen: true,
+        text: "注册中，请稍候...",
+    });
+    try {
+        const res = await RegisterWintInvite(loginInfo);
+        if (res.code === 0) {
+            setUserInfo(res.data.user);
+            setToken(res.data.token);
+            const routerStore = useRouterStore();
+            await routerStore.SetAsyncRouter();
+            const asyncRouters = routerStore.asyncRouters;
+            asyncRouters.forEach((asyncRouter) => {
+                router.addRoute(asyncRouter);
+            });
+            router.push({name: userInfo.value.authority.defaultRouter});
+            return true;
+        }
+    } catch (e) {
+        loadingInstance.value.close();
+    }
+    loadingInstance.value.close();
+  };
+
   const UserTgLogin = async (loginInfo) => {
       loadingInstance.value = ElLoading.service({
       fullscreen: true,
@@ -200,6 +226,7 @@ export const useUserStore = defineStore('user', () => {
   }
   return {
     UserTgRegister,
+    UserRegisterWithInvite,
     UserTgLogin,
     userInfo,
     token,

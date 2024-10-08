@@ -13,6 +13,11 @@ type RegisterReq struct {
 	CaptchaId string `json:"captchaId"` // 验证码ID
 }
 
+type RegisterWithInviteReq struct {
+	RegisterReq
+	InviteCode string `json:"invite_code"` // 邀请码
+}
+
 type ChangePasswordReq struct {
 	Tgid        string `json:"tg_id"`        // 用户的TGID
 	Code        string `json:"code"`         // tg验证码

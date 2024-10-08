@@ -14,6 +14,7 @@ func (s *RegisterRouter) InitRegisterRouter(Router *gin.RouterGroup) {
 	{
 		plugRouter.POST("code", plugApi.Code)
 		plugRouter.POST("register", plugApi.Register)
+		plugRouter.POST("registerWithInvite", plugApi.RegisterWithInvite)
 		plugRouter.POST("changePassword", plugApi.ChangePassword)
 		plugRouter.POST("login", plugApi.Login)
 	}

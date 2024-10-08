@@ -12,13 +12,25 @@ export const TGRGetCode = (data) => {
   })
 }
 
-// @Summary 用户注册
+// @Summary 用户TG注册
 // @Produce  application/json
 // @Param data body {username:"string", password:"string", tgid:"string", code:"string", captcha:"string", captchaId:"string"}
-// @Router /client/client [post]
+// @Router /client/register [post]
 export const TGRRegister = (data) => {
   return service({
-    url: '/client/client',
+    url: '/client/register',
+    method: 'post',
+    data: data,
+  })
+}
+
+// @Summary 用户邀请码注册
+// @Produce  application/json
+// @Param data body {username:"string", password:"string", tgid:"string", code:"string", captcha:"string", captchaId:"string", invite_code:"string"}
+// @Router /client/registerWithInvite [post]
+export const RegisterWintInvite = (data) => {
+  return service({
+    url: '/client/registerWithInvite',
     method: 'post',
     data: data,
   })
@@ -59,5 +71,19 @@ export const getTGRegisterStatus = () => {
   return service({
     url: '/eusr/getTGRegisterStatus',
     method: 'GET'
+  })
+}
+
+// GetPublicInviteStatus 获取是否启用邀请码注册
+// @Tags InviteCodes
+// @Summary 获取是否启用邀请码注册
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /invcode/getPublicInviteStatus [GET]
+export const getPublicInviteStatus = () => {
+  return service({
+      url: '/invcode/getPublicInviteStatus',
+      method: 'GET'
   })
 }

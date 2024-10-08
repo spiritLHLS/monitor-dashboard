@@ -6,6 +6,7 @@ import (
 	"fmt"
 	gvaGlobal "github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	tgrGlobal "github.com/flipped-aurora/gin-vue-admin/server/plugin/client/global"
@@ -23,6 +24,19 @@ type RegisterService struct{}
 
 var eusrService = gvaService.ServiceGroupApp.EcsusersServiceGroup.EcsUsersService
 
+// 定义错误消息常量
+const (
+	errTGCodeRetrieval = "存储的TG验证码获取错误: %v"
+	errTGCodeMismatch  = "验证码填写错误: %v"
+	errNotInChannel    = "检测到用户不在频道中: %v"
+	errLoginStatus     = "获取登录状态错误: %v"
+	errCaptcha         = "图片验证码错误"
+	errEmptyUsername   = "用户名为空"
+	errEmptyPassword   = "密码为空"
+	errAccountCreation = "注册账户失败: %v"
+	errRoleCreation    = "注册角色失败: %v"
+)
+
 func (e *RegisterService) Code(tgid string) (err error) {
 	// 制作四位数code
 	code := utils.RandomString(tgrGlobal.GlobalConfig.CodeLength)
@@ -38,22 +52,7 @@ func (e *RegisterService) Code(tgid string) (err error) {
 	return nil
 }
 
-func (e *RegisterService) Register(register model.RegisterReq) (string, request.CustomClaims, system.SysUser, error) {
-	if !ecsusers.EcsUserPublicRegisterStatus {
-		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("管理员未开放公共注册权限，请联系管理员或使用邀请码注册")
-	}
-	// 定义错误消息常量
-	const (
-		errTGCodeRetrieval = "存储的TG验证码获取错误: %v"
-		errTGCodeMismatch  = "验证码填写错误: %v"
-		errNotInChannel    = "检测到用户不在频道中: %v"
-		errLoginStatus     = "获取登录状态错误: %v"
-		errCaptcha         = "图片验证码错误"
-		errEmptyUsername   = "用户名为空"
-		errEmptyPassword   = "密码为空"
-		errAccountCreation = "注册账户失败: %v"
-		errRoleCreation    = "注册角色失败: %v"
-	)
+func (e *RegisterService) commonRegisterLogic(register model.RegisterReq) (string, request.CustomClaims, system.SysUser, error) {
 	ctx := context.Background()
 	if model.EnableTGRegister {
 		// 验证TG码
@@ -86,11 +85,11 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 		return "", request.CustomClaims{}, system.SysUser{}, errors.New(errEmptyPassword)
 	}
 	// 创建用户的订阅账户(表)
-	var euser *ecsusers.EcsUsers
+	euser := &ecsusers.EcsUsers{}
 	euser.UUID, _ = uuid.NewV4()
 	euser.Username = register.Username
 	euser.Password = utils.BcryptHash(register.Password)
-	euser.Nickname = "注册用户"
+	euser.Nickname = register.Username + " 订阅用户"
 	euser.TGID = register.Tgid
 	euser.AuthorityID = tgrGlobal.GlobalConfig.AuthorityId
 	// 创建用户的订阅账户
@@ -102,7 +101,7 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 		UUID:        euser.UUID,
 		Username:    register.Username,
 		Password:    euser.Password,
-		NickName:    "注册用户",
+		NickName:    register.Username + " 订阅用户",
 		Phone:       "",
 		AuthorityId: tgrGlobal.GlobalConfig.AuthorityId,
 		Authority: system.SysAuthority{
@@ -141,6 +140,46 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errLoginStatus, err)
 	}
 	return token, claims, *sysUser, err
+}
+
+func (e *RegisterService) Register(register model.RegisterReq) (string, request.CustomClaims, system.SysUser, error) {
+	if !ecsusers.EcsUserPublicRegisterStatus {
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("管理员未开放公共注册权限，请联系管理员或使用邀请码注册")
+	}
+	return e.commonRegisterLogic(register)
+}
+
+func (e *RegisterService) RegisterWithInvite(register model.RegisterWithInviteReq) (string, request.CustomClaims, system.SysUser, error) {
+	if register.InviteCode == "" && len(register.InviteCode) != 8 {
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("无效邀请码，请使用有效的邀请码")
+	}
+	var dbCode invite_codes.InviteCodes
+	codeErr := gvaGlobal.GVA_DB.Model(&invite_codes.InviteCodes{}).Where("code = ?", register.InviteCode).First(&dbCode).Error
+	if codeErr != nil {
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("数据库查无此邀请码")
+	}
+	if *dbCode.Status > 0 {
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("此邀请码已被使用")
+	}
+	if *dbCode.Status < 0 {
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("此邀请码已过期")
+	}
+	token, claims, sysUser, err := e.commonRegisterLogic(register.RegisterReq)
+	if err == nil {
+		// 标记邀请码已被使用，同时绑定对应用户的uuid
+		currentTime := time.Now()
+		if err := gvaGlobal.GVA_DB.Model(&invite_codes.InviteCodes{}).
+			Where("code = ?", register.InviteCode).
+			Updates(map[string]interface{}{
+				"status":    1,
+				"used_at":   currentTime,
+				"user_uuid": sysUser.UUID,
+			}).Error; err != nil {
+			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("邀请码标记使用操作失败")
+		}
+
+	}
+	return token, claims, sysUser, err
 }
 
 func (e *RegisterService) ChangePassword(changer model.ChangePasswordReq) error {

@@ -31,7 +31,7 @@ type BatchExportCodes struct {
 	IDs []*int `json:"IDs"`
 }
 
-var PublicInviteCodesStatus = false
+var PublicInviteCodesStatus = true
 var TaskId cron.EntryID
 
 type InviteControl struct {

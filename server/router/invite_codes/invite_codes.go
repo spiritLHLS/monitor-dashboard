@@ -19,7 +19,6 @@ func (s *InviteCodesRouter) InitInviteCodesRouter(Router *gin.RouterGroup, Publi
 
 		invcodeRouter.POST("batchBuildCodes", invcodeApi.BatchBuildCodes)
 		invcodeRouter.POST("batchExportCodes", invcodeApi.BatchExportCodes)
-		invcodeRouter.GET("getPublicInviteStatus", invcodeApi.GetPublicInviteStatus)
 		invcodeRouter.POST("controlPublicInvite", invcodeApi.ControlPublicInvite)
 	}
 	{
@@ -28,5 +27,6 @@ func (s *InviteCodesRouter) InitInviteCodesRouter(Router *gin.RouterGroup, Publi
 	}
 	{
 		invcodeRouterWithoutAuth.GET("getInviteCodesPublic", invcodeApi.GetInviteCodesPublic)
+		invcodeRouterWithoutAuth.GET("getPublicInviteStatus", invcodeApi.GetPublicInviteStatus)
 	}
 }

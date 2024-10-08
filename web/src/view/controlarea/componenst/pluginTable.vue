@@ -39,8 +39,8 @@ const controls = reactive({
   publicPush: { status: false, label: '一对一推送', getStatus: getPublicPushStatus, controlFunc: controlPublicPushStatus, controlKey: 'enable_public_push' },
   tgBot: { status: false, label: 'TGBot推送', getStatus: getTelegramBotPushStatus, controlFunc: controlTelegramBotPushStatus, controlKey: 'enable_tg_bot_push' },
   inviteCode: { status: false, label: '邀请码注册', getStatus: getPublicInviteStatus, controlFunc: controlPublicInvite, controlKey: 'enable_public_invite' },
-  tgRegister: { status: false, label: 'TG注册', getStatus: getTGRegisterStatus, controlFunc: controlTGRegister, controlKey: 'enable_tg_register' },
-  tgLogin: { status: false, label: 'TG登录', getStatus: getTGLoginStatus, controlFunc: controlTGLogin, controlKey: 'enable_tg_login' }
+  tgRegister: { status: false, label: '校验TG注册', getStatus: getTGRegisterStatus, controlFunc: controlTGRegister, controlKey: 'enable_tg_register' },
+  tgLogin: { status: false, label: '校验TG登录', getStatus: getTGLoginStatus, controlFunc: controlTGLogin, controlKey: 'enable_tg_login' }
 })
 
 const leftControls = computed(() => {
