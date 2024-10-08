@@ -24,6 +24,7 @@
   "/src/view/layout/setting/index.vue": "GvaSetting",
   "/src/view/layout/tabs/index.vue": "HistoryComponent",
   "/src/view/login/index.vue": "Login",
+  "/src/view/person/person.vue": "Person",
   "/src/view/partitions/partitionspage/partitionspage.vue": "Partitionspage",
   "/src/view/partitions/partitionspage/partitionspageForm.vue": "PartitionspageForm",
   "/src/view/privmsg/pusherconfig/pusherconfig.vue": "PusherConfig",
