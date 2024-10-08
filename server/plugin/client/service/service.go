@@ -144,6 +144,9 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 }
 
 func (e *RegisterService) ChangePassword(changer model.ChangePasswordReq) error {
+	if changer.Tgid == "" {
+		return fmt.Errorf("由于当前用户未绑定TGID，无法通过TG进行密码重置，请联系管理员手动重置密码")
+	}
 	// 定义错误消息常量
 	const (
 		errTGCodeRetrieval = "存储的TG验证码获取错误：%v"
