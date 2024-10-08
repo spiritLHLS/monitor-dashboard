@@ -55,18 +55,20 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 		errRoleCreation    = "注册角色失败: %v"
 	)
 	ctx := context.Background()
-	// 验证TG码
-	code, err := gvaGlobal.GVA_REDIS.Get(ctx, register.Tgid).Result()
-	if err != nil {
-		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errTGCodeRetrieval, err)
-	}
-	if register.Code != code {
-		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errTGCodeMismatch, register.Code)
-	}
-	// 检查用户是否在特定频道中
-	_, err = service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, register.Tgid, tgrGlobal.GlobalConfig.ChannelId)
-	if err != nil {
-		return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
+	if model.EnableTGRegister {
+		// 验证TG码
+		code, err := gvaGlobal.GVA_REDIS.Get(ctx, register.Tgid).Result()
+		if err != nil {
+			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errTGCodeRetrieval, err)
+		}
+		if register.Code != code {
+			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errTGCodeMismatch, register.Code)
+		}
+		// 检查用户是否在特定频道中
+		_, err = service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, register.Tgid, tgrGlobal.GlobalConfig.ChannelId)
+		if err != nil {
+			return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
+		}
 	}
 	// 验证登录要求符合的格式
 	if err := utils.Verify(register, utils.LoginVerify); err != nil {
@@ -227,9 +229,11 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 			First(&ecsUser).Error; err != nil {
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errUserNotFound, err)
 		}
-		if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, ecsUser.TGID,
-			tgrGlobal.GlobalConfig.ChannelId); err != nil {
-			return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
+		if model.EnableTGLogin {
+			if _, err := service.ServiceGroupApp.IsTgMember(tgrGlobal.GlobalConfig.TgBotToken, ecsUser.TGID,
+				tgrGlobal.GlobalConfig.ChannelId); err != nil {
+				return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
+			}
 		}
 	}
 	// 验证登录信息是否符合逻辑

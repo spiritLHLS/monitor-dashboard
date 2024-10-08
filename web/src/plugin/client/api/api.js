@@ -47,3 +47,17 @@ export const TGRLogin = (data) => {
     data: data,
   })
 }
+
+// GetTGRegisterStatus 获取是否公开TG注册
+// @Tags EcsUsers
+// @Summary 获取是否公开TG注册
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getTGRegisterStatus [GET]
+export const getTGRegisterStatus = () => {
+  return service({
+    url: '/eusr/getTGRegisterStatus',
+    method: 'GET'
+  })
+}

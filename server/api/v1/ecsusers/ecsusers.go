@@ -5,6 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
 	ecsusersReq "github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/model"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -280,4 +281,67 @@ func (eusrApi *EcsUsersApi) ControlPublicRegister(c *gin.Context) {
 		ecsusers.EcsUserPublicRegisterStatus = control.EnablePublicRegister
 	}
 	response.OkWithDetailed(ecsusers.EcsUserPublicRegisterStatus, "修改成功", c)
+}
+
+// GetTGRegisterStatus 获取是否公开TG注册
+// @Tags EcsUsers
+// @Summary 获取是否公开TG注册
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getTGRegisterStatus [GET]
+func (eusrApi *EcsUsersApi) GetTGRegisterStatus(c *gin.Context) {
+	response.OkWithDetailed(model.EnableTGRegister, "查询成功", c)
+}
+
+// ControlTGRegister 启用关闭公开TG注册
+// @Tags EcsUsers
+// @Summary 启用关闭公开TG注册
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/controlTGRegister [POST]
+func (eusrApi *EcsUsersApi) ControlTGRegister(c *gin.Context) {
+	var control model.TGRegisterControl
+	if err := c.ShouldBindJSON(&control); err != nil {
+		response.FailWithMessage("修改失败", c)
+	}
+	if model.EnableTGRegister != control.EnableTGRegister {
+		model.EnableTGRegister = control.EnableTGRegister
+	}
+	response.OkWithDetailed(model.EnableTGRegister, "修改成功", c)
+}
+
+// GetTGLoginStatus 获取是否启用TG登录
+// @Tags EcsUsers
+// @Summary 获取是否启用TG登录
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getTGLoginStatus [GET]
+func (eusrApi *EcsUsersApi) GetTGLoginStatus(c *gin.Context) {
+	response.OkWithDetailed(model.EnableTGLogin, "查询成功", c)
+}
+
+// ControlTGLogin 启用关闭TG登录
+// @Tags EcsUsers
+// @Summary 启用关闭TG登录
+// @accept application/json
+// @Produce application/json
+// @Param data query ecsusersReq.EcsUsersSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/controlTGLogin [POST]
+func (eusrApi *EcsUsersApi) ControlTGLogin(c *gin.Context) {
+	var control model.TGLoginControl
+	if err := c.ShouldBindJSON(&control); err != nil {
+		response.FailWithMessage("修改失败", c)
+		return
+	}
+	if model.EnableTGLogin != control.EnableTGLogin {
+		model.EnableTGLogin = control.EnableTGLogin
+	}
+	response.OkWithDetailed(model.EnableTGLogin, "修改成功", c)
 }

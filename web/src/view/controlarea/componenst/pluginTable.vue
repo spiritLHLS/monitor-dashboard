@@ -27,7 +27,8 @@ import {
   controlSpiders, getSpidersStatus, controlTelegramPush, getTelegramPushStatus,
   controlFAProductsCheck, getFAProductsCheckStatus, getPublicRegisterStatus, controlPublicRegister,
   getPublicPushStatus, controlPublicPushStatus, getTelegramBotPushStatus, controlTelegramBotPushStatus,
-  getPublicInviteStatus, controlPublicInvite
+  getPublicInviteStatus, controlPublicInvite, getTGRegisterStatus, controlTGRegister,
+  getTGLoginStatus, controlTGLogin
 } from '@/view/controlarea/control.js'
 
 const controls = reactive({
@@ -36,8 +37,10 @@ const controls = reactive({
   products: { status: false, label: '追新爬虫', getStatus: getFAProductsCheckStatus, controlFunc: controlFAProductsCheck, controlKey: 'enable_allpdspiders' },
   register: { status: false, label: '公开注册', getStatus: getPublicRegisterStatus, controlFunc: controlPublicRegister, controlKey: 'enable_public_register' },
   publicPush: { status: false, label: '一对一推送', getStatus: getPublicPushStatus, controlFunc: controlPublicPushStatus, controlKey: 'enable_public_push' },
-  tgBot: { status: false, label: 'TG机器人推送', getStatus: getTelegramBotPushStatus, controlFunc: controlTelegramBotPushStatus, controlKey: 'enable_tg_bot_push' },
-  inviteCode: { status: false, label: '邀请码注册', getStatus: getPublicInviteStatus, controlFunc: controlPublicInvite, controlKey: 'enable_public_invite' }
+  tgBot: { status: false, label: 'TGBot推送', getStatus: getTelegramBotPushStatus, controlFunc: controlTelegramBotPushStatus, controlKey: 'enable_tg_bot_push' },
+  inviteCode: { status: false, label: '邀请码注册', getStatus: getPublicInviteStatus, controlFunc: controlPublicInvite, controlKey: 'enable_public_invite' },
+  tgRegister: { status: false, label: 'TG注册', getStatus: getTGRegisterStatus, controlFunc: controlTGRegister, controlKey: 'enable_tg_register' },
+  tgLogin: { status: false, label: 'TG登录', getStatus: getTGLoginStatus, controlFunc: controlTGLogin, controlKey: 'enable_tg_login' }
 })
 
 const leftControls = computed(() => {

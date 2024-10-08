@@ -21,6 +21,8 @@ func (s *EcsUsersRouter) InitEcsUsersRouter(Router *gin.RouterGroup, PublicRoute
 		eusrRouter.POST("selfModifyInfo", eusrApi.SelfModifyInfo)
 		eusrRouter.GET("getPublicRegisterStatus", eusrApi.GetPublicRegisterStatus)
 		eusrRouter.POST("controlPublicRegister", eusrApi.ControlPublicRegister)
+		eusrRouter.POST("controlTGRegister", eusrApi.ControlTGRegister)
+		eusrRouter.POST("controlTGLogin", eusrApi.ControlTGLogin)
 	}
 	{
 		eusrRouterWithoutRecord.GET("findEcsUsers", eusrApi.FindEcsUsers)
@@ -28,5 +30,7 @@ func (s *EcsUsersRouter) InitEcsUsersRouter(Router *gin.RouterGroup, PublicRoute
 	}
 	{
 		eusrRouterWithoutAuth.GET("getEcsUsersPublic", eusrApi.GetEcsUsersPublic)
+		eusrRouterWithoutAuth.GET("getTGRegisterStatus", eusrApi.GetTGRegisterStatus)
+		eusrRouterWithoutAuth.GET("getTGLoginStatus", eusrApi.GetTGLoginStatus)
 	}
 }

@@ -25,3 +25,17 @@ type LoginReq struct {
 	Captcha   string `json:"captcha"`   // 验证码
 	CaptchaId string `json:"captchaId"` // 验证码ID
 }
+
+// 是否启用TG验证进行登录
+var EnableTGLogin = false
+
+// 是否启用TG验证进行注册
+var EnableTGRegister = false
+
+type TGLoginControl struct {
+	EnableTGLogin bool `json:"enable_tg_login"`
+}
+
+type TGRegisterControl struct {
+	EnableTGRegister bool `json:"enable_tg_register"`
+}

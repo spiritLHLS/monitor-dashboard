@@ -47,7 +47,7 @@
                 </div>
               </el-form-item>
 
-              <template v-if="registerType">
+              <template v-if="registerType && showTGFields">
                 <el-form-item prop="tg_id">
                   <el-input v-model="currentFormData.tg_id" placeholder="请输入TGID" prefix-icon="ChatDotSquare" />
                 </el-form-item>
@@ -95,7 +95,7 @@
 
 <script setup>
 import { captcha } from "@/api/user";
-import { TGRGetCode } from "@/plugin/client/api/api";
+import { TGRGetCode, getTGRegisterStatus } from "@/plugin/client/api/api";
 import { reactive, ref, watch, onMounted, computed } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
@@ -130,6 +130,7 @@ const registerType = ref(false);
 const currentFormData = ref(loginFormData);
 const loading = ref(false);
 const rememberMe = ref(false);
+const showTGFields = ref(false);
 
 const checkUsername = (rule, value, callback) => {
   if (value.length < 5) {
@@ -154,7 +155,7 @@ const formRules = computed(() => ({
     { required: true, message: "请输入验证码", trigger: "blur" },
     { message: "验证码格式不正确", trigger: "blur" },
   ],
-  ...(registerType.value
+  ...(registerType.value && showTGFields.value
     ? {
       tg_id: [{ required: true, message: "请输入TG ID", trigger: "blur" }],
       code: [{ required: true, message: "请输入TG验证码", trigger: "blur" }],
@@ -199,7 +200,12 @@ const login = async () => {
 
 const register = async () => {
   try {
-    await userStore.UserTgRegister(registerFormData);
+    const dataToSend = { ...registerFormData };
+    if (!showTGFields.value) {
+      delete dataToSend.tg_id;
+      delete dataToSend.code;
+    }
+    await userStore.UserTgRegister(dataToSend);
     return true;
   } catch (error) {
     return false;
@@ -289,13 +295,25 @@ watch(registerType, (newValue) => {
   currentFormData.value = newValue ? registerFormData : loginFormData;
 });
 
-onMounted(() => {
+onMounted(async () => {
   loginVerify();
   const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
   if (rememberedUser) {
     loginFormData.username = rememberedUser.username;
     loginFormData.password = rememberedUser.password;
     rememberMe.value = true;
+  }
+
+  try {
+    const response = await getTGRegisterStatus();
+    if (response.code === 0) {
+      showTGFields.value = response.data;
+    } else {
+      console.error('Failed to get TG register status:', response.msg);
+    }
+  } catch (error) {
+    console.error('Error fetching TG register status:', error);
+    ElMessage.error('获取TG注册状态失败');
   }
 });
 

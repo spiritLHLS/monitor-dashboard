@@ -208,3 +208,61 @@ export const controlPublicInvite = (data) => {
         data
     })
 }
+
+// GetTGRegisterStatus 获取是否公开TG注册
+// @Tags EcsUsers
+// @Summary 获取是否公开TG注册
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getTGRegisterStatus [GET]
+export const getTGRegisterStatus = () => {
+    return service({
+        url: '/eusr/getTGRegisterStatus',
+        method: 'GET'
+    })
+}
+
+// ControlTGRegister 启用关闭公开TG注册
+// @Tags EcsUsers
+// @Summary 启用关闭公开TG注册
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/controlTGRegister [POST]
+export const controlTGRegister = (data) => {
+    return service({
+        url: '/eusr/controlTGRegister',
+        method: 'POST',
+        data
+    })
+}
+
+// GetTGLoginStatus 获取是否启用TG登录
+// @Tags EcsUsers
+// @Summary 获取是否启用TG登录
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/getTGLoginStatus [GET]
+export const getTGLoginStatus = () => {
+    return service({
+        url: '/eusr/getTGLoginStatus',
+        method: 'GET'
+    })
+}
+
+// ControlTGLogin 启用关闭TG登录
+// @Tags EcsUsers
+// @Summary 启用关闭TG登录
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /eusr/controlTGLogin [POST]
+export const controlTGLogin = (data) => {
+    return service({
+        url: '/eusr/controlTGLogin',
+        method: 'POST',
+        data
+    })
+}
