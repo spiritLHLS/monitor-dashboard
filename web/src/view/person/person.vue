@@ -11,7 +11,24 @@
         </nav>
       </div>
     </header>
-
+    <el-collapse v-model="activeCollapse" class="announcement-collapse">
+      <el-collapse-item name="1">
+        <template #title>
+          <el-icon>
+            <InfoFilled />
+          </el-icon>
+          <span>公告</span>
+        </template>
+        <div class="announcement-content">
+          <div v-if="isFetching">加载中...</div>
+          <div v-else-if="error">获取公告失败: {{ error }}</div>
+          <div v-else-if="announcement && announcement.content">
+            <div v-html="announcement.content"></div>
+          </div>
+          <div v-else>暂无公告</div>
+        </div>
+      </el-collapse-item>
+    </el-collapse>
     <div class="content-wrapper">
       <div class="grid-container">
         <aside class="user-sidebar">
@@ -67,6 +84,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { selfModifyInfo, selfGetUserInfo } from '@/api/ecsusers/ecsusers.js'
 import SelectImage from '@/components/selectImage/selectImage.vue'
+import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
 export default {
   name: 'Person',
@@ -75,7 +93,12 @@ export default {
   },
   setup() {
     const router = useRouter()
+    const activeCollapse = ref(['1'])
+    const announcement = ref({ content: '' })
+    const isFetching = ref(false)
+    const error = ref(null)
     const activeName = ref('info')
+
     const userInfo = reactive({
       uuid: '',
       nickname: '',
@@ -84,6 +107,24 @@ export default {
       email: '',
     })
     const newPassword = ref('')
+
+    const fetchAnnouncement = async () => {
+      isFetching.value = true
+      error.value = null
+      try {
+        const response = await GetInfoPublic({ Title: "推送说明" })
+        if (response.code === 0 && response.data) {
+          announcement.value = response.data
+        } else {
+          error.value = response.msg || '获取公告失败'
+        }
+      } catch (err) {
+        console.error('Error fetching announcement:', err)
+        error.value = '网络错误，请稍后再试'
+      } finally {
+        isFetching.value = false
+      }
+    }
 
     const updateAvatar = async () => {
       await updateUserInfo()
@@ -140,10 +181,17 @@ export default {
       window.open(url, '_blank')
     }
 
-    onMounted(getUserInfo)
+    onMounted(() => {
+      fetchAnnouncement()
+      getUserInfo()
+    })
 
     return {
       router,
+      activeCollapse,
+      announcement,
+      isFetching,
+      error,
       activeName,
       userInfo,
       newPassword,
@@ -275,6 +323,35 @@ export default {
   border-color: #33a06f;
 }
 
+.announcement-collapse {
+  margin: 10px 20px;
+  background-color: #f0f6f0;
+  border: 1px solid #e8f5e8;
+  border-radius: 4px;
+}
+
+:deep(.el-collapse-item__header) {
+  background-color: #e8f5e8;
+  color: #2f3f2f;
+  font-weight: bold;
+}
+
+:deep(.el-collapse-item__content) {
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.announcement-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2f3f2f;
+}
+
+.announcement-content h3 {
+  margin-bottom: 10px;
+  color: #42b883;
+}
+
 @media (max-width: 768px) {
   .top-bar {
     flex-direction: column;
@@ -311,6 +388,10 @@ export default {
 
   .main-content {
     padding: 10px;
+  }
+
+  .announcement-collapse {
+    margin: 10px;
   }
 }
 </style>

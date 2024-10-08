@@ -12,7 +12,23 @@
           </nav>
         </div>
       </header>
-
+      <el-collapse v-model="activeCollapse" class="announcement-collapse">
+        <el-collapse-item name="1">
+          <template #title>
+            <el-icon>
+              <InfoFilled />
+            </el-icon>
+            <span>公告</span>
+          </template>
+          <div class="announcement-content">
+            <div v-if="isFetching">加载中...</div>
+            <div v-else-if="error">获取公告失败: {{ error }}</div>
+            <div v-else>
+              <div v-html="announcement.content"></div>
+            </div>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
       <div class="content-wrapper">
         <div class="login-container">
           <div class="login-box">
@@ -107,7 +123,12 @@ import { ElMessage, ElLoading } from "element-plus";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/pinia/modules/user";
 import { useRouterStore } from "@/pinia/modules/router";
+import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
+const activeCollapse = ref(['0'])
+const announcement = ref({})
+const isFetching = ref(false)
+const error = ref(null)
 const router = useRouter();
 const userStore = useUserStore();
 const routerStore = useRouterStore();
@@ -141,6 +162,24 @@ const loading = ref(false);
 const rememberMe = ref(false);
 const showTGFields = ref(false);
 const showInviteCodeField = ref(false);
+
+const fetchAnnouncement = async () => {
+  isFetching.value = true
+  error.value = null
+  try {
+    const response = await GetInfoPublic({ Title: "登录注册通知" })
+    if (response.code === 0) {
+      announcement.value = response.data
+    } else {
+      error.value = response.msg || '获取公告失败'
+    }
+  } catch (err) {
+    console.error('Error fetching announcement:', err)
+    error.value = '网络错误，请稍后再试'
+  } finally {
+    isFetching.value = false
+  }
+}
 
 const checkUsername = (rule, value, callback) => {
   if (value.length < 5) {
@@ -339,6 +378,7 @@ watch(registerType, (newValue) => {
 });
 
 onMounted(async () => {
+  fetchAnnouncement();
   loginVerify();
   const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
   if (rememberedUser) {
@@ -579,6 +619,35 @@ defineExpose({
   opacity: 0;
 }
 
+.announcement-collapse {
+  margin: 10px 20px;
+  background-color: #f0f6f0;
+  border: 1px solid #e8f5e8;
+  border-radius: 4px;
+}
+
+:deep(.el-collapse-item__header) {
+  background-color: #e8f5e8;
+  color: #2f3f2f;
+  font-weight: bold;
+}
+
+:deep(.el-collapse-item__content) {
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.announcement-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2f3f2f;
+}
+
+.announcement-content h3 {
+  margin-bottom: 10px;
+  color: #42b883;
+}
+
 @media (max-width: 768px) {
   .top-bar {
     flex-direction: column;
@@ -613,6 +682,10 @@ defineExpose({
 
   .login-box {
     padding: 30px 20px;
+  }
+
+  .announcement-collapse {
+    margin: 10px;
   }
 }
 </style>

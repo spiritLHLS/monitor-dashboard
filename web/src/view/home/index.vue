@@ -26,7 +26,6 @@
                     <div v-if="isFetching">加载中...</div>
                     <div v-else-if="error">获取公告失败: {{ error }}</div>
                     <div v-else>
-                        <h3>{{ announcement.title }}</h3>
                         <div v-html="announcement.content"></div>
                     </div>
                 </div>
@@ -107,9 +106,9 @@ import { handleRedirect } from '@/plugin/cryptourl/api/encryptedlink'
 import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
 const activeCollapse = ref(['1'])
+const announcement = ref({})
 const isFetching = ref(false)
 const error = ref(null)
-const announcement = ref({})
 
 const fetchAnnouncement = async () => {
     isFetching.value = true
@@ -526,32 +525,32 @@ onMounted(() => {
 }
 
 .announcement-collapse {
-  margin: 10px 20px;
-  background-color: #f0f6f0;
-  border: 1px solid #e8f5e8;
-  border-radius: 4px;
+    margin: 10px 20px;
+    background-color: #f0f6f0;
+    border: 1px solid #e8f5e8;
+    border-radius: 4px;
 }
 
 :deep(.el-collapse-item__header) {
-  background-color: #e8f5e8;
-  color: #2f3f2f;
-  font-weight: bold;
+    background-color: #e8f5e8;
+    color: #2f3f2f;
+    font-weight: bold;
 }
 
 :deep(.el-collapse-item__content) {
-  padding: 20px;
-  background-color: #ffffff;
+    padding: 20px;
+    background-color: #ffffff;
 }
 
 .announcement-content {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #2f3f2f;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #2f3f2f;
 }
 
 .announcement-content h3 {
-  margin-bottom: 10px;
-  color: #42b883;
+    margin-bottom: 10px;
+    color: #42b883;
 }
 
 @media (max-width: 768px) {
@@ -615,7 +614,7 @@ onMounted(() => {
     }
 
     .announcement-collapse {
-    margin: 10px;
-  }
+        margin: 10px;
+    }
 }
 </style>
