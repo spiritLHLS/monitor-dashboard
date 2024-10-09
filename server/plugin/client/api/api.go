@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
@@ -43,12 +44,12 @@ func (p *RegisterApi) Register(c *gin.Context) {
 	var req model.RegisterReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.GVA_LOG.Error("绑定JSON失败", zap.Error(err))
-		response.FailWithMessage(err.Error(), c)
+		response.FailWithMessage(fmt.Sprintf("绑定JSON失败: %s", err.Error()), c)
 		return
 	}
 	if token, claims, user, err := service.ServiceGroupApp.Register(req); err != nil {
 		global.GVA_LOG.Error("注册用户失败", zap.Error(err))
-		response.FailWithMessage(err.Error(), c)
+		response.FailWithMessage(fmt.Sprintf("注册用户失败: %s", err.Error()), c)
 	} else {
 		response.OkWithDetailed(systemRes.LoginResponse{
 			User:      user,
@@ -67,12 +68,12 @@ func (p *RegisterApi) RegisterWithInvite(c *gin.Context) {
 	var req model.RegisterWithInviteReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.GVA_LOG.Error("绑定JSON失败", zap.Error(err))
-		response.FailWithMessage(err.Error(), c)
+		response.FailWithMessage(fmt.Sprintf("绑定JSON失败: %s", err.Error()), c)
 		return
 	}
 	if token, claims, user, err := service.ServiceGroupApp.RegisterWithInvite(req); err != nil {
 		global.GVA_LOG.Error("注册用户失败", zap.Error(err))
-		response.FailWithMessage(err.Error(), c)
+		response.FailWithMessage(fmt.Sprintf("注册用户失败: %s", err.Error()), c)
 	} else {
 		response.OkWithDetailed(systemRes.LoginResponse{
 			User:      user,

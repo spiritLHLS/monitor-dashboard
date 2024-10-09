@@ -1,6 +1,7 @@
 package subscribe
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
@@ -213,7 +214,7 @@ func (subApi *SubscribeApi) SelfCreateSub(c *gin.Context) {
 	err = subService.SelfCreateSub(uuid, *createReq.ProductId, createReq.NotifyChannel)
 	if err != nil {
 		global.GVA_LOG.Error("创建订阅失败!", zap.Error(err))
-		response.FailWithMessage("创建订阅失败", c)
+		response.FailWithMessage(fmt.Sprintf("创建订阅失败: %s", err.Error()), c)
 		return
 	}
 	response.OkWithMessage("创建订阅成功", c)
@@ -242,7 +243,7 @@ func (subApi *SubscribeApi) SelfDeleteSub(c *gin.Context) {
 	err = subService.SelfDeleteSub(uuid, *deleteReq.ProductId)
 	if err != nil {
 		global.GVA_LOG.Error("删除订阅失败!", zap.Error(err))
-		response.FailWithMessage("删除订阅失败", c)
+		response.FailWithMessage(fmt.Sprintf("删除订阅失败: %s", err.Error()), c)
 		return
 	}
 	response.OkWithMessage("删除订阅成功", c)
@@ -271,7 +272,7 @@ func (subApi *SubscribeApi) SelfUpdateSub(c *gin.Context) {
 	err = subService.SelfUpdateSub(uuid, *updateReq.ProductId, updateReq.NotifyChannel)
 	if err != nil {
 		global.GVA_LOG.Error("更新订阅失败!", zap.Error(err))
-		response.FailWithMessage("更新订阅失败", c)
+		response.FailWithMessage(fmt.Sprintf("更新订阅失败: %s", err.Error()), c)
 		return
 	}
 	response.OkWithMessage("更新订阅成功", c)

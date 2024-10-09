@@ -398,6 +398,7 @@ onMounted(async () => {
     getTableData()
 })
 </script>
+
 <style scoped>
 .product-dashboard {
     display: flex;

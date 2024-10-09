@@ -46,6 +46,18 @@
               <el-form-item prop="password">
                 <el-input ref="passwordInput" v-model="currentFormData.password"
                   :type="lock === 'lock' ? 'password' : 'text'" placeholder="请输入密码" prefix-icon="Lock"
+                  @keyup.enter="focusNextInput($event, confirmPasswordInput)">
+                  <template #suffix>
+                    <el-icon @click="changeLock" class="password-icon">
+                      <component :is="lock" />
+                    </el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
+
+              <el-form-item v-if="registerType" prop="confirmPassword">
+                <el-input ref="confirmPasswordInput" v-model="currentFormData.confirmPassword"
+                  :type="lock === 'lock' ? 'password' : 'text'" placeholder="请再次输入密码" prefix-icon="Lock"
                   @keyup.enter="focusNextInput($event, captchaInput)">
                   <template #suffix>
                     <el-icon @click="changeLock" class="password-icon">
@@ -135,6 +147,7 @@ const routerStore = useRouterStore();
 
 const loginForm = ref(null);
 const passwordInput = ref(null);
+const confirmPasswordInput = ref(null);
 const captchaInput = ref(null);
 
 const loginFormData = reactive({
@@ -147,6 +160,7 @@ const loginFormData = reactive({
 const registerFormData = reactive({
   username: "",
   password: "",
+  confirmPassword: "",
   captcha: "",
   captchaId: "",
   tg_id: "",
@@ -197,9 +211,18 @@ const checkPassword = (rule, value, callback) => {
   }
 };
 
+const validateConfirmPassword = (rule, value, callback) => {
+  if (value !== currentFormData.value.password) {
+    callback(new Error('两次输入的密码不一致'));
+  } else {
+    callback();
+  }
+};
+
 const formRules = computed(() => ({
   username: [{ validator: checkUsername, trigger: "blur" }],
   password: [{ validator: checkPassword, trigger: "blur" }],
+  confirmPassword: [{ validator: validateConfirmPassword, trigger: "blur" }],
   captcha: [
     { required: true, message: "请输入验证码", trigger: "blur" },
     { message: "验证码格式不正确", trigger: "blur" },
@@ -271,6 +294,7 @@ const register = async () => {
     if (!showInviteCodeField.value) {
       delete dataToSend.invite_code;
     }
+    delete dataToSend.confirmPassword;
 
     let res;
     if (showInviteCodeField.value) {
