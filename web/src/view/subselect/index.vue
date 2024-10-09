@@ -71,21 +71,30 @@
                         :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55" />
-                        <el-table-column v-for="col in tableColumns" :key="col.prop" :prop="col.prop" :label="col.label"
-                            :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip
-                            v-if="col.showInAllMode || displayMode === 'subscribed'">
-                            <template #default="{ row }" v-if="col.prop === 'actions'">
-                                <el-button type="primary" size="small" @click="showDetails(row)">查看详情</el-button>
+                        <el-table-column v-for="col in visibleColumns" :key="col.prop" :prop="col.prop"
+                            :label="col.label" :sortable="col.sortable" :min-width="col.minWidth"
+                            :show-overflow-tooltip="col.prop !== 'additional'">
+                            <template #default="{ row }">
+                                <template v-if="col.prop === 'stock'">
+                                    {{ row.stock === 1000 ? '有' : row.stock }}
+                                </template>
+                                <template v-else-if="col.prop === 'notify_channel'">
+                                    {{ getNotifyChannelLabel(row.notify_channel) }}
+                                </template>
+                                <template v-else-if="col.prop === 'additional'">
+                                    <span v-html="processData(row.additional)" style="white-space: pre-wrap;"></span>
+                                </template>
+                                <template v-else>
+                                    {{ row[col.prop] }}
+                                </template>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" :min-width="200">
+                            <template #default="{ row }">
                                 <el-button v-if="!row.isSubscribed" type="success" size="small"
                                     @click="handleSubscribe(row)">添加订阅</el-button>
                                 <el-button v-else type="warning" size="small"
                                     @click="handleUnsubscribe(row)">取消订阅</el-button>
-                            </template>
-                            <template #default="{ row }" v-else-if="col.prop === 'stock'">
-                                {{ row.stock === 1000 ? '有' : row.stock }}
-                            </template>
-                            <template #default="{ row }" v-else-if="col.prop === 'notify_channel'">
-                                {{ getNotifyChannelLabel(row.notify_channel) }}
                             </template>
                         </el-table-column>
                     </el-table>
@@ -99,28 +108,11 @@
                 </el-card>
             </main>
         </div>
-
-        <el-dialog v-model="detailsVisible" title="商品详情" width="50%" :before-close="handleCloseDetails">
-            <el-descriptions :column="1" border>
-                <el-descriptions-item v-for="col in tableColumns.filter(col => col.prop !== 'actions')" :key="col.prop"
-                    :label="col.label">
-                    <template v-if="col.prop === 'stock'">
-                        {{ selectedProduct[col.prop] === 1000 ? '有' : selectedProduct[col.prop] }}
-                    </template>
-                    <template v-else-if="col.prop === 'notify_channel'">
-                        {{ getNotifyChannelLabel(selectedProduct[col.prop]) }}
-                    </template>
-                    <template v-else>
-                        {{ selectedProduct[col.prop] }}
-                    </template>
-                </el-descriptions-item>
-            </el-descriptions>
-        </el-dialog>
     </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
@@ -143,18 +135,17 @@ const searchFields = {
 }
 
 const tableColumns = [
-    { label: '商家', prop: 'tag', minWidth: '90', sortable: true, showInAllMode: true },
-    { label: 'CPU', prop: 'cpu', minWidth: '100', sortable: true, showInAllMode: true },
-    { label: '内存', prop: 'memory', minWidth: '100', sortable: true, showInAllMode: true },
-    { label: '磁盘', prop: 'disk', minWidth: '100', sortable: true, showInAllMode: true },
-    { label: '流量', prop: 'traffic', minWidth: '100', sortable: true, showInAllMode: true },
-    { label: '端口', prop: 'portSpeed', minWidth: '80', sortable: true, showInAllMode: true },
-    { label: '地点', prop: 'location', minWidth: '130', sortable: true, showInAllMode: true },
-    { label: '价格', prop: 'price', minWidth: '150', sortable: true, showInAllMode: true },
-    { label: '库存', prop: 'stock', minWidth: '80', sortable: true, showInAllMode: true },
-    { label: '其他', prop: 'additional', minWidth: '100', showInAllMode: true },
-    { label: '操作', prop: 'actions', minWidth: '200', showInAllMode: true },
-    { label: '订阅渠道', prop: 'notify_channel', minWidth: '120', showInAllMode: false },
+    { label: '商家', prop: 'tag', minWidth: '100' },
+    { label: 'CPU', prop: 'cpu', minWidth: '120' },
+    { label: '内存', prop: 'memory', minWidth: '100' },
+    { label: '磁盘', prop: 'disk', minWidth: '100' },
+    { label: '流量', prop: 'traffic', minWidth: '100' },
+    { label: '端口', prop: 'portSpeed', minWidth: '100' },
+    { label: '地点', prop: 'location', minWidth: '150' },
+    { label: '价格', prop: 'price', minWidth: '100' },
+    { label: '库存', prop: 'stock', minWidth: '80', sortable: true },
+    { label: '其他', prop: 'additional', minWidth: '300' },
+    { label: '订阅渠道', prop: 'notify_channel', minWidth: '120' },
 ]
 
 const searchInfo = ref(Object.fromEntries(Object.keys(searchFields).map(key => [key, ''])))
@@ -166,8 +157,6 @@ const total = ref(0)
 const tableData = ref([])
 const sortBy = ref('stock')
 const sortOrder = ref('desc')
-const detailsVisible = ref(false)
-const selectedProduct = ref({})
 const selectedProducts = ref([])
 const subscribedProductIds = ref(new Set())
 const batchNotifyChannel = ref('telegram_bot')
@@ -175,9 +164,9 @@ const batchModifyNotifyChannel = ref('telegram_bot')
 
 const processData = (data) => {
     return data
-        .replace(/<[^>]+>/g, '')
         .trim()
-        .replace(/\s+/g, ' ');
+        .replace(/\s+/g, ' ')
+        .replace(/\n/g, '<br>');
 }
 
 const getNotifyChannelLabel = (value) => {
@@ -187,6 +176,18 @@ const getNotifyChannelLabel = (value) => {
         'wechat': '微信'
     }
     return channelMap[value] || value
+}
+
+const visibleColumns = computed(() => {
+    return tableColumns.filter(col =>
+        col.prop !== 'notify_channel' || displayMode.value === 'subscribed'
+    )
+})
+
+const handleDisplayModeChange = (mode) => {
+    displayMode.value = mode
+    page.value = 1
+    getTableData()
 }
 
 const getTableData = async () => {
@@ -213,21 +214,8 @@ const getTableData = async () => {
 
         if (response.code === 0) {
             tableData.value = response.data.list.map(item => ({
+                ...item,
                 id: item.ID,
-                createdAt: item.CreatedAt,
-                updatedAt: item.UpdatedAt,
-                tag: item.tag,
-                cpu: item.cpu,
-                memory: item.memory,
-                disk: item.disk,
-                traffic: item.traffic,
-                portSpeed: item.portSpeed,
-                location: item.location,
-                price: item.price,
-                additional: item.additional,
-                oldStock: item.oldStock,
-                stock: item.stock,
-                notify_channel: item.notify_channel,
                 isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.ID)
             }))
             total.value = response.data.total
@@ -284,20 +272,13 @@ const handleSortChange = ({ prop, order }) => {
     getTableData()
 }
 
-const handleDisplayModeChange = (mode) => {
-    displayMode.value = mode
-    page.value = 1
-    getTableData()  // 确保在切换模式时重新加载数据
-}
-
 const handleSubscribe = async (row) => {
     try {
         const response = await selfCreateSub({ product_id: row.id, notify_channel: batchNotifyChannel.value })
         if (response.code === 0) {
             ElMessage.success('订阅成功')
-            row.isSubscribed = true
-            row.notify_channel = batchNotifyChannel.value
             subscribedProductIds.value.add(row.id)
+            await getTableData() // 重新获取当前页数据
         } else {
             ElMessage.error(response.message || '订阅失败')
         }
@@ -312,13 +293,13 @@ const handleUnsubscribe = async (row) => {
         const response = await selfDeleteSub({ product_id: row.id })
         if (response.code === 0) {
             ElMessage.success('取消订阅成功')
+            subscribedProductIds.value.delete(row.id)
             if (displayMode.value === 'subscribed') {
-                tableData.value = tableData.value.filter(item => item.id !== row.id)
+                await getTableData() // 重新获取当前页数据
             } else {
                 row.isSubscribed = false
                 row.notify_channel = null
             }
-            subscribedProductIds.value.delete(row.id)
         } else {
             ElMessage.error(response.message || '取消订阅失败')
         }
@@ -326,18 +307,6 @@ const handleUnsubscribe = async (row) => {
         console.error('取消订阅出错:', error)
         ElMessage.error('取消订阅出错')
     }
-}
-
-const showDetails = (row) => {
-    selectedProduct.value = {
-        ...row,
-        additional: processData(row.additional),
-    }
-    detailsVisible.value = true
-}
-
-const handleCloseDetails = () => {
-    detailsVisible.value = false
 }
 
 const handleSelectionChange = (selection) => {
@@ -386,12 +355,12 @@ const openExternalLink = (url) => {
     window.open(url, '_blank')
 }
 
-watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
+onMounted(async () => {
+    await getSubscribedProducts()
     getTableData()
 })
 
-onMounted(async () => {
-    await getSubscribedProducts()
+watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
     getTableData()
 })
 </script>
@@ -401,7 +370,6 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: #f0f6f0;
 }
@@ -439,7 +407,6 @@ onMounted(async () => {
 .content-wrapper {
     display: flex;
     flex: 1;
-    overflow: hidden;
 }
 
 .sidebar {
@@ -603,6 +570,16 @@ onMounted(async () => {
 :deep(.el-select) {
     width: 120px;
 }
+
+:deep(.el-table__body-wrapper) {
+    overflow-x: auto;
+}
+
+:deep(.el-table .cell) {
+    white-space: normal;
+    line-height: 1.5;
+}
+
 
 @media (max-width: 768px) {
     .top-bar {

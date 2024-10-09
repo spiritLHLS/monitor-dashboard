@@ -63,15 +63,22 @@
                     <el-table v-loading="loading" :data="tableData" style="width: 100%"
                         :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange">
                         <el-table-column v-for="col in tableColumns" :key="col.prop" :prop="col.prop" :label="col.label"
-                            :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip>
-                            <template #default="{ row }" v-if="col.prop === 'actions'">
-                                <el-button type="primary" size="small" @click="showDetails(row)">商品详情</el-button>
-                                <!-- <el-button type="success" size="small" @click="router.push('/r/'+row.url)">点击购买</el-button> -->
-                                <el-button type="success" size="small"
-                                    @click="handleRedirectFunc(row.url)">点击购买</el-button>
-                            </template>
-                            <template #default="{ row }" v-else-if="col.prop === 'stock'">
-                                {{ row.stock === 1000 ? '有' : row.stock }}
+                            :sortable="col.sortable" :min-width="col.minWidth"
+                            :show-overflow-tooltip="col.prop !== 'additional' && col.prop !== 'actions'">
+                            <template #default="{ row }">
+                                <template v-if="col.prop === 'actions'">
+                                    <el-button type="success" size="small"
+                                        @click="handleRedirectFunc(row.url)">点击购买</el-button>
+                                </template>
+                                <template v-else-if="col.prop === 'stock'">
+                                    {{ row.stock === 1000 ? '有' : row.stock }}
+                                </template>
+                                <template v-else-if="col.prop === 'additional'">
+                                    <span v-html="processData(row[col.prop])" style="white-space: pre-wrap;"></span>
+                                </template>
+                                <template v-else>
+                                    {{ row[col.prop] }}
+                                </template>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -85,14 +92,6 @@
                 </el-card>
             </main>
         </div>
-
-        <el-dialog v-model="detailsVisible" title="商品详情" width="50%" :before-close="handleCloseDetails">
-            <el-descriptions :column="1" border>
-                <el-descriptions-item v-for="col in tableColumns" :key="col.prop" :label="col.label">
-                    {{ col.prop === 'stock' && selectedProduct[col.prop] === 1000 ? '有' : selectedProduct[col.prop] }}
-                </el-descriptions-item>
-            </el-descriptions>
-        </el-dialog>
     </div>
 </template>
 
@@ -144,17 +143,17 @@ const searchFields = {
 }
 
 const tableColumns = [
-    { label: '商家', prop: 'tag', minWidth: '120', sortable: true },
-    { label: 'CPU', prop: 'cpu', minWidth: '100', sortable: true },
-    { label: '内存', prop: 'memory', minWidth: '100', sortable: true },
-    { label: '磁盘', prop: 'disk', minWidth: '100', sortable: true },
-    { label: '流量', prop: 'traffic', minWidth: '100', sortable: true },
-    { label: '端口', prop: 'portSpeed', minWidth: '80', sortable: true },
-    { label: '地点', prop: 'location', minWidth: '140', sortable: true },
-    { label: '价格', prop: 'price', minWidth: '150', sortable: true },
-    { label: '库存', prop: 'stock', minWidth: '100', sortable: true },
-    { label: '其他', prop: 'additional', minWidth: '100' },
-    { label: '操作', prop: 'actions', minWidth: '200' },
+    { label: '商家', prop: 'tag', minWidth: '120' },
+    { label: 'CPU', prop: 'cpu', minWidth: '120' },
+    { label: '内存', prop: 'memory', minWidth: '100' },
+    { label: '磁盘', prop: 'disk', minWidth: '120' },
+    { label: '流量', prop: 'traffic', minWidth: '120' },
+    { label: '端口', prop: 'portSpeed', minWidth: '100' },
+    { label: '地点', prop: 'location', minWidth: '150' },
+    { label: '价格', prop: 'price', minWidth: '120' },
+    { label: '库存', prop: 'stock', minWidth: '80', sortable: true },
+    { label: '其他', prop: 'additional', minWidth: '300' },
+    { label: '操作', prop: 'actions', minWidth: '120' },
 ]
 
 const searchInfo = ref(Object.fromEntries(Object.keys(searchFields).map(key => [key, ''])))
@@ -166,14 +165,12 @@ const total = ref(0)
 const tableData = ref([])
 const sortBy = ref('stock')
 const sortOrder = ref('desc')
-const detailsVisible = ref(false)
-const selectedProduct = ref({})
 
 const processData = (data) => {
     return data
-        .replace(/<[^>]+>/g, '')
         .trim()
-        .replace(/\s+/g, ' ');
+        .replace(/\s+/g, ' ')
+        .replace(/\n/g, '<br>');
 }
 
 const getTableData = async () => {
@@ -289,18 +286,6 @@ const openUrl = (url) => {
             }, 2500) // 给用户2.5秒时间看到消息
         }
     })
-}
-
-const showDetails = (row) => {
-    selectedProduct.value = {
-        ...row,
-        additional: processData(row.additional),
-    }
-    detailsVisible.value = true
-}
-
-const handleCloseDetails = () => {
-    detailsVisible.value = false
 }
 
 const openExternalLink = (url) => {
@@ -551,6 +536,19 @@ onMounted(() => {
 .announcement-content h3 {
     margin-bottom: 10px;
     color: #42b883;
+}
+
+:deep(.el-table__body-wrapper) {
+    overflow-x: auto;
+}
+
+:deep(.el-table .cell) {
+    white-space: normal;
+    line-height: 1.5;
+}
+
+:deep(.el-table .cell .el-button) {
+    margin: 2px;
 }
 
 @media (max-width: 768px) {
