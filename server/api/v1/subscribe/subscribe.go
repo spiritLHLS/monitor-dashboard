@@ -206,6 +206,10 @@ func (subApi *SubscribeApi) SelfCreateSub(c *gin.Context) {
 		response.FailWithMessage("用户的UUID不能为空", c)
 		return
 	}
+	if createReq.NotifyChannel == "" {
+		response.FailWithMessage("商品对应的推送渠道不能为空", c)
+		return
+	}
 	err = subService.SelfCreateSub(uuid, *createReq.ProductId, createReq.NotifyChannel)
 	if err != nil {
 		global.GVA_LOG.Error("创建订阅失败!", zap.Error(err))
