@@ -72,7 +72,8 @@
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55" />
                         <el-table-column v-for="col in tableColumns" :key="col.prop" :prop="col.prop" :label="col.label"
-                            :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip>
+                            :sortable="col.sortable" :min-width="col.minWidth" show-overflow-tooltip
+                            v-if="col.showInAllMode || displayMode === 'subscribed'">
                             <template #default="{ row }" v-if="col.prop === 'actions'">
                                 <el-button type="primary" size="small" @click="showDetails(row)">查看详情</el-button>
                                 <el-button v-if="!row.isSubscribed" type="success" size="small"
@@ -142,18 +143,18 @@ const searchFields = {
 }
 
 const tableColumns = [
-    { label: '商家', prop: 'tag', minWidth: '90', sortable: true },
-    { label: 'CPU', prop: 'cpu', minWidth: '100', sortable: true },
-    { label: '内存', prop: 'memory', minWidth: '100', sortable: true },
-    { label: '磁盘', prop: 'disk', minWidth: '100', sortable: true },
-    { label: '流量', prop: 'traffic', minWidth: '100', sortable: true },
-    { label: '端口', prop: 'portSpeed', minWidth: '80', sortable: true },
-    { label: '地点', prop: 'location', minWidth: '130', sortable: true },
-    { label: '价格', prop: 'price', minWidth: '150', sortable: true },
-    { label: '库存', prop: 'stock', minWidth: '80', sortable: true },
-    { label: '其他', prop: 'additional', minWidth: '100' },
-    { label: '操作', prop: 'actions', minWidth: '200' },
-    { label: '订阅渠道', prop: 'notify_channel', minWidth: '120' },
+    { label: '商家', prop: 'tag', minWidth: '90', sortable: true, showInAllMode: true },
+    { label: 'CPU', prop: 'cpu', minWidth: '100', sortable: true, showInAllMode: true },
+    { label: '内存', prop: 'memory', minWidth: '100', sortable: true, showInAllMode: true },
+    { label: '磁盘', prop: 'disk', minWidth: '100', sortable: true, showInAllMode: true },
+    { label: '流量', prop: 'traffic', minWidth: '100', sortable: true, showInAllMode: true },
+    { label: '端口', prop: 'portSpeed', minWidth: '80', sortable: true, showInAllMode: true },
+    { label: '地点', prop: 'location', minWidth: '130', sortable: true, showInAllMode: true },
+    { label: '价格', prop: 'price', minWidth: '150', sortable: true, showInAllMode: true },
+    { label: '库存', prop: 'stock', minWidth: '80', sortable: true, showInAllMode: true },
+    { label: '其他', prop: 'additional', minWidth: '100', showInAllMode: true },
+    { label: '操作', prop: 'actions', minWidth: '200', showInAllMode: true },
+    { label: '订阅渠道', prop: 'notify_channel', minWidth: '120', showInAllMode: false },
 ]
 
 const searchInfo = ref(Object.fromEntries(Object.keys(searchFields).map(key => [key, ''])))
@@ -230,7 +231,6 @@ const getTableData = async () => {
                 isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.ID)
             }))
             total.value = response.data.total
-            console.log('Updated tableData:', tableData.value)
         } else {
             ElMessage.error(response.message || '获取数据失败')
         }
@@ -287,10 +287,7 @@ const handleSortChange = ({ prop, order }) => {
 const handleDisplayModeChange = (mode) => {
     displayMode.value = mode
     page.value = 1
-    getTableData()
-    nextTick(() => {
-        console.log('Display mode changed to:', displayMode.value)
-    })
+    getTableData()  // 确保在切换模式时重新加载数据
 }
 
 const handleSubscribe = async (row) => {
