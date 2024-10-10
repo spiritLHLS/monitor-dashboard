@@ -21,3 +21,8 @@ type Subscribe struct {
 func (Subscribe) TableName() string {
 	return "subscribe"
 }
+
+// UpdateStatusIDs 更新订阅的状态表
+type UpdateStatusIDs struct {
+	IDs []*int `json:"IDs"`
+}

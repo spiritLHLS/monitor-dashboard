@@ -54,14 +54,21 @@ const rightControls = computed(() => {
 })
 
 const initializeStatuses = async () => {
-  for (const key in controls) {
+  const statusPromises = Object.entries(controls).map(async ([key, control]) => {
     try {
-      const statusData = await controls[key].getStatus();
-      controls[key].status = statusData.data;
+      const statusData = await control.getStatus();
+      return [key, statusData.data];
     } catch (error) {
       console.error(`Error initializing ${key} status:`, error);
+      return [key, false]; // 默认为 false 如果出错
     }
-  }
+  });
+
+  const results = await Promise.all(statusPromises);
+  
+  results.forEach(([key, status]) => {
+    controls[key].status = status;
+  });
 }
 
 const toggleStatus = async (key) => {

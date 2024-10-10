@@ -46,5 +46,6 @@ type SubProductsWithNotify struct {
 	Additional    string `json:"additional" form:"additional" gorm:"column:additional;comment:;type:text;"`       //additional字段
 	OldStock      *int   `json:"oldStock" form:"oldStock" gorm:"column:old_stock;comment:;"`                      //oldStock字段
 	Stock         *int   `json:"stock" form:"stock" gorm:"column:stock;comment:;"`                                //stock字段
+	Status        *int   `json:"status" form:"status" `                                                           // status字段
 	NotifyChannel string `json:"notify_channel" form:"notify_channel" gorm:"column:notify_channel;comment:通知渠道;"` //通知渠道
 }

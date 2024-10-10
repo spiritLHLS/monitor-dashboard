@@ -170,3 +170,17 @@ export const selfUpdateSub = (data) => {
   })
 }
 
+// SelfBatchUpdateStatus 前端用户修改订阅状态
+// @Tags Subscribe
+// @Summary 前端用户修改订阅状态
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /sub/selfBatchUpdateStatus [POST]
+export const selfBatchUpdateStatus = (data) => {
+  return service({
+    url: '/sub/selfBatchUpdateStatus',
+    method: 'POST',
+    data
+  })
+}

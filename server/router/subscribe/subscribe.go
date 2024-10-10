@@ -21,6 +21,8 @@ func (s *SubscribeRouter) InitSubscribeRouter(Router *gin.RouterGroup, PublicRou
 		subRouter.GET("selfGetSub", subApi.SelfGetSub)
 		subRouter.POST("selfCreateSub", subApi.SelfCreateSub)
 		subRouter.POST("selfDeleteSub", subApi.SelfDeleteSub)
+		subRouter.POST("selfUpdateSub", subApi.SelfUpdateSub)
+		subRouter.POST("selfBatchUpdateStatus", subApi.SelfBatchUpdateStatus)
 	}
 	{
 		subRouterWithoutRecord.GET("findSubscribe", subApi.FindSubscribe)
@@ -28,6 +30,5 @@ func (s *SubscribeRouter) InitSubscribeRouter(Router *gin.RouterGroup, PublicRou
 	}
 	{
 		subRouterWithoutAuth.GET("selfGetAllPd", subApi.SelfGetAllPd)
-		subRouterWithoutAuth.POST("selfUpdateSub", subApi.SelfUpdateSub)
 	}
 }

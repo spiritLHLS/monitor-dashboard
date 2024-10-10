@@ -265,6 +265,10 @@ func (subApi *SubscribeApi) SelfUpdateSub(c *gin.Context) {
 		return
 	}
 	uuid := utils.GetUserUuid(c)
+	if uuid.String() == "" {
+		response.FailWithMessage("用户的uuid不能为空", c)
+		return
+	}
 	if updateReq.ProductId == nil {
 		response.FailWithMessage("ProductId不能为空", c)
 		return
@@ -305,4 +309,33 @@ func (subApi *SubscribeApi) SelfGetAllPd(c *gin.Context) {
 		Page:     searchInfo.Page,
 		PageSize: searchInfo.PageSize,
 	}, "获取成功", c)
+}
+
+// SelfBatchUpdateStatus 前端用户修改订阅状态
+// @Tags Subscribe
+// @Summary 前端用户修改订阅状态
+// @accept application/json
+// @Produce application/json
+// @Param data query subscribeReq.SubscribeSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /sub/selfBatchUpdateStatus [POST]
+func (subApi *SubscribeApi) SelfBatchUpdateStatus(c *gin.Context) {
+	var ids subscribe.UpdateStatusIDs
+	err := c.ShouldBindJSON(&ids)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	uuid := utils.GetUserUuid(c)
+	if uuid.String() == "" {
+		response.FailWithMessage("用户的uuid不能为空", c)
+		return
+	}
+	err = subService.SelfBatchUpdateStatus(uuid.String(), ids.IDs)
+	if err != nil {
+		global.GVA_LOG.Error("失败!", zap.Error(err))
+		response.FailWithMessage(fmt.Sprintf("错误：%s", err.Error()), c)
+		return
+	}
+	response.OkWithData("返回数据", c)
 }

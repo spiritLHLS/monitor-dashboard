@@ -65,6 +65,11 @@
                                 :disabled="selectedProducts.length === 0" style="margin-left: 10px;">
                                 批量取消订阅
                             </el-button>
+                            <el-button type="warning" @click="handleBatchResetStatus"
+                                :disabled="selectedProducts.length === 0 || !selectedProducts.some(p => p.status === 1)"
+                                style="margin-left: 10px;">
+                                批量重置状态
+                            </el-button>
                         </template>
                     </div>
                     <el-table v-loading="loading" :data="tableData" style="width: 100%"
@@ -87,6 +92,14 @@
                                 <template v-else>
                                     {{ row[col.prop] }}
                                 </template>
+                            </template>
+                        </el-table-column>
+                        <el-table-column v-if="displayMode === 'subscribed'" label="状态" :min-width="100">
+                            <template #default="{ row }">
+                                <el-button :type="row.status === 0 ? 'success' : 'danger'" size="small"
+                                    @click="handleResetStatus(row)" :disabled="row.status === 0">
+                                    {{ row.status === 0 ? '已激活' : '待重置' }}
+                                </el-button>
                             </template>
                         </el-table-column>
                         <el-table-column label="操作" :min-width="200">
@@ -117,7 +130,7 @@ import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { selfGetAllPd } from '@/api/subscribe/subscribe'
-import { selfGetSub, selfCreateSub, selfDeleteSub, selfUpdateSub } from '@/api/subscribe/subscribe'
+import { selfGetSub, selfCreateSub, selfDeleteSub, selfUpdateSub, selfBatchUpdateStatus } from '@/api/subscribe/subscribe'
 
 const router = useRouter()
 
@@ -216,7 +229,8 @@ const getTableData = async () => {
             tableData.value = response.data.list.map(item => ({
                 ...item,
                 id: item.ID,
-                isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.ID)
+                isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.ID),
+                status: item.status // 使用API返回的status
             }))
             total.value = response.data.total
         } else {
@@ -227,6 +241,46 @@ const getTableData = async () => {
         ElMessage.error('获取数据出错')
     } finally {
         loading.value = false
+    }
+}
+
+const handleResetStatus = async (row) => {
+    if (row.status === 0) {
+        ElMessage.info('该订阅状态正常，无需重置')
+        return
+    }
+    try {
+        const response = await selfBatchUpdateStatus({ IDs: [row.id] })
+        if (response.code === 0) {
+            ElMessage.success('状态重置成功')
+            row.status = 0
+        } else {
+            ElMessage.error(response.message || '状态重置失败')
+        }
+    } catch (error) {
+        console.error('状态重置出错:', error)
+        ElMessage.error('状态重置出错')
+    }
+}
+
+const handleBatchResetStatus = async () => {
+    const frozenProducts = selectedProducts.value.filter(product => product.status === 1)
+    if (frozenProducts.length === 0) {
+        ElMessage.info('没有需要重置的订阅')
+        return
+    }
+    try {
+        const IDs = frozenProducts.map(product => product.id)
+        const response = await selfBatchUpdateStatus({ IDs })
+        if (response.code === 0) {
+            ElMessage.success('批量重置状态成功')
+            frozenProducts.forEach(product => product.status = 0)
+        } else {
+            ElMessage.error(response.message || '批量重置状态失败')
+        }
+    } catch (error) {
+        console.error('批量重置状态出错:', error)
+        ElMessage.error('批量重置状态出错')
     }
 }
 
