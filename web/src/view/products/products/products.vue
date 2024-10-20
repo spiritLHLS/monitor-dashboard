@@ -493,12 +493,20 @@ const formData = ref({
   messageId: '',
   pushIntervals: 0,
   pushTime: new Date(),
-  createdBy: undefined,
-  updatedBy: undefined,
-  deletedBy: undefined,
+  createdBy: null,      // 修改为 null 或 0
+  updatedBy: null,      // 修改为 null 或 0
+  deletedBy: null,      // 修改为 null 或 0
 })
 
-
+if (typeof formData.value.createdBy === 'string') {
+  formData.value.createdBy = parseInt(formData.value.createdBy, 10);
+}
+if (typeof formData.value.updatedBy === 'string') {
+  formData.value.updatedBy = parseInt(formData.value.updatedBy, 10);
+}
+if (typeof formData.value.deletedBy === 'string') {
+  formData.value.deletedBy = parseInt(formData.value.deletedBy, 10);
+}
 
 // 验证规则
 const rule = reactive({
@@ -764,9 +772,9 @@ const closeDialog = () => {
     messageId: '',
     pushIntervals: 0,
     pushTime: new Date(),
-    createdBy: '',
-    updatedBy: '',
-    deletedBy: '',
+    createdBy: null,      // 修改为 null 或 0
+    updatedBy: null,      // 修改为 null 或 0
+    deletedBy: null,      // 修改为 null 或 0
   }
 }
 // 弹窗确定
