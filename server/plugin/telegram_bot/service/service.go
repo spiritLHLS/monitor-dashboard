@@ -38,6 +38,7 @@ func (e *TelegramBotService) SendTgMessage(tokens, chatId, content, messageType 
 		switch messageType {
 		case "html":
 			parseMode = telebot.ModeHTML
+			content = strings.ReplaceAll(content, "<br>", "\n")
 		case "markdown":
 			parseMode = telebot.ModeMarkdown
 		default:
@@ -46,7 +47,7 @@ func (e *TelegramBotService) SendTgMessage(tokens, chatId, content, messageType 
 		msg, merr := bot.Send(&telebot.Chat{ID: chatID}, content, &telebot.SendOptions{ParseMode: parseMode}, telebot.NoPreview)
 		if merr != nil {
 			// 发送失败
-			if strings.Contains(merr.Error(), "chat not found") {
+			if strings.Contains(merr.Error(), "chat not found") && strings.Contains(strings.ToLower(content), "code") {
 				lastError = errors.New("请先打开 https://t.me/ecs_register_bot 私聊后再进行注册，否则收不到验证码")
 			} else {
 				lastError = errors.New(fmt.Sprintf("bot send message failed from token%d: %s", index, merr.Error()))
