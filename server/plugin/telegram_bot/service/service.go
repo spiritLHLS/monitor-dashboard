@@ -94,6 +94,8 @@ func (e *TelegramBotService) EditTgMessage(tokens, chatId, messageId, content, m
 		switch messageType {
 		case "html":
 			parseMode = telebot.ModeHTML
+			content = strings.ReplaceAll(content, "<br>", "")
+			content = strings.ReplaceAll(content, "<\\br>", "\n")
 		case "markdown":
 			parseMode = telebot.ModeMarkdown
 		default:
