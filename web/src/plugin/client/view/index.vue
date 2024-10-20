@@ -137,7 +137,7 @@ import { useUserStore } from "@/pinia/modules/user";
 import { useRouterStore } from "@/pinia/modules/router";
 import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
-const activeCollapse = ref(['0'])
+const activeCollapse = ref(['1'])
 const announcement = ref({})
 const isFetching = ref(false)
 const error = ref(null)

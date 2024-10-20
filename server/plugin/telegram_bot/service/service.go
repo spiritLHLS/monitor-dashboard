@@ -43,10 +43,14 @@ func (e *TelegramBotService) SendTgMessage(tokens, chatId, content, messageType 
 		default:
 			parseMode = ""
 		}
-		msg, err := bot.Send(&telebot.Chat{ID: chatID}, content, &telebot.SendOptions{ParseMode: parseMode}, telebot.NoPreview)
-		if err != nil {
+		msg, merr := bot.Send(&telebot.Chat{ID: chatID}, content, &telebot.SendOptions{ParseMode: parseMode}, telebot.NoPreview)
+		if merr != nil {
 			// 发送失败
-			lastError = errors.New(fmt.Sprintf("bot send message failed for token%d: %v", index, err))
+			if strings.Contains(merr.Error(), "chat not found") {
+				lastError = errors.New("请先打开 https://t.me/ecs_register_bot 私聊后再进行注册，否则收不到验证码")
+			} else {
+				lastError = errors.New(fmt.Sprintf("bot send message failed from token%d: %s", index, merr.Error()))
+			}
 			continue
 		}
 		// 发送成功
