@@ -1,3 +1,7 @@
+# 展示图
+
+https://github.com/spiritLHLS/monitor-dashboard/blob/master/%E5%B1%95%E7%A4%BA.md
+
 # 环境
 
 go: 1.22.7
