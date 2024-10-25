@@ -7,7 +7,7 @@ import 'nprogress/nprogress.css'
 Nprogress.configure({ showSpinner: false, ease: 'ease', speed: 500 })
 
 // 这里仅列入无需登录就能访问的页面路由 对应 src\router\index.js 的内容
-const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About', 'Redirect']
+const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About', 'Redirect']]
 
 const getRouter = async(userStore) => {
   const routerStore = useRouterStore()
@@ -92,7 +92,7 @@ router.beforeEach(async(to, from) => {
       if(sessionStorage.getItem("needToHome") === 'true') {
         sessionStorage.removeItem("needToHome")
         return { path: '/'}
-      }
+      } 
       // 添加flag防止多次获取动态路由和栈溢出
       if (!routerStore.asyncRouterFlag && whiteList.indexOf(from.name) < 0) {
         await getRouter(userStore)

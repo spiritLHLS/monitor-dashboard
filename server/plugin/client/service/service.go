@@ -112,7 +112,9 @@ func (e *RegisterService) commonRegisterLogic(register model.RegisterReq) (strin
 	euser.Username = register.Username
 	euser.Password = utils.BcryptHash(register.Password)
 	euser.Nickname = register.Username + " 订阅用户"
-	euser.TGID = register.Tgid
+	if register.Tgid != "" {
+		euser.TGID = register.Tgid
+	}
 	euser.AuthorityID = model.ConfigAuthorityId
 	// 创建用户的订阅账户
 	if err := eusrService.CreateEcsUsers(euser); err != nil {
