@@ -446,6 +446,8 @@ defineExpose({
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  max-height: 100vh; /* 限制最大高度为视窗高度 */
+  overflow-y: auto; /* 启用垂直滚动 */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background-color: #f0f6f0;
   color: #2c3e50;

@@ -7,7 +7,7 @@ import 'nprogress/nprogress.css'
 Nprogress.configure({ showSpinner: false, ease: 'ease', speed: 500 })
 
 // 这里仅列入无需登录就能访问的页面路由 对应 src\router\index.js 的内容
-const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About', 'Redirect']]
+const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About', 'Redirect']
 
 const getRouter = async(userStore) => {
   const routerStore = useRouterStore()
