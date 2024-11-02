@@ -32,33 +32,43 @@
             </el-collapse-item>
         </el-collapse>
         <div class="content-wrapper">
-            <aside class="sidebar">
-                <h1 class="site-title">全球VPS余量监控</h1>
-                <el-form @submit.prevent="handleSearch" class="search-form">
-                    <el-input v-for="(field, key) in searchFields" :key="key" v-model="searchInfo[key]"
-                        :placeholder="field.placeholder" class="search-input">
-                        <template #prefix>
-                            <el-icon>
-                                <Search />
-                            </el-icon>
-                        </template>
-                    </el-input>
-                    <div class="stock-toggle">
-                        <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
-                            @click="displayMode = 'all'">显示所有</span>
-                        <span :class="['toggle-option', { 'active': displayMode === 'inStock' }]"
-                            @click="displayMode = 'inStock'">只显示有库存</span>
-                        <span :class="['toggle-option', { 'active': displayMode === 'dedicatedOnly' }]"
-                            @click="displayMode = 'dedicatedOnly'">仅独立服务器</span>
-                    </div>
-                    <div class="button-group">
-                        <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
-                        <el-button type="primary" plain @click="handleReset" class="reset-button">重置</el-button>
-                    </div>
-                </el-form>
+            <aside :class="['sidebar', { 'collapsed': isCollapsed }]">
+                <div class="sidebar-content" v-show="!isCollapsed">
+                    <h1 class="site-title">全球VPS余量监控</h1>
+                    <el-form @submit.prevent="handleSearch" class="search-form">
+                        <el-input v-for="(field, key) in searchFields" :key="key" v-model="searchInfo[key]"
+                            :placeholder="field.placeholder" class="search-input">
+                            <template #prefix>
+                                <el-icon>
+                                    <Search />
+                                </el-icon>
+                            </template>
+                        </el-input>
+                        <div class="stock-toggle">
+                            <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
+                                @click="displayMode = 'all'">显示所有</span>
+                            <span :class="['toggle-option', { 'active': displayMode === 'inStock' }]"
+                                @click="displayMode = 'inStock'">只显示有库存</span>
+                            <span :class="['toggle-option', { 'active': displayMode === 'dedicatedOnly' }]"
+                                @click="displayMode = 'dedicatedOnly'">仅独立服务器</span>
+                        </div>
+                        <div class="button-group">
+                            <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
+                            <el-button type="primary" plain @click="handleReset" class="reset-button">重置</el-button>
+                        </div>
+                    </el-form>
+                </div>
             </aside>
+            
+            <div class="toggle-container">
+                <div class="sidebar-toggle" @click="toggleSidebar">
+                    <el-icon>
+                        <component :is="isCollapsed ? 'ArrowRight' : 'ArrowLeft'" />
+                    </el-icon>
+                </div>
+            </div>
 
-            <main class="main-content">
+            <main :class="['main-content', { 'expanded': isCollapsed }]">
                 <el-card class="table-card">
                     <el-table v-loading="loading" :data="tableData" style="width: 100%"
                         :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange">
@@ -95,15 +105,20 @@
     </div>
 </template>
 
+
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Search, InfoFilled } from '@element-plus/icons-vue'
+import { Search, InfoFilled, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { getProductsPublic } from '@/api/products/products'
 import { useRouter } from 'vue-router'
 import { handleRedirect } from '@/plugin/cryptourl/api/encryptedlink'
 import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
+const isCollapsed = ref(false)
+const toggleSidebar = () => {
+    isCollapsed.value = !isCollapsed.value
+}
 const activeCollapse = ref(['1'])
 const announcement = ref({})
 const isFetching = ref(false)
@@ -352,14 +367,68 @@ onMounted(() => {
     display: flex;
     flex: 1;
     overflow: hidden;
+    position: relative;  /* 添加相对定位 */
 }
 
 .sidebar {
+    position: relative;
+    transition: width 0.3s ease;
     width: 280px;
     background-color: #ffffff;
     padding: 20px;
     overflow-y: auto;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    z-index: 1;  /* 确保侧边栏在按钮下面 */
+}
+
+.sidebar.collapsed {
+    width: 40px;
+    padding: 20px 0;
+}
+
+/* 新增切换按钮容器样式 */
+.toggle-container {
+    position: absolute;
+    left: 280px;  /* 与侧边栏宽度相同 */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;  /* 确保按钮在最上层 */
+    transition: left 0.3s ease;
+}
+
+.sidebar.collapsed + .toggle-container {
+    left: 40px;  /* 收起时的位置 */
+}
+
+.sidebar-toggle {
+    width: 20px;
+    height: 40px;
+    background-color: #42b883;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background-color: #33a06f;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    padding-left: 40px;  /* 为切换按钮留出空间 */
+    overflow-y: auto;
+    background-color: #f0f6f0;
+    margin-left: 0;  /* 移除原有的负边距 */
+    transition: padding-left 0.3s ease;
+}
+
+.main-content.expanded {
+    padding-left: 60px;  /* 收起时增加左边距 */
 }
 
 .site-title {
