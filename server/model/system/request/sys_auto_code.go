@@ -46,11 +46,12 @@ type AutoCode struct {
 }
 
 type DataSource struct {
-	DBName      string `json:"dbName"`
-	Table       string `json:"table"`
-	Label       string `json:"label"`
-	Value       string `json:"value"`
-	Association int    `json:"association"` // 关联关系 1 一对一 2 一对多
+	DBName       string `json:"dbName"`
+	Table        string `json:"table"`
+	Label        string `json:"label"`
+	Value        string `json:"value"`
+	Association  int    `json:"association"` // 关联关系 1 一对一 2 一对多
+	HasDeletedAt bool   `json:"hasDeletedAt"`
 }
 
 func (r *AutoCode) Apis() []model.SysApi {
@@ -186,6 +187,11 @@ func (r *AutoCode) Pretreatment() error {
 			}
 		}
 	} // GvaModel
+	{
+		if r.IsAdd && r.PrimaryField == nil {
+			r.PrimaryField = new(AutoCodeField)
+		}
+	} // 新增字段模式下不关注主键
 	if r.Package == "" {
 		return errors.New("Package为空!")
 	} // 增加判断：Package不为空
