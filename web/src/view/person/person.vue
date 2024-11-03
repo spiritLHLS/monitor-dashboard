@@ -3,7 +3,7 @@
     <!-- 头部导航栏 -->
     <header class="top-bar">
       <div class="left-section">
-        <img src="https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png" alt="Logo" class="logo">
+        <img src="~@/assets/logo.png" alt="Logo" class="logo">
         <nav class="nav-links">
           <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
           <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
