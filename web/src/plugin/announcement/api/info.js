@@ -106,7 +106,7 @@ export const getInfoList = (params) => {
 export const getInfoDataSource = () => {
   return service({
     url: '/info/getInfoDataSource',
-    method: 'get',
+    method: 'get'
   })
 }
 
