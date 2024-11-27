@@ -78,6 +78,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/elastic/go-sysinfo v1.14.2 // indirect
 	github.com/elastic/go-windows v1.0.2 // indirect
+	github.com/elazarl/goproxy v0.0.0-20240909085733-6741dbfc16a1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.6 // indirect
 	github.com/gammazero/toposort v0.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -126,9 +127,11 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
+	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/mozillazg/go-httpheader v0.4.0 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/nwaples/rardecode/v2 v2.0.0-beta.3 // indirect
+	github.com/parnurzeal/gorequest v0.3.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect

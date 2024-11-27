@@ -229,3 +229,5 @@ func (pcApi *PusherConfigApi) ControlTelegramBotPushStatus(c *gin.Context) {
 	}
 	response.OkWithDetailed(config.EnabelTelegramBotPush, "修改成功", c)
 }
+
+// TODO EnableEmailPush 获取状态和修改状态

@@ -724,7 +724,6 @@ const updateProductsFunc = async (row) => {
   }
 }
 
-
 // 删除行
 const deleteProductsFunc = async (row) => {
   const res = await deleteProducts({ ID: row.ID })
