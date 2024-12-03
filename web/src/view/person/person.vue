@@ -1,3 +1,4 @@
+<!-- 完整的 Vue 单文件组件代码 -->
 <template>
   <div class="user-dashboard">
     <!-- 头部导航栏 -->
@@ -42,12 +43,8 @@
             </div>
             <h2 class="user-name">{{ userInfo.nickname }}</h2>
             <ul class="user-details">
-              <li><el-icon>
-                  <user />
-                </el-icon>{{ userInfo.nickname }}</li>
-              <li><el-icon>
-                  <message />
-                </el-icon>{{ userInfo.email }}</li>
+              <li><el-icon><user /></el-icon>{{ userInfo.nickname }}</li>
+              <li><el-icon><message /></el-icon>{{ userInfo.email }}</li>
               <li><el-icon><chat-dot-round /></el-icon>{{ userInfo.tgID }}</li>
             </ul>
           </div>
@@ -58,7 +55,12 @@
           <el-card class="info-card">
             <el-tabs v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="账号信息" name="info">
-                <el-form :model="userInfo" label-width="100px">
+                <el-form 
+                  :model="userInfo" 
+                  :rules="rules" 
+                  ref="formRef" 
+                  label-width="100px"
+                >
                   <el-form-item label="昵称">
                     <el-input v-model="userInfo.nickname" />
                   </el-form-item>
@@ -68,11 +70,46 @@
                   <el-form-item label="Telegram ID">
                     <el-input v-model="userInfo.tgID" />
                   </el-form-item>
-                  <el-form-item label="新密码">
-                    <el-input v-model="newPassword" type="password" show-password />
+                  <el-form-item label="新密码" prop="newPassword">
+                    <el-input 
+                      v-model="newPassword" 
+                      :type="passwordVisible ? 'text' : 'password'" 
+                      show-password
+                    >
+                      <template #suffix>
+                        <el-icon 
+                          @click="togglePasswordVisibility" 
+                          class="password-toggle-icon"
+                        >
+                          <view v-if="passwordVisible" />
+                          <hide v-else />
+                        </el-icon>
+                      </template>
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="确认新密码" prop="confirmPassword">
+                    <el-input 
+                      v-model="confirmPassword" 
+                      :type="confirmPasswordVisible ? 'text' : 'password'" 
+                      show-password
+                    >
+                      <template #suffix>
+                        <el-icon 
+                          @click="toggleConfirmPasswordVisibility" 
+                          class="password-toggle-icon"
+                        >
+                          <view v-if="confirmPasswordVisible" />
+                          <hide v-else />
+                        </el-icon>
+                      </template>
+                    </el-input>
                   </el-form-item>
                   <el-form-item>
-                    <el-button type="primary" @click="updateUserInfo">保存修改</el-button>
+                    <el-button type="primary" @click="validateAndUpdateUserInfo">保存修改</el-button>
+                  </el-form-item>
+                  <el-form-item label="通知测试">
+                    <el-button type="success" @click="testEmailNotification">测试邮件通知</el-button>
+                    <el-button type="warning" @click="testTelegramNotification">测试Telegram通知</el-button>
                   </el-form-item>
                 </el-form>
               </el-tab-pane>
@@ -88,7 +125,9 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { View, Hide } from '@element-plus/icons-vue'
 import { selfModifyInfo, selfGetUserInfo } from '@/api/ecsusers/ecsusers.js'
+import { CheckEmail, CheckTgBot } from '@/view/person/person.js'
 import SelectImage from '@/components/selectImage/selectImage.vue'
 import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
@@ -98,6 +137,7 @@ const announcement = ref({ content: '' })
 const isFetching = ref(false)
 const error = ref(null)
 const activeName = ref('info')
+const formRef = ref(null)
 
 const userInfo = reactive({
   uuid: '',
@@ -108,7 +148,77 @@ const userInfo = reactive({
 })
 
 const newPassword = ref('')
+const confirmPassword = ref('')
+const passwordVisible = ref(false)
+const confirmPasswordVisible = ref(false)
 
+// 密码验证规则
+const rules = {
+  newPassword: [
+    { 
+      validator: (rule, value, callback) => {
+        if (value && value.length < 6) {
+          callback(new Error('密码长度不能少于6位'))
+        } else {
+          callback()
+        }
+      }
+    }
+  ],
+  confirmPassword: [
+    { 
+      validator: (rule, value, callback) => {
+        if (newPassword.value && value !== newPassword.value) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      }
+    }
+  ]
+}
+
+// 切换密码可见性
+const togglePasswordVisibility = () => {
+  passwordVisible.value = !passwordVisible.value
+}
+
+const toggleConfirmPasswordVisibility = () => {
+  confirmPasswordVisible.value = !confirmPasswordVisible.value
+}
+
+// 验证并更新用户信息
+const validateAndUpdateUserInfo = async () => {
+  try {
+    await formRef.value.validate()
+
+    const updateData = {
+      uuid: userInfo.uuid,
+      nickname: userInfo.nickname,
+      avatar: userInfo.avatar,
+      tgID: userInfo.tgID,
+      email: userInfo.email,
+    }
+
+    if (newPassword.value) {
+      updateData.password = newPassword.value
+    }
+
+    const res = await selfModifyInfo(updateData)
+    if (res.code === 0) {
+      ElMessage.success('更新信息成功')
+      newPassword.value = ''
+      confirmPassword.value = ''
+    } else {
+      ElMessage.error('更新信息失败')
+    }
+  } catch (error) {
+    console.error('更新用户信息出错:', error)
+    ElMessage.error('请检查表单信息')
+  }
+}
+
+// 获取公告
 const fetchAnnouncement = async () => {
   isFetching.value = true
   error.value = null
@@ -128,40 +238,11 @@ const fetchAnnouncement = async () => {
 }
 
 const updateAvatar = async () => {
-  await updateUserInfo()
+  await validateAndUpdateUserInfo()
 }
 
 const handleClick = (tab, event) => {
   console.log(tab, event)
-}
-
-const updateUserInfo = async () => {
-  try {
-    const updateData = {
-      uuid: userInfo.uuid,
-      nickname: userInfo.nickname,
-      avatar: userInfo.avatar,
-      tgID: userInfo.tgID,
-      email: userInfo.email,
-    }
-
-    if (newPassword.value) {
-      updateData.password = newPassword.value
-    }
-
-    const res = await selfModifyInfo(updateData)
-    if (res.code === 0) {
-      ElMessage.success('更新信息成功')
-      if (newPassword.value) {
-        newPassword.value = ''
-      }
-    } else {
-      ElMessage.error('更新信息失败')
-    }
-  } catch (error) {
-    console.error('更新用户信息出错:', error)
-    ElMessage.error('更新用户信息出错')
-  }
 }
 
 const getUserInfo = async () => {
@@ -175,6 +256,36 @@ const getUserInfo = async () => {
   } catch (error) {
     console.error('获取用户信息出错:', error)
     ElMessage.error('获取用户信息出错')
+  }
+}
+
+// 测试邮件通知
+const testEmailNotification = async () => {
+  try {
+    const res = await CheckEmail()
+    if (res.code === 0) {
+      ElMessage.success('邮件通知测试成功')
+    } else {
+      ElMessage.error('邮件通知测试失败')
+    }
+  } catch (error) {
+    console.error('邮件通知测试出错:', error)
+    ElMessage.error('邮件通知测试出错')
+  }
+}
+
+// 测试Telegram通知
+const testTelegramNotification = async () => {
+  try {
+    const res = await CheckTgBot()
+    if (res.code === 0) {
+      ElMessage.success('Telegram通知测试成功')
+    } else {
+      ElMessage.error('Telegram通知测试失败')
+    }
+  } catch (error) {
+    console.error('Telegram通知测试出错:', error)
+    ElMessage.error('Telegram通知测试出错')
   }
 }
 
@@ -334,6 +445,16 @@ onMounted(() => {
 .announcement-content h3 {
   margin-bottom: 10px;
   color: #42b883;
+}
+
+.password-toggle-icon {
+  cursor: pointer;
+  color: #42b883;
+  margin-left: 10px;
+}
+
+.password-toggle-icon:hover {
+  color: #2c3e50;
 }
 
 @media (max-width: 768px) {

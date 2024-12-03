@@ -13,5 +13,6 @@ func (s *Telegram_botRouter) InitTelegram_botRouter(Router *gin.RouterGroup) {
 	{
 		plugRouter.POST("sendMessage", plugApi.SendMessage)
 		plugRouter.POST("isMember", plugApi.IsMember)
+		plugRouter.POST("checkTgBot", plugApi.CheckTgBot)
 	}
 }
