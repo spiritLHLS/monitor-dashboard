@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	email_response "github.com/flipped-aurora/gin-vue-admin/server/plugin/email/model/response"
@@ -51,4 +52,29 @@ func (s *EmailApi) SendEmail(c *gin.Context) {
 		return
 	}
 	response.OkWithMessage("发送成功", c)
+}
+
+// CheckEmail 检查并发送邮件的接口
+// @Tags      System
+// @Summary   测试邮件推送是否成功
+// @Security  ApiKeyAuth
+// @Produce   application/json
+// @Param     data  body      email_response.Email  true  "发送邮件必须的参数"
+// @Success   200   {string}  string                "{"success":true,"data":{},"msg":"发送成功"}"
+// @Router    /email/checkEmail [post]
+func (s *EmailApi) CheckEmail(c *gin.Context) {
+	clientIP := c.ClientIP()
+	ctx := context.Background()
+	var email email_response.CheckEmail
+	err := c.ShouldBindJSON(&email)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	result := service.ServiceGroupApp.CheckEmailLogic(ctx, clientIP, email)
+	if result.Success {
+		response.OkWithMessage(result.Message, c)
+	} else {
+		response.FailWithMessage(result.Message, c)
+	}
 }

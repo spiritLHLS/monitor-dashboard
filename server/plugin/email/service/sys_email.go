@@ -1,10 +1,20 @@
 package service
 
 import (
+	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
+	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/privmsg"
+	email_response "github.com/flipped-aurora/gin-vue-admin/server/plugin/email/model/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/email/utils"
+	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 	"net/smtp"
+	"strconv"
+	"strings"
+	"time"
 )
 
 // EmailService 邮件服务结构体
@@ -93,4 +103,84 @@ func (e *EmailService) EmailTest() (err error) {
 	body := "这是一封测试邮件"
 	err = utils.EmailTest(subject, body)
 	return err
+}
+
+// CheckEmailLogic 处理邮件检查的业务逻辑
+func (s *EmailService) CheckEmailLogic(ctx context.Context, clientIP string, email email_response.CheckEmail) email_response.EmailCheckResult {
+	// 检查Redis客户端是否初始化
+	if global.GVA_REDIS == nil {
+		global.GVA_LOG.Error("Redis客户端未初始化")
+		return email_response.EmailCheckResult{Success: false, Message: "服务配置错误"}
+	}
+	// 创建跟踪IP邮件测试次数的Redis键
+	rateLimitKey := fmt.Sprintf("email_test_rate_limit:%s", clientIP)
+	// 检查当前尝试次数
+	currentAttempts, err := global.GVA_REDIS.Get(ctx, rateLimitKey).Int()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		global.GVA_LOG.Error("查询Redis出错!", zap.Error(err))
+		return email_response.EmailCheckResult{Success: false, Message: "服务错误", Error: err}
+	}
+	// 如果尝试次数超过3次，返回限流错误
+	if currentAttempts >= 3 {
+		ttl, _ := global.GVA_REDIS.TTL(ctx, rateLimitKey).Result()
+		return email_response.EmailCheckResult{
+			Success: false,
+			Message: fmt.Sprintf("超过测试限制，请在 %d 分钟后重试", int(ttl.Minutes())+1),
+		}
+	}
+	// 获取邮件推送配置
+	var pushers []privmsg.PusherConfig
+	err = global.GVA_DB.Where("push_type = ?", "email").Find(&pushers).Error
+	if err != nil {
+		global.GVA_LOG.Error("查询配置时出错!", zap.Error(err))
+		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错", Error: err}
+	}
+	// 发送邮件
+	var emailSent bool
+	for _, pusher := range pushers {
+		// 配置值格式：域名地址:端口:发件邮件:密码
+		values := strings.Split(pusher.ConfigValue, ":")
+		if len(values) < 4 {
+			global.GVA_LOG.Error("邮件配置格式错误")
+			continue
+		}
+		smtpHost, smtpPortString, from, password := values[0], values[1], values[2], values[3]
+		smtpPort, err := strconv.Atoi(smtpPortString)
+		if err != nil {
+			global.GVA_LOG.Error("smtp端口转换失败", zap.Error(err))
+			continue
+		}
+		err = s.SendEmailWithSMTPDetails(
+			smtpHost,
+			smtpPort,
+			from,
+			password,
+			email.To,
+			"订阅成功",
+			"恭喜你订阅成功，本邮件无需回复。",
+		)
+		if err != nil {
+			global.GVA_LOG.Error("发送邮件失败!", zap.Error(err))
+			continue
+		}
+		emailSent = true
+		break
+	}
+	// 如果没有成功发送邮件
+	if !emailSent {
+		return email_response.EmailCheckResult{Success: false, Message: "邮件发送失败，请检查配置"}
+	}
+	// 在Redis中增加尝试次数
+	err = global.GVA_REDIS.Incr(ctx, rateLimitKey).Err()
+	if err != nil {
+		global.GVA_LOG.Error("Redis计数器增加失败!", zap.Error(err))
+	}
+	// 如果是第一次尝试，设置15分钟过期
+	if currentAttempts == 0 {
+		err = global.GVA_REDIS.Expire(ctx, rateLimitKey, 15*time.Minute).Err()
+		if err != nil {
+			global.GVA_LOG.Error("设置Redis过期时间失败!", zap.Error(err))
+		}
+	}
+	return email_response.EmailCheckResult{Success: true, Message: "发送成功"}
 }
