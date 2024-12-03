@@ -5,6 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot/model"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -56,5 +57,27 @@ func (p *Telegram_botApi) IsMember(c *gin.Context) {
 		response.FailWithMessage("检测失败", c)
 	} else {
 		response.OkWithDetailed(res, "检测成功", c)
+	}
+}
+
+// CheckTgBot
+// @Tags Telegram_bot
+// @Summary 检测TG推送是否可用
+// @Security  ApiKeyAuth
+// @Produce  application/json
+// @Param    token user_id channel_id  "查询用户是否为频道用户必须的参数"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"发送成功"}"
+// @Router /telegram_bot/checkTgBot [post]
+func (p *Telegram_botApi) CheckTgBot(c *gin.Context) {
+	clientIP := c.ClientIP()
+	if clientIP == "" {
+		response.FailWithMessage("检测失败，检测不到用户IP", c)
+	}
+	uuid := utils.GetUserUuid(c)
+	result := service.ServiceGroupApp.CheckTgBotWithUUID(clientIP, uuid)
+	if result.Success {
+		response.OkWithMessage(result.Message, c)
+	} else {
+		response.FailWithMessage(result.Message, c)
 	}
 }

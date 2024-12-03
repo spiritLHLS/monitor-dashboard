@@ -12,3 +12,8 @@ type MemberCheck struct {
 	UserId    string `json:"user_id"`    // 需要查询的用户id
 	ChannelID string `json:"channel_id"` // 被查询的频道id，该频道需要已加入bot并给予了管理员权限
 }
+
+type TgBotCheckResult struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}

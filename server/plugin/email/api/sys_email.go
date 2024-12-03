@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	email_response "github.com/flipped-aurora/gin-vue-admin/server/plugin/email/model/response"
@@ -65,9 +64,11 @@ func (s *EmailApi) SendEmail(c *gin.Context) {
 // @Router    /email/checkEmail [post]
 func (s *EmailApi) CheckEmail(c *gin.Context) {
 	clientIP := c.ClientIP()
-	ctx := context.Background()
+	if clientIP == "" {
+		response.FailWithMessage("检测失败，检测不到用户IP", c)
+	}
 	uuid := utils.GetUserUuid(c)
-	result := service.ServiceGroupApp.CheckEmailLogic(ctx, clientIP, uuid)
+	result := service.ServiceGroupApp.CheckEmailLogic(clientIP, uuid)
 	if result.Success {
 		response.OkWithMessage(result.Message, c)
 	} else {

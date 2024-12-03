@@ -7,7 +7,6 @@ type Email struct {
 }
 
 type EmailCheckResult struct {
-	Success bool
-	Message string
-	Error   error
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }

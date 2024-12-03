@@ -108,7 +108,7 @@ func (e *EmailService) EmailTest() (err error) {
 }
 
 // CheckEmailLogic 处理邮件检查的业务逻辑
-func (s *EmailService) CheckEmailLogic(ctx context.Context, clientIP string, uuid uuid.UUID) email_response.EmailCheckResult {
+func (s *EmailService) CheckEmailLogic(clientIP string, uuid uuid.UUID) email_response.EmailCheckResult {
 	// 检查Redis客户端是否初始化
 	if global.GVA_REDIS == nil {
 		global.GVA_LOG.Error("Redis客户端未初始化")
@@ -117,10 +117,11 @@ func (s *EmailService) CheckEmailLogic(ctx context.Context, clientIP string, uui
 	// 创建跟踪IP邮件测试次数的Redis键
 	rateLimitKey := fmt.Sprintf("email_test_rate_limit:%s", clientIP)
 	// 检查当前尝试次数
+	ctx := context.Background()
 	currentAttempts, err := global.GVA_REDIS.Get(ctx, rateLimitKey).Int()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		global.GVA_LOG.Error("查询Redis出错!", zap.Error(err))
-		return email_response.EmailCheckResult{Success: false, Message: "服务错误", Error: err}
+		return email_response.EmailCheckResult{Success: false, Message: "服务错误"}
 	}
 	// 如果尝试次数超过3次，返回限流错误
 	if currentAttempts >= 3 {
@@ -135,26 +136,23 @@ func (s *EmailService) CheckEmailLogic(ctx context.Context, clientIP string, uui
 	err = global.GVA_DB.Where("push_type = ?", "email").Find(&pushers).Error
 	if err != nil {
 		global.GVA_LOG.Error("查询配置时出错!", zap.Error(err))
-		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错", Error: err}
+		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错"}
 	}
 	// 发送邮件
-	var emailSent bool
 	var users []ecsusers.EcsUsers
 	dbErr := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid == ?", uuid.String()).Find(users)
 	if dbErr != nil {
 		global.GVA_LOG.Error("查询配置时出错!", zap.Error(err))
-		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错",
-			Error: errors.New("查询数据库出错，数据库报错")}
+		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错"}
 	}
 	if len(users) == 0 {
-		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错",
-			Error: errors.New("查询数据库出错，查无此用户")}
+		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错"}
 	}
 	email := users[0].Email
 	if email == "" {
-		return email_response.EmailCheckResult{Success: false, Message: "用户未配置Email，无法发信",
-			Error: errors.New("用户未配置Email，无法发信")}
+		return email_response.EmailCheckResult{Success: false, Message: "用户未配置Email，无法发信"}
 	}
+	var emailSent bool
 	for _, pusher := range pushers {
 		// 配置值格式：域名地址:端口:发件邮件:密码
 		values := strings.Split(pusher.ConfigValue, ":")
