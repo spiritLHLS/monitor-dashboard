@@ -266,3 +266,32 @@ export const controlTGLogin = (data) => {
         data
     })
 }
+
+// GetEmailPushStatus 获取邮件推送状态
+// @Tags PusherConfig
+// @Summary 获取邮件推送状态
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /pc/getEmailPushStatus [GET]
+export const getEmailPushStatus = () => {
+    return service({
+        url: '/pc/getEmailPushStatus',
+        method: 'GET'
+    })
+}
+
+// ControlEmailPushStatus 控制启用关闭邮件推送
+// @Tags PusherConfig
+// @Summary 控制启用关闭邮件推送
+// @accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /pc/controlEmailPushStatus [POST]
+export const controlEmailPushStatus = (data) => {
+    return service({
+        url: '/pc/controlEmailPushStatus',
+        method: 'POST',
+        data
+    })
+}

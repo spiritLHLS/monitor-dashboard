@@ -230,4 +230,33 @@ func (pcApi *PusherConfigApi) ControlTelegramBotPushStatus(c *gin.Context) {
 	response.OkWithDetailed(config.EnabelTelegramBotPush, "修改成功", c)
 }
 
-// TODO EnableEmailPush 获取状态和修改状态
+// GetEmailPushStatus 获取邮件推送状态
+// @Tags PusherConfig
+// @Summary 获取邮件推送状态
+// @accept application/json
+// @Produce application/json
+// @Param data query privmsgReq.PusherConfigSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /pc/getEmailPushStatus [GET]
+func (pcApi *PusherConfigApi) GetEmailPushStatus(c *gin.Context) {
+	response.OkWithDetailed(config.EnableEmailPush, "查询成功", c)
+}
+
+// ControlEmailPushStatus 控制启用关闭邮件推送
+// @Tags PusherConfig
+// @Summary 控制启用关闭邮件推送
+// @accept application/json
+// @Produce application/json
+// @Param data query privmsgReq.PusherConfigSearch true "成功"
+// @Success 200 {object} response.Response{data=object,msg=string} "成功"
+// @Router /pc/controlEmailPushStatus [POST]
+func (pcApi *PusherConfigApi) ControlEmailPushStatus(c *gin.Context) {
+	var control config.EmailPushControl
+	if err := c.ShouldBindJSON(&control); err != nil {
+		response.FailWithMessage("修改失败", c)
+	}
+	if config.EnableEmailPush != control.EnableEmailPush {
+		config.EnableEmailPush = control.EnableEmailPush
+	}
+	response.OkWithDetailed(config.EnableEmailPush, "修改成功", c)
+}

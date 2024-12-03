@@ -20,6 +20,10 @@ type EmailService struct{}
 // - subject: 邮件主题
 // - body: 邮件正文
 func (e *EmailService) SendEmailWithSMTPDetails(smtpHost string, smtpPort int, from, password string, to string, subject, body string) error {
+	if smtpHost == "" || smtpPort == 0 || from == "" || password == "" {
+		err := utils.Email(to, subject, body)
+		return err
+	}
 	// 构建SMTP服务器地址
 	smtpServerAddr := fmt.Sprintf("%s:%d", smtpHost, smtpPort)
 	// 创建SMTP认证

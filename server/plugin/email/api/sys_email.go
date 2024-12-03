@@ -43,7 +43,8 @@ func (s *EmailApi) SendEmail(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	err = service.ServiceGroupApp.SendEmail(email.To, email.Subject, email.Body)
+	err = service.ServiceGroupApp.SendEmailWithSMTPDetails("", 0, "", "",
+		email.To, email.Subject, email.Body)
 	if err != nil {
 		global.GVA_LOG.Error("发送失败!", zap.Error(err))
 		response.FailWithMessage("发送失败", c)

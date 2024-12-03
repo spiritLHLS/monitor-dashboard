@@ -28,7 +28,9 @@ import {
   controlFAProductsCheck, getFAProductsCheckStatus, getPublicRegisterStatus, controlPublicRegister,
   getPublicPushStatus, controlPublicPushStatus, getTelegramBotPushStatus, controlTelegramBotPushStatus,
   getPublicInviteStatus, controlPublicInvite, getTGRegisterStatus, controlTGRegister,
-  getTGLoginStatus, controlTGLogin
+  getTGLoginStatus, controlTGLogin, 
+  // Import the new email push functions
+  getEmailPushStatus, controlEmailPushStatus
 } from '@/view/controlarea/control.js'
 
 const controls = reactive({
@@ -40,7 +42,9 @@ const controls = reactive({
   tgBot: { status: false, label: 'TGBot推送', getStatus: getTelegramBotPushStatus, controlFunc: controlTelegramBotPushStatus, controlKey: 'enable_tg_bot_push' },
   inviteCode: { status: false, label: '邀请码注册', getStatus: getPublicInviteStatus, controlFunc: controlPublicInvite, controlKey: 'enable_public_invite' },
   tgRegister: { status: false, label: '校验TG注册', getStatus: getTGRegisterStatus, controlFunc: controlTGRegister, controlKey: 'enable_tg_register' },
-  tgLogin: { status: false, label: '校验TG登录', getStatus: getTGLoginStatus, controlFunc: controlTGLogin, controlKey: 'enable_tg_login' }
+  tgLogin: { status: false, label: '校验TG登录', getStatus: getTGLoginStatus, controlFunc: controlTGLogin, controlKey: 'enable_tg_login' },
+  // Add the new email push control
+  emailPush: { status: false, label: '邮件推送', getStatus: getEmailPushStatus, controlFunc: controlEmailPushStatus, controlKey: 'enable_email_push' }
 })
 
 const leftControls = computed(() => {

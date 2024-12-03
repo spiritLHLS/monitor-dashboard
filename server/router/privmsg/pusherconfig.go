@@ -21,6 +21,8 @@ func (s *PusherConfigRouter) InitPusherConfigRouter(Router *gin.RouterGroup, Pub
 		pcRouter.POST("controlPublicPushStatus", pcApi.ControlPublicPushStatus)
 		pcRouter.GET("getTelegramBotPushStatus", pcApi.GetTelegramBotPushStatus)
 		pcRouter.POST("controlTelegramBotPushStatus", pcApi.ControlTelegramBotPushStatus)
+		pcRouter.GET("getEmailPushStatus", pcApi.GetEmailPushStatus)
+		pcRouter.POST("controlEmailPushStatus", pcApi.ControlEmailPushStatus)
 	}
 	{
 		pcRouterWithoutRecord.GET("findPusherConfig", pcApi.FindPusherConfig)
