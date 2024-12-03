@@ -13,6 +13,7 @@ import (
 	"github.com/gofrs/uuid/v5"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"net/smtp"
 	"strconv"
 	"strings"
@@ -139,17 +140,17 @@ func (s *EmailService) CheckEmailLogic(clientIP string, uuid uuid.UUID) email_re
 		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错"}
 	}
 	// 发送邮件
-	var users []ecsusers.EcsUsers
-	dbErr := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", uuid.String()).Find(&users)
-	if dbErr.Error != nil {
-		global.GVA_LOG.Error("查询配置时出错!", zap.Error(dbErr.Error))
+	var user ecsusers.EcsUsers
+	result := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", uuid.String()).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			global.GVA_LOG.Error("未找到对应的用户", zap.String("uuid", uuid.String()))
+			return email_response.EmailCheckResult{Success: false, Message: "未找到对应的用户"}
+		}
+		global.GVA_LOG.Error("查询配置时出错!", zap.Error(result.Error))
 		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错"}
 	}
-	if len(users) == 0 {
-		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错"}
-	}
-	email := users[0].Email
-	if email == "" {
+	if user.Email == "" {
 		return email_response.EmailCheckResult{Success: false, Message: "用户未配置Email，无法发信"}
 	}
 	var emailSent bool
@@ -171,7 +172,7 @@ func (s *EmailService) CheckEmailLogic(clientIP string, uuid uuid.UUID) email_re
 			smtpPort,
 			from,
 			password,
-			email,
+			user.Email,
 			"订阅成功",
 			"恭喜你订阅成功，本邮件无需回复。",
 		)

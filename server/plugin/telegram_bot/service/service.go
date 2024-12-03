@@ -12,6 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"gopkg.in/telebot.v3"
+	"gorm.io/gorm"
 	"strconv"
 	"strings"
 	"time"
@@ -200,17 +201,17 @@ func (e *TelegramBotService) CheckTgBotWithUUID(clientIP string, uuid uuid.UUID)
 		return model.TgBotCheckResult{Success: false, Message: "push_type查询配置时出错"}
 	}
 	// 获取用户信息
-	var users []ecsusers.EcsUsers
-	dbErr := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", uuid.String()).Find(&users)
-	if dbErr != nil {
-		global.GVA_LOG.Error("查询配置时出错!", zap.Error(err))
-		return model.TgBotCheckResult{Success: false, Message: "查询配置时出错"}
+	var user ecsusers.EcsUsers
+	result := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", uuid.String()).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			global.GVA_LOG.Error("未找到对应的用户", zap.String("uuid", uuid.String()))
+			return model.TgBotCheckResult{Success: false, Message: "未找到对应的用户"}
+		}
+		global.GVA_LOG.Error("uuid查询配置时出错!", zap.Error(result.Error))
+		return model.TgBotCheckResult{Success: false, Message: fmt.Sprintf("查询配置时出错 %v", result.Error)}
 	}
-	if len(users) == 0 {
-		return model.TgBotCheckResult{Success: false, Message: "查询配置时出错，查找到的用户数量为0"}
-	}
-	TGID := users[0].TGID
-	if TGID == "" {
+	if user.TGID == "" {
 		return model.TgBotCheckResult{Success: false, Message: "用户未配置TGID，无法发信"}
 	}
 	var tgBotSent bool
@@ -220,13 +221,20 @@ func (e *TelegramBotService) CheckTgBotWithUUID(clientIP string, uuid uuid.UUID)
 			global.GVA_LOG.Error("Telegram Bot配置格式错误")
 			continue
 		}
-		_, err := e.SendTgMessage(tokens[0], TGID, "订阅成功，恭喜你订阅成功，本消息无需回复。", "html")
-		if err != nil {
-			global.GVA_LOG.Error("发送Telegram消息失败!", zap.Error(err))
-			continue
+		// 遍历每个token
+		for _, token := range tokens {
+			_, err := e.SendTgMessage(token, user.TGID, "订阅成功，恭喜你订阅成功，本消息无需回复。", "html")
+			if err != nil {
+				global.GVA_LOG.Error("发送Telegram消息失败!", zap.Error(err), zap.String("token", token))
+				continue
+			}
+			tgBotSent = true
+			break
 		}
-		tgBotSent = true
-		break
+		// 如果成功发送，停止遍历pushers
+		if tgBotSent {
+			break
+		}
 	}
 	// 如果没有成功发送消息
 	if !tgBotSent {
