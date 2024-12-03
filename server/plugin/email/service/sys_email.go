@@ -140,9 +140,9 @@ func (s *EmailService) CheckEmailLogic(clientIP string, uuid uuid.UUID) email_re
 	}
 	// 发送邮件
 	var users []ecsusers.EcsUsers
-	dbErr := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid == ?", uuid.String()).Find(users)
-	if dbErr != nil {
-		global.GVA_LOG.Error("查询配置时出错!", zap.Error(err))
+	dbErr := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", uuid.String()).Find(&users)
+	if dbErr.Error != nil {
+		global.GVA_LOG.Error("查询配置时出错!", zap.Error(dbErr.Error))
 		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错"}
 	}
 	if len(users) == 0 {

@@ -49,6 +49,7 @@
         "vue-codemirror": "^6.1.1",
         "vue-echarts": "^7.0.3",
         "vue-router": "^4.4.3",
+        "vue3-ace-editor": "^2.2.4",
         "vuedraggable": "^4.1.0"
     },
     "devDependencies": {

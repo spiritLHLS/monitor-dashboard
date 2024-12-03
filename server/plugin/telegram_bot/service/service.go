@@ -197,17 +197,17 @@ func (e *TelegramBotService) CheckTgBotWithUUID(clientIP string, uuid uuid.UUID)
 	err = global.GVA_DB.Where("push_type = ?", "telegram_bot").Find(&pushers).Error
 	if err != nil {
 		global.GVA_LOG.Error("查询配置时出错!", zap.Error(err))
-		return model.TgBotCheckResult{Success: false, Message: "查询配置时出错"}
+		return model.TgBotCheckResult{Success: false, Message: "push_type查询配置时出错"}
 	}
 	// 获取用户信息
 	var users []ecsusers.EcsUsers
-	dbErr := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid == ?", uuid.String()).Find(&users)
+	dbErr := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid = ?", uuid.String()).Find(&users)
 	if dbErr != nil {
 		global.GVA_LOG.Error("查询配置时出错!", zap.Error(err))
 		return model.TgBotCheckResult{Success: false, Message: "查询配置时出错"}
 	}
 	if len(users) == 0 {
-		return model.TgBotCheckResult{Success: false, Message: "查询配置时出错"}
+		return model.TgBotCheckResult{Success: false, Message: "查询配置时出错，查找到的用户数量为0"}
 	}
 	TGID := users[0].TGID
 	if TGID == "" {
