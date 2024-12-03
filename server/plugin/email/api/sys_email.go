@@ -6,6 +6,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	email_response "github.com/flipped-aurora/gin-vue-admin/server/plugin/email/model/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/email/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -65,13 +66,8 @@ func (s *EmailApi) SendEmail(c *gin.Context) {
 func (s *EmailApi) CheckEmail(c *gin.Context) {
 	clientIP := c.ClientIP()
 	ctx := context.Background()
-	var email email_response.CheckEmail
-	err := c.ShouldBindJSON(&email)
-	if err != nil {
-		response.FailWithMessage(err.Error(), c)
-		return
-	}
-	result := service.ServiceGroupApp.CheckEmailLogic(ctx, clientIP, email)
+	uuid := utils.GetUserUuid(c)
+	result := service.ServiceGroupApp.CheckEmailLogic(ctx, clientIP, uuid)
 	if result.Success {
 		response.OkWithMessage(result.Message, c)
 	} else {

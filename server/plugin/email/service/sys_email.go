@@ -6,9 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/privmsg"
 	email_response "github.com/flipped-aurora/gin-vue-admin/server/plugin/email/model/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/plugin/email/utils"
+	"github.com/gofrs/uuid/v5"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"net/smtp"
@@ -106,7 +108,7 @@ func (e *EmailService) EmailTest() (err error) {
 }
 
 // CheckEmailLogic 处理邮件检查的业务逻辑
-func (s *EmailService) CheckEmailLogic(ctx context.Context, clientIP string, email email_response.CheckEmail) email_response.EmailCheckResult {
+func (s *EmailService) CheckEmailLogic(ctx context.Context, clientIP string, uuid uuid.UUID) email_response.EmailCheckResult {
 	// 检查Redis客户端是否初始化
 	if global.GVA_REDIS == nil {
 		global.GVA_LOG.Error("Redis客户端未初始化")
@@ -137,6 +139,22 @@ func (s *EmailService) CheckEmailLogic(ctx context.Context, clientIP string, ema
 	}
 	// 发送邮件
 	var emailSent bool
+	var users []ecsusers.EcsUsers
+	dbErr := global.GVA_DB.Model(&ecsusers.EcsUsers{}).Where("uuid == ?", uuid.String()).Find(users)
+	if dbErr != nil {
+		global.GVA_LOG.Error("查询配置时出错!", zap.Error(err))
+		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错",
+			Error: errors.New("查询数据库出错，数据库报错")}
+	}
+	if len(users) == 0 {
+		return email_response.EmailCheckResult{Success: false, Message: "查询配置时出错",
+			Error: errors.New("查询数据库出错，查无此用户")}
+	}
+	email := users[0].Email
+	if email == "" {
+		return email_response.EmailCheckResult{Success: false, Message: "用户未配置Email，无法发信",
+			Error: errors.New("用户未配置Email，无法发信")}
+	}
 	for _, pusher := range pushers {
 		// 配置值格式：域名地址:端口:发件邮件:密码
 		values := strings.Split(pusher.ConfigValue, ":")
@@ -155,7 +173,7 @@ func (s *EmailService) CheckEmailLogic(ctx context.Context, clientIP string, ema
 			smtpPort,
 			from,
 			password,
-			email.To,
+			email,
 			"订阅成功",
 			"恭喜你订阅成功，本邮件无需回复。",
 		)

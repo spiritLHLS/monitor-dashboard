@@ -6,10 +6,6 @@ type Email struct {
 	Body    string `json:"body"`    // 邮件内容
 }
 
-type CheckEmail struct {
-	To string `json:"to"` // 邮件发送给谁
-}
-
 type EmailCheckResult struct {
 	Success bool
 	Message string
