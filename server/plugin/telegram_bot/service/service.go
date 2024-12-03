@@ -216,25 +216,13 @@ func (e *TelegramBotService) CheckTgBotWithUUID(clientIP string, uuid uuid.UUID)
 	}
 	var tgBotSent bool
 	for _, pusher := range pushers {
-		tokens := strings.Split(pusher.ConfigValue, ":")
-		if len(tokens) == 0 {
-			global.GVA_LOG.Error("Telegram Bot配置格式错误")
+		_, err := e.SendTgMessage(pusher.ConfigValue, user.TGID, "订阅成功，恭喜你订阅成功，本消息无需回复。", "html")
+		if err != nil {
+			global.GVA_LOG.Error("发送Telegram消息失败!", zap.Error(err), zap.String("token", pusher.ConfigValue))
 			continue
 		}
-		// 遍历每个token
-		for _, token := range tokens {
-			_, err := e.SendTgMessage(token, user.TGID, "订阅成功，恭喜你订阅成功，本消息无需回复。", "html")
-			if err != nil {
-				global.GVA_LOG.Error("发送Telegram消息失败!", zap.Error(err), zap.String("token", token))
-				continue
-			}
-			tgBotSent = true
-			break
-		}
-		// 如果成功发送，停止遍历pushers
-		if tgBotSent {
-			break
-		}
+		tgBotSent = true
+		break
 	}
 	// 如果没有成功发送消息
 	if !tgBotSent {
