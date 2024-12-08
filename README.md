@@ -2,6 +2,10 @@
 
 https://github.com/spiritLHLS/monitor-dashboard/blob/master/%E5%B1%95%E7%A4%BA.md
 
+# agent
+
+https://github.com/spiritLHLS/monitor-agent
+
 # 环境
 
 go: 1.22.7
