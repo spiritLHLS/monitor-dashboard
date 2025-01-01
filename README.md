@@ -90,3 +90,37 @@ location /api {
         proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
+
+## 后台挂起执行
+
+```bash
+nano /etc/systemd/system/ecs-spider.service
+```
+
+```ini
+[Unit]
+Description=ECS Spider Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/ecs-spiders/server
+WorkingDirectory=/ecs-spiders
+Restart=always
+User=root
+Group=root
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start ecs-spider.service
+```
+
+```
+sudo systemctl status ecs-spider.service
+```
