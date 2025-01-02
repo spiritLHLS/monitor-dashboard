@@ -124,3 +124,7 @@ sudo systemctl start ecs-spider.service
 ```
 sudo systemctl status ecs-spider.service
 ```
+
+```
+sudo systemctl enable ecs-spider.service
+```
