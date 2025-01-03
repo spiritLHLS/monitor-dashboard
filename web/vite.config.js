@@ -11,7 +11,7 @@ import { svgBuilder } from 'vite-auto-import-svg'
 import { AddSecret } from './vitePlugin/secret'
 // @see https://cn.vitejs.dev/config/
 export default ({ mode }) => {
-  AddSecret("")
+  AddSecret('')
   const NODE_ENV = mode || 'development'
   const envFiles = [`.env.${NODE_ENV}`]
   for (const file of envFiles) {
@@ -20,20 +20,14 @@ export default ({ mode }) => {
       process.env[k] = envConfig[k]
     }
   }
-
   viteLogo(process.env)
-
   const timestamp = Date.parse(new Date())
-
   const optimizeDeps = {}
-
   const alias = {
     '@': path.resolve(__dirname, './src'),
     vue$: 'vue/dist/vue.runtime.esm-bundler.js'
   }
-
   const esbuild = {}
-
   const rollupOptions = {
     output: {
       entryFileNames: 'assets/087AC4D233B64EB0[name].[hash].js',
@@ -41,7 +35,6 @@ export default ({ mode }) => {
       assetFileNames: 'assets/087AC4D233B64EB0[name].[hash].[ext]'
     }
   }
-
   const config = {
     base: '/', // 编译后js导入的资源路径
     root: './', // index.html文件所在位置
@@ -93,7 +86,7 @@ export default ({ mode }) => {
     optimizeDeps,
     plugins: [
       process.env.VITE_POSITION === 'open' &&
-        vueDevTools({ launchEditor: process.env.VITE_EDITOR }),
+      vueDevTools({ launchEditor: process.env.VITE_EDITOR }),
       legacyPlugin({
         targets: [
           'Android > 39',
