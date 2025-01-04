@@ -59,7 +59,6 @@
                     </el-form>
                 </div>
             </aside>
-            
             <div class="toggle-container">
                 <div class="sidebar-toggle" @click="toggleSidebar">
                     <el-icon>
@@ -67,7 +66,6 @@
                     </el-icon>
                 </div>
             </div>
-
             <main :class="['main-content', { 'expanded': isCollapsed }]">
                 <el-card class="table-card">
                     <el-table v-loading="loading" :data="tableData" style="width: 100%"
@@ -92,7 +90,6 @@
                             </template>
                         </el-table-column>
                     </el-table>
-
                     <div class="pagination-wrapper">
                         <el-pagination v-model:current-page="page" v-model:page-size="pageSize"
                             :page-sizes="[10, 20, 50, 100]" :total="total"
@@ -104,7 +101,6 @@
         </div>
     </div>
 </template>
-
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
