@@ -529,7 +529,17 @@ const updateProductsFunc = async (row) => {
   const res = await findProducts({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data
+    // 确保数字类型字段的正确类型
+    const data = {
+      ...res.data,
+      pushIntervals: Number(res.data.pushIntervals),
+      pushStock: Number(res.data.pushStock),
+      oldStock: Number(res.data.oldStock),
+      stock: Number(res.data.stock),
+      intervals: Number(res.data.intervals),
+      multiCheck: Number(res.data.multiCheck)
+    }
+    formData.value = data
     dialogs.form.visible = true
   }
 }
@@ -546,15 +556,25 @@ const enterDialog = async () => {
   elFormRef.value?.validate(async (valid) => {
     if (!valid) return
     let res
+    // 确保数字字段的类型
+    const submitData = {
+      ...formData.value,
+      pushIntervals: Number(formData.value.pushIntervals),
+      pushStock: Number(formData.value.pushStock),
+      oldStock: Number(formData.value.oldStock),
+      stock: Number(formData.value.stock),
+      intervals: Number(formData.value.intervals),
+      multiCheck: Number(formData.value.multiCheck)
+    }
     switch (type.value) {
       case 'create':
-        res = await createProducts(formData.value)
+        res = await createProducts(submitData)
         break
       case 'update':
-        res = await updateProducts(formData.value)
+        res = await updateProducts(submitData)
         break
       default:
-        res = await createProducts(formData.value)
+        res = await createProducts(submitData)
         break
     }
     if (res.code === 0) {
@@ -589,10 +609,20 @@ const confirmBatchEdit = async (field) => {
       // 根据字段类型进行转换
       switch (field) {
         case 'pushStock':
+          updateData[field] = Number(dialog.value) || 0
+          break
         case 'oldStock':
+          updateData[field] = Number(dialog.value) || 0
+          break
         case 'stock':
+          updateData[field] = Number(dialog.value) || 0
+          break
         case 'intervals':
+          updateData[field] = Number(dialog.value) || 66
+          break
         case 'pushIntervals':
+          updateData[field] = Number(dialog.value) || 30
+          break
         case 'multiCheck':
           updateData[field] = Number(dialog.value) || 0
           break
