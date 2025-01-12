@@ -220,7 +220,7 @@ const tableColumns = [
   { prop: 'portSpeed', label: '端口', width: 80 },
   { prop: 'location', label: '地点', width: 80 },
   { prop: 'price', label: '价格', width: 80 },
-  { prop: 'url', label: '链接', width: 90 },
+  { prop: 'url', label: '链接', width: 90, className: 'url-column' }, // 添加特殊的类名
   { prop: 'billingType', label: '爬虫类型', width: 90 },
   { prop: 'pushStock', label: '推送库存', width: 80 },
   { prop: 'oldStock', label: '历史库存', width: 80 },
@@ -268,13 +268,14 @@ const detailFields = tableColumns.map(col => ({
 const batchActions = [
   { label: '改推送库存', icon: 'edit', handler: () => openBatchEdit('pushStock') },
   { label: '改历史库存', icon: 'edit', handler: () => openBatchEdit('oldStock') },
+  { label: '改现有库存', icon: 'edit', handler: () => openBatchEdit('stock') },
   { label: '改爬取间隔', icon: 'edit', handler: () => openBatchEdit('intervals') },
   { label: '改推送间隔', icon: 'edit', handler: () => openBatchEdit('pushIntervals') },
   { label: '改爬虫类型', icon: 'edit', handler: () => openBatchEdit('billingType') },
   { label: '改其他信息', icon: 'edit', handler: () => openBatchEdit('additional') },
   { label: '改TGTAG', icon: 'edit', handler: () => openBatchEdit('tag') },
-  { label: '改MessageID', icon: 'edit', handler: () => openBatchEdit('messageId') },
-  { label: '改重复检测次数', icon: 'edit', handler: () => openBatchEdit('multiCheck') }
+  { label: '改消息ID', icon: 'edit', handler: () => openBatchEdit('messageId') },
+  { label: '改重测次数', icon: 'edit', handler: () => openBatchEdit('multiCheck') }
 ]
 const rules = {
   form: {
@@ -346,6 +347,16 @@ const batchEditDialogs = ref([
     component: 'el-input',
     placeholder: '请输入新的历史库存',
     confirm: () => confirmBatchEdit('oldStock')
+  },
+  {
+    id: 'stock',
+    title: '修改现有库存',
+    label: '新的现有库存',
+    visible: false,
+    value: 0,
+    component: 'el-input',
+    placeholder: '请输入新的现有库存',
+    confirm: () => confirmBatchEdit('stock')
   },
   {
     id: 'intervals',
@@ -670,6 +681,11 @@ getTableData()
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.el-table .url-column .cell {
+  direction: rtl;
+  text-align: left;
 }
 
 .gva-btn-list {
