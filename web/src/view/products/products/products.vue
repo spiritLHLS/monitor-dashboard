@@ -3,10 +3,10 @@
     <div class="gva-search-box">
       <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline" :rules="rules.search"
         @keyup.enter="onSubmit">
-        <el-form-item label="创建日期" prop="createdAt">
+        <el-form-item label="推送日期" prop="pushTime">
           <template #label>
             <span>
-              创建日期
+              推送日期
               <el-tooltip content="搜索范围是开始日期（包含）至结束日期（不包含）">
                 <el-icon>
                   <QuestionFilled />
@@ -14,11 +14,11 @@
               </el-tooltip>
             </span>
           </template>
-          <el-date-picker v-model="searchInfo.startCreatedAt" type="datetime" placeholder="开始日期"
-            :disabled-date="time => searchInfo.endCreatedAt ? time.getTime() > searchInfo.endCreatedAt.getTime() : false" />
+          <el-date-picker v-model="searchInfo.startPushTime" type="datetime" placeholder="开始日期"
+            :disabled-date="time => searchInfo.endPushTime ? time.getTime() > searchInfo.endPushTime.getTime() : false" />
           —
-          <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期"
-            :disabled-date="time => searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false" />
+          <el-date-picker v-model="searchInfo.endPushTime" type="datetime" placeholder="结束日期"
+            :disabled-date="time => searchInfo.startPushTime ? time.getTime() < searchInfo.startPushTime.getTime() : false" />
         </el-form-item>
         <template v-if="showAllQuery">
           <div v-for="(fields, index) in searchFields" :key="index" class="search-row">
@@ -155,8 +155,8 @@ const total = ref(0)
 const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({
-  startCreatedAt: undefined,
-  endCreatedAt: undefined,
+  startPushTime: undefined,
+  endPushTime: undefined,
   tag: '',
   cpu: '',
   memory: '',
@@ -230,8 +230,7 @@ const tableColumns = [
   { prop: 'multiCheck', label: '重复检测', width: 80 },
   { prop: 'messageId', label: '消息编号', width: 80 },
   { prop: 'pushTime', label: '推送时间', width: 180, formatter: formatDate },
-  { prop: 'additional', label: '其他', width: 120 },
-  { prop: 'createdAt', label: '创建日期', width: 160, formatter: formatDate }
+  { prop: 'additional', label: '其他', width: 120 }
 ]
 const formFields = [
   { label: 'TAG:', prop: 'tag', required: true },
@@ -301,15 +300,15 @@ const rules = {
     }]
   },
   search: {
-    createdAt: [{
+    pushTime: [{
       validator: (rule, value, callback) => {
-        if (searchInfo.value.startCreatedAt && !searchInfo.value.endCreatedAt) {
+        if (searchInfo.value.startPushTime && !searchInfo.value.endPushTime) {
           callback(new Error('请填写结束日期'))
-        } else if (!searchInfo.value.startCreatedAt && searchInfo.value.endCreatedAt) {
+        } else if (!searchInfo.value.startPushTime && searchInfo.value.endPushTime) {
           callback(new Error('请填写开始日期'))
-        } else if (searchInfo.value.startCreatedAt && searchInfo.value.endCreatedAt &&
-          (searchInfo.value.startCreatedAt.getTime() === searchInfo.value.endCreatedAt.getTime() ||
-            searchInfo.value.startCreatedAt.getTime() > searchInfo.value.endCreatedAt.getTime())) {
+        } else if (searchInfo.value.startPushTime && searchInfo.value.endPushTime &&
+          (searchInfo.value.startPushTime.getTime() === searchInfo.value.endPushTime.getTime() ||
+            searchInfo.value.startPushTime.getTime() > searchInfo.value.endPushTime.getTime())) {
           callback(new Error('开始日期应当早于结束日期'))
         } else {
           callback()
