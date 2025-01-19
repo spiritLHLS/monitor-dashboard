@@ -167,10 +167,12 @@
           </div>
         </div>
       </template>
-
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
         <el-form-item label="Tag:" prop="tgTag">
           <el-input v-model="formData.tgTag" :clearable="true" placeholder="请输入Tag" />
+        </el-form-item>
+        <el-form-item label="分区名字:" prop="name">
+          <el-input v-model="formData.name" :clearable="true" placeholder="请输入分区名字" />
         </el-form-item>
         <el-form-item label="分区类型:" prop="type">
           <el-select v-model="formData.type" placeholder="请选择分区类型" clearable>
@@ -186,9 +188,6 @@
         <el-form-item label="分区链接:" prop="link">
           <el-input v-model="formData.link" :clearable="true" placeholder="请输入分区链接" />
         </el-form-item>
-        <el-form-item label="分区类型:" prop="type">
-          <el-input v-model="formData.type" :clearable="true" placeholder="请输入分区类型" />
-        </el-form-item>
         <el-form-item label="识别数量:" prop="num">
           <el-input v-model.number="formData.num" :clearable="true" placeholder="请输入识别数量" />
         </el-form-item>
@@ -198,18 +197,8 @@
         <el-form-item label="其他信息:" prop="additional">
           <RichEdit v-model="formData.additional" />
         </el-form-item>
-        <!-- <el-form-item label="创建者:" prop="createdBy">
-          <el-input v-model.number="formData.createdBy" :clearable="true" placeholder="请输入创建者" />
-        </el-form-item>
-        <el-form-item label="更新者:" prop="updatedBy">
-          <el-input v-model.number="formData.updatedBy" :clearable="true" placeholder="请输入更新者" />
-        </el-form-item>
-        <el-form-item label="删除者:" prop="deletedBy">
-          <el-input v-model.number="formData.deletedBy" :clearable="true" placeholder="请输入删除者" />
-        </el-form-item> -->
       </el-form>
     </el-drawer>
-
     <el-drawer destroy-on-close size="800" v-model="detailShow" :show-close="true" :before-close="closeDetailShow">
       <el-descriptions :column="1" border>
         <el-descriptions-item label="Tag">
@@ -304,6 +293,16 @@ const rule = reactive({
     trigger: ['input', 'blur'],
   }
   ],
+  name: [{
+    required: true,
+    message: '请输入分区名字',
+    trigger: ['input', 'blur'],
+  },
+  {
+    whitespace: true,
+    message: '不能只输入空格',
+    trigger: ['input', 'blur'],
+  }],
   link: [{
     required: true,
     message: '',

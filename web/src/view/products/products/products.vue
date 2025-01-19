@@ -121,7 +121,13 @@
       width="30%">
       <el-form label-width="120px">
         <el-form-item :label="dialog.label">
-          <component :is="dialog.component" v-model="dialog.value" :placeholder="dialog.placeholder" />
+          <template v-if="dialog.component === 'el-select'">
+            <el-select v-model="dialog.value" :placeholder="dialog.placeholder">
+              <el-option v-for="option in dialog.options" :key="option.value" :label="option.label"
+                :value="option.value" />
+            </el-select>
+          </template>
+          <component v-else :is="dialog.component" v-model="dialog.value" :placeholder="dialog.placeholder" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -384,12 +390,12 @@ const batchEditDialogs = ref([
     visible: false,
     value: '',
     component: 'el-select',
+    placeholder: '请选择新的爬虫类型',
+    confirm: () => confirmBatchEdit('billingType'),
     options: [
       { label: '单商品-single', value: 'single' },
       { label: '多商品-multi', value: 'multi' }
-    ],
-    placeholder: '请选择新的爬虫类型',
-    confirm: () => confirmBatchEdit('billingType')
+    ]
   },
   {
     id: 'additional',
