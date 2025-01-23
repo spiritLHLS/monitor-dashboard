@@ -247,22 +247,22 @@ const formFields = [
       { label: 'multi', value: 'multi' }
     ]
   },
-  { label: '推送库存:', prop: 'pushStock', inputType: 'number' },
-  { label: '历史库存:', prop: 'oldStock', inputType: 'number' },
-  { label: '现有库存:', prop: 'stock', inputType: 'number' },
-  { label: '重复检测:', prop: 'multiCheck', inputType: 'number' },
   { label: '爬虫间隔:', prop: 'intervals', inputType: 'number' },
-  { label: '消息编号:', prop: 'messageId' },
   { label: '推送间隔:', prop: 'pushIntervals', inputType: 'number' },
-  { label: '推送时间:', prop: 'pushTime', type: 'datetime' },
   { label: '其他:', prop: 'additional', type: 'rich-edit' },
+  { label: '消息编号:', prop: 'messageId' },
+  { label: '现有库存:', prop: 'stock', inputType: 'number' },
+  { label: '历史库存:', prop: 'oldStock', inputType: 'number' },
+  { label: '推送库存:', prop: 'pushStock', inputType: 'number' },
+  { label: '重复检测:', prop: 'multiCheck', inputType: 'number' },
   { label: 'CPU:', prop: 'cpu' },
   { label: '内存:', prop: 'memory' },
   { label: '磁盘:', prop: 'disk' },
   { label: '流量:', prop: 'traffic' },
   { label: '端口:', prop: 'portSpeed' },
   { label: '地点:', prop: 'location' },
-  { label: '价格:', prop: 'price' }
+  { label: '价格:', prop: 'price' },
+  { label: '推送时间:', prop: 'pushTime', type: 'datetime' },
 ]
 const detailFields = tableColumns.map(col => ({
   label: col.label,
