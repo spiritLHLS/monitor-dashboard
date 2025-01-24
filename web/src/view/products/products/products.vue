@@ -207,14 +207,12 @@ const searchFields = [
     { label: '地点', prop: 'location' },
     { label: '价格', prop: 'price' },
     { label: '链接', prop: 'url' },
+    { label: '爬类型', prop: 'billingType' },
   ],
   [
-    { label: '爬虫类型', prop: 'billingType' },
     { label: '推送库存', prop: 'pushStock', type: 'number' },
     { label: '历史库存', prop: 'oldStock', type: 'number' },
     { label: '现有库存', prop: 'stock', type: 'number' },
-  ],
-  [
     { label: '爬虫间隔', prop: 'intervals', type: 'number' },
     { label: '消息编号', prop: 'messageId' }
   ]
