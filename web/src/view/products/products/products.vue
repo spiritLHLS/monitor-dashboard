@@ -3,7 +3,7 @@
     <div class="gva-search-box">
       <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline" :rules="rules.search"
         @keyup.enter="onSubmit">
-        <el-form-item label="推送日期" prop="pushTime">
+        <!-- <el-form-item label="推送日期" prop="pushTime">
           <template #label>
             <span>
               推送日期
@@ -19,7 +19,7 @@
           —
           <el-date-picker v-model="searchInfo.endPushTime" type="datetime" placeholder="结束日期"
             :disabled-date="time => searchInfo.startPushTime ? time.getTime() < searchInfo.startPushTime.getTime() : false" />
-        </el-form-item>
+        </el-form-item> -->
         <template v-if="showAllQuery">
           <div v-for="(fields, index) in searchFields" :key="index" class="search-row">
             <el-form-item v-for="field in fields" :key="field.prop" :label="field.label" :prop="field.prop">
@@ -207,12 +207,14 @@ const searchFields = [
     { label: '地点', prop: 'location' },
     { label: '价格', prop: 'price' },
     { label: '链接', prop: 'url' },
-    { label: '爬虫类型', prop: 'billingType' }
   ],
   [
+    { label: '爬虫类型', prop: 'billingType' },
     { label: '推送库存', prop: 'pushStock', type: 'number' },
     { label: '历史库存', prop: 'oldStock', type: 'number' },
     { label: '现有库存', prop: 'stock', type: 'number' },
+  ],
+  [
     { label: '爬虫间隔', prop: 'intervals', type: 'number' },
     { label: '消息编号', prop: 'messageId' }
   ]
