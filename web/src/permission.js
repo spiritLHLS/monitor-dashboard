@@ -9,7 +9,7 @@ Nprogress.configure({ showSpinner: false, ease: 'ease', speed: 500 })
 // 这里仅列入无需登录就能访问的页面路由 对应 src\router\index.js 的内容
 const whiteList = ['Login', 'Init', 'Register', 'Admin', 'Resetpwd', 'Home', 'About', 'Redirect']
 
-const getRouter = async(userStore) => {
+const getRouter = async (userStore) => {
   const routerStore = useRouterStore()
   await routerStore.SetAsyncRouter()
   await userStore.GetUserInfo()
@@ -45,7 +45,7 @@ async function handleKeepAlive(to) {
   }
 }
 
-router.beforeEach(async(to, from) => {
+router.beforeEach(async (to, from) => {
   const routerStore = useRouterStore()
   Nprogress.start()
   const userStore = useUserStore()
@@ -54,7 +54,7 @@ router.beforeEach(async(to, from) => {
   const token = userStore.token
   // 在白名单中的判断情况
   document.title = getPageTitle(to.meta.title, to)
-  if(to.meta.client) {
+  if (to.meta.client) {
     return true
   }
   // 添加对重定向路由的特殊处理
@@ -89,10 +89,10 @@ router.beforeEach(async(to, from) => {
   } else {
     // 不在白名单中并且已经登录的时候
     if (token) {
-      if(sessionStorage.getItem("needToHome") === 'true') {
+      if (sessionStorage.getItem("needToHome") === 'true') {
         sessionStorage.removeItem("needToHome")
-        return { path: '/'}
-      } 
+        return { path: '/' }
+      }
       // 添加flag防止多次获取动态路由和栈溢出
       if (!routerStore.asyncRouterFlag && whiteList.indexOf(from.name) < 0) {
         await getRouter(userStore)
