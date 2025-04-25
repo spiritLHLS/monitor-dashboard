@@ -370,16 +370,23 @@ const closeDialog = () => {
 const enterDialog = async () => {
   elFormRef.value?.validate(async (valid) => {
     if (!valid) return
+    const submitData = { ...formData.value }
+    if (submitData.num !== undefined && submitData.num !== '') {
+      submitData.num = Number(submitData.num)
+    }
+    if (submitData.intervals !== undefined && submitData.intervals !== '') {
+      submitData.intervals = Number(submitData.intervals)
+    }
     let res
     switch (type.value) {
       case 'create':
-        res = await createPartitionspage(formData.value)
+        res = await createPartitionspage(submitData)
         break
       case 'update':
-        res = await updatePartitionspage(formData.value)
+        res = await updatePartitionspage(submitData)
         break
       default:
-        res = await createPartitionspage(formData.value)
+        res = await createPartitionspage(submitData)
         break
     }
     if (res.code === 0) {
@@ -499,7 +506,11 @@ const enterBatchEdit = async () => {
         if (batchEditForm.value[key] !== undefined &&
           batchEditForm.value[key] !== null &&
           batchEditForm.value[key] !== '') {
-          updateData[key] = batchEditForm.value[key]
+          if (key === 'num' || key === 'intervals') {
+            updateData[key] = Number(batchEditForm.value[key])
+          } else {
+            updateData[key] = batchEditForm.value[key]
+          }
         }
       })
       return updatePartitionspage(updateData)

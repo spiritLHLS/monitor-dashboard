@@ -582,12 +582,15 @@ const enterBatchEdit = async () => {
   try {
     const updatePromises = multipleSelection.value.map(item => {
       const updateData = { ...item }
-      // 只更新表单中有值的字段
       Object.keys(batchEditForm.value).forEach(key => {
         if (batchEditForm.value[key] !== undefined &&
           batchEditForm.value[key] !== null &&
           batchEditForm.value[key] !== '') {
-          updateData[key] = batchEditForm.value[key]
+          if (key === 'intervals' || key === 'pushIntervals' || key === 'stock' || key === 'oldStock' || key === 'pushStock' || key === 'multiCheck') {
+            updateData[key] = Number(batchEditForm.value[key])
+          } else {
+            updateData[key] = batchEditForm.value[key]
+          }
         }
       })
       return updateProducts(updateData)
