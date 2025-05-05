@@ -185,6 +185,7 @@ const searchFields = [
   { label: '分区名字', prop: 'name' },
   { label: '分区链接', prop: 'link' },
   { label: '分区类型', prop: 'type' },
+  { label: '防御类型', prop: 'flag' },
   { label: '识别数量', prop: 'num', type: 'number' },
   { label: '爬虫间隔', prop: 'intervals', type: 'number' },
   { label: '其他信息', prop: 'additional' }
@@ -195,6 +196,7 @@ const tableColumns = [
   { prop: 'name', label: '分区名字' },
   { prop: 'link', label: '分区链接' },
   { prop: 'type', label: '分区类型' },
+  { prop: 'flag', label: '防御类型' },
   { prop: 'num', label: '识别数量' },
   { prop: 'intervals', label: '爬虫间隔' },
   { prop: 'additional', label: '其他信息', width: 120 },
@@ -217,6 +219,7 @@ const formFields = [
     ]
   },
   { label: '分区链接:', prop: 'link', required: true },
+  { label: '防御类型:', prop: 'flag', required: true },
   { label: '识别数量:', prop: 'num', inputType: 'number' },
   { label: '爬虫间隔:', prop: 'intervals', inputType: 'number' },
   { label: '其他信息:', prop: 'additional', type: 'rich-edit' }
@@ -462,6 +465,7 @@ const resetFormData = () => ({
   tgTag: '',
   name: '',
   link: '',
+  flag: '',
   type: '',
   num: undefined,
   additional: '',

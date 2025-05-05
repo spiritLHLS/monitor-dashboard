@@ -12,6 +12,8 @@
           <el-select v-model="formData.billingType" placeholder="请选择爬虫类型" clearable>
             <el-option label="single" value="single"></el-option>
             <el-option label="multi" value="multi"></el-option>
+            <el-option label="single_cf5s" value="single"></el-option>
+            <el-option label="multi_cf5s" value="multi"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="爬虫间隔:" prop="intervals">
@@ -39,9 +41,6 @@
         </el-form-item>
         <el-form-item label="重复检测次数:" prop="multiCheck">
           <el-input v-model.number="formData.multiCheck" type="number" :clearable="true" placeholder="请输入重复检测的次数" />
-        </el-form-item>
-        <el-form-item label="防御盾验证:" prop="flag">
-          <el-input v-model="formData.flag" :clearable="true" placeholder="请输入验证类型" />
         </el-form-item>
         <el-form-item label="推送时间:" prop="pushTime">
           <el-date-picker v-model="formData.pushTime" type="date" placeholder="选择日期" :clearable="true"></el-date-picker>
@@ -125,7 +124,6 @@ const formData = ref({
   oldStock: 0,
   stock: 0,
   multiCheck: 0,
-  flag: '',
   intervals: 0,
   messageId: '',
   pushIntervals: 0,

@@ -76,6 +76,8 @@
             <el-select v-model="batchEditForm.billingType" clearable placeholder="留空则不修改">
               <el-option label="single" value="single" />
               <el-option label="multi" value="multi" />
+              <el-option label="single_cf5s" value="single_cf5s" />
+              <el-option label="multi_cf5s" value="multi_cf5s" />
             </el-select>
           </el-form-item>
           <el-form-item label="爬取间隔" prop="intervals">
@@ -89,9 +91,6 @@
           </el-form-item>
           <el-form-item label="重复检测" prop="multiCheck">
             <el-input v-model.number="batchEditForm.multiCheck" type="number" placeholder="留空则不修改" clearable />
-          </el-form-item>
-          <el-form-item label="防御类型" prop="flag">
-            <el-input v-model="batchEditForm.flag" placeholder="留空则不修改" clearable />
           </el-form-item>
           <el-form-item label="其他信息" prop="additional">
             <el-input v-model="batchEditForm.additional" placeholder="留空则不修改" clearable />
@@ -190,7 +189,6 @@
             <el-checkbox label="location">地点</el-checkbox>
             <el-checkbox label="price">价格</el-checkbox>
             <el-checkbox label="additional">其他信息</el-checkbox>
-            <el-checkbox label="flag">防御类型</el-checkbox>
             <el-checkbox label="pushStock">推送库存</el-checkbox>
             <el-checkbox label="oldStock">历史库存</el-checkbox>
             <el-checkbox label="stock">现有库存</el-checkbox>
@@ -248,7 +246,6 @@ const searchInfo = ref({
   messageId: '',
   pushIntervals: undefined,
   multiCheck: undefined,
-  flag: '',
 })
 const multipleSelection = ref([])
 const type = ref('')
@@ -280,7 +277,6 @@ const searchFields = [
     { label: '价格', prop: 'price' },
     { label: '链接', prop: 'url' },
     { label: '其他', prop: 'additional' },
-    { label: 'flag', prop: 'flag' },
     { label: '爬虫类型', prop: 'billingType' },
   ],
   [
@@ -310,7 +306,6 @@ const tableColumns = [
   { prop: 'multiCheck', label: '重复检测', width: 80 },
   { prop: 'messageId', label: '消息编号', width: 80 },
   { prop: 'pushTime', label: '推送时间', width: 180, formatter: formatDate },
-  { prop: 'flag', label: 'flag', width: 80 },
   { prop: 'additional', label: '其他', width: 120 }
 ]
 const formFields = [
@@ -319,7 +314,8 @@ const formFields = [
   {
     label: '爬虫类型:', prop: 'billingType', type: 'select', required: true, options: [
       { label: 'single', value: 'single' },
-      { label: 'multi', value: 'multi' }
+      { label: 'multi', value: 'multi' },
+      { label: 'cf5s', value: 'cf5s' },
     ]
   },
   { label: '爬虫间隔:', prop: 'intervals', inputType: 'number' },
@@ -330,7 +326,6 @@ const formFields = [
   { label: '历史库存:', prop: 'oldStock', inputType: 'number' },
   { label: '推送库存:', prop: 'pushStock', inputType: 'number' },
   { label: '重复检测:', prop: 'multiCheck', inputType: 'number' },
-  { label: 'flag', prop: 'flag' },
   { label: 'CPU:', prop: 'cpu' },
   { label: '内存:', prop: 'memory' },
   { label: '磁盘:', prop: 'disk' },
@@ -431,7 +426,6 @@ const resetFormData = () => ({
   oldStock: 0,
   stock: 0,
   multiCheck: 0,
-  flag: '',
   intervals: 0,
   messageId: '',
   pushIntervals: 0,

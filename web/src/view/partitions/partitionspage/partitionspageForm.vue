@@ -22,6 +22,12 @@
             <el-option label="blesta2" value="blesta2"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="防御类型:" prop="flag">
+          <el-select v-model="formData.flag" placeholder="请选择防御类型" clearable>
+            <el-option label="none" value="none"></el-option>
+            <el-option label="cf5s" value="cf5s"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="识别数量:" prop="num">
           <el-input v-model.number="formData.num" :clearable="true" placeholder="请输入" />
         </el-form-item>
@@ -77,6 +83,7 @@ const formData = ref({
   tgTag: '',
   name: '',
   link: '',
+  flag: '',
   type: '',
   num: undefined,
   additional: '',
