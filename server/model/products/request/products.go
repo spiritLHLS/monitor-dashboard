@@ -20,7 +20,6 @@ type ProductsSearch struct {
 	Additional    string     `json:"additional" form:"additional" `
 	Url           string     `json:"url" form:"url" `
 	BillingType   string     `json:"billingType" form:"billingType" `
-	Flag          string     `json:"flag" form:"flag" `
 	PushStock     *int       `json:"pushStock" form:"pushStock"`
 	OldStock      *int       `json:"oldStock" form:"oldStock" `
 	Stock         *int       `json:"stock" form:"stock" `

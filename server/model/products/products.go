@@ -20,7 +20,6 @@ type Products struct {
 	Additional    string     `json:"additional" form:"additional" gorm:"column:additional;comment:;type:text;"`            //additional字段
 	Url           string     `json:"url" form:"url" gorm:"column:url;comment:;size:191;"`                                  //url字段
 	BillingType   string     `json:"billingType" form:"billingType" gorm:"column:billing_type;comment:;size:191;"`         //billingType字段
-	Flag          string     `json:"flag" form:"flag" gorm:"column:flag;comment:防御盾验证类型;"`                                 //防御盾验证类型
 	PushStock     *int       `json:"pushStock" form:"pushStock" gorm:"column:push_stock;comment:;"`                        // 一对一推送时记录的当前库存
 	OldStock      *int       `json:"oldStock" form:"oldStock" gorm:"column:old_stock;comment:;"`                           //oldStock字段
 	Stock         *int       `json:"stock" form:"stock" gorm:"column:stock;comment:;"`                                     //stock字段
