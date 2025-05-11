@@ -315,7 +315,8 @@ const formFields = [
     label: '爬虫类型:', prop: 'billingType', type: 'select', required: true, options: [
       { label: 'single', value: 'single' },
       { label: 'multi', value: 'multi' },
-      { label: 'cf5s', value: 'cf5s' },
+      { label: 'single_cf5s', value: 'single_cf5s' },
+      { label: 'multi_cf5s', value: 'multi_cf5s' },
     ]
   },
   { label: '爬虫间隔:', prop: 'intervals', inputType: 'number' },
