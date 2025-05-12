@@ -97,15 +97,11 @@ func Routers() *gin.Engine {
 		exampleRouter.InitAttachmentCategoryRouterRouter(PrivateGroup) // 文件上传下载分类
 
 	}
-
 	//插件路由安装
 	InstallPlugin(PrivateGroup, PublicGroup, Router)
-
 	// 注册业务路由
 	initBizRouter(PrivateGroup, PublicGroup)
-
 	global.GVA_ROUTERS = Router.Routes()
-
 	global.GVA_LOG.Info("router client success")
 	return Router
 }
