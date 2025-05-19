@@ -12,8 +12,9 @@
           <el-select v-model="formData.billingType" placeholder="请选择爬虫类型" clearable>
             <el-option label="single" value="single"></el-option>
             <el-option label="multi" value="multi"></el-option>
-            <el-option label="single_cf5s" value="single"></el-option>
-            <el-option label="multi_cf5s" value="multi"></el-option>
+            <el-option label="single_cf5s" value="single_cf5s"></el-option>
+            <el-option label="multi_cf5s" value="multi_cf5s"></el-option>
+            <el-option label="single_only_price" value="single_only_price"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="爬虫间隔:" prop="intervals">

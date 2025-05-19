@@ -78,6 +78,7 @@
               <el-option label="multi" value="multi" />
               <el-option label="single_cf5s" value="single_cf5s" />
               <el-option label="multi_cf5s" value="multi_cf5s" />
+              <el-option label="single_only_price" value="single_only_price" />
             </el-select>
           </el-form-item>
           <el-form-item label="爬取间隔" prop="intervals">
@@ -317,6 +318,7 @@ const formFields = [
       { label: 'multi', value: 'multi' },
       { label: 'single_cf5s', value: 'single_cf5s' },
       { label: 'multi_cf5s', value: 'multi_cf5s' },
+      { label: 'single_only_price', value: 'single_only_price' },
     ]
   },
   { label: '爬虫间隔:', prop: 'intervals', inputType: 'number' },
