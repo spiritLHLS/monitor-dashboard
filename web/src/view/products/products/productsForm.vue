@@ -14,6 +14,8 @@
             <el-option label="multi" value="multi"></el-option>
             <el-option label="single_cf5s" value="single_cf5s"></el-option>
             <el-option label="multi_cf5s" value="multi_cf5s"></el-option>
+            <el-option label="single_dynamic" value="single_dynamic"></el-option>
+            <el-option label="multi_dynamic" value="multi_dynamic"></el-option>
             <el-option label="single_only_price" value="single_only_price"></el-option>
           </el-select>
         </el-form-item>

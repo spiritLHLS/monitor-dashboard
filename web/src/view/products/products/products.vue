@@ -78,6 +78,8 @@
               <el-option label="multi" value="multi" />
               <el-option label="single_cf5s" value="single_cf5s" />
               <el-option label="multi_cf5s" value="multi_cf5s" />
+              <el-option label="single_dynamic" value="single_dynamic" />
+              <el-option label="multi_dynamic" value="multi_dynamic" />
               <el-option label="single_only_price" value="single_only_price" />
             </el-select>
           </el-form-item>
@@ -318,6 +320,8 @@ const formFields = [
       { label: 'multi', value: 'multi' },
       { label: 'single_cf5s', value: 'single_cf5s' },
       { label: 'multi_cf5s', value: 'multi_cf5s' },
+      { label: 'single_dynamic', value: 'single_dynamic' },
+      { label: 'multi_dynamic', value: 'multi_dynamic' },
       { label: 'single_only_price', value: 'single_only_price' },
     ]
   },

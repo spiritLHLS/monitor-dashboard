@@ -26,6 +26,10 @@ apt-get install xdg-utils -y
 
 server 下执行
 
+```macos
+GOARCH=amd64 GOOS=linux go build
+```
+
 ```cmd
 set GOARCH=amd64
 set GOOS=linux
