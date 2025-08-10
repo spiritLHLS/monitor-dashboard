@@ -3,6 +3,22 @@
         <header class="top-bar">
             <div class="left-section">
                 <img src="~@/assets/logo.png" alt="Logo" class="logo">
+                <el-dropdown trigger="click" class="merchant-dropdown">
+                    <el-button type="primary" class="dropdown-button">
+                        热门商家
+                        <el-icon class="el-icon--right">
+                            <ArrowDown />
+                        </el-icon>
+                    </el-button>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item v-for="merchant in hotMerchants" :key="merchant" 
+                                @click="searchByMerchant(merchant)">
+                                {{ merchant }}
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
                 <nav class="nav-links">
                     <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
                     <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
@@ -105,13 +121,13 @@
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Search, InfoFilled, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { Search, InfoFilled, ArrowLeft, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
 import { getProductsPublic } from '@/api/products/products'
 import { useRouter } from 'vue-router'
 import { handleRedirect } from '@/plugin/cryptourl/api/encryptedlink'
 import { GetInfoPublic } from '@/plugin/announcement/api/info'
 
-const isCollapsed = ref(false)
+const isCollapsed = ref(true)
 const toggleSidebar = () => {
     isCollapsed.value = !isCollapsed.value
 }
@@ -119,6 +135,21 @@ const activeCollapse = ref(['1'])
 const announcement = ref({})
 const isFetching = ref(false)
 const error = ref(null)
+
+// 热门商家列表
+const hotMerchants = ref(['racknerd', 'buyvm', 'bagevm', 'spartanhost', 'fiberstate'])
+
+// 按商家搜索功能
+const searchByMerchant = (merchant) => {
+    // 重置所有搜索条件
+    Object.keys(searchInfo.value).forEach(key => searchInfo.value[key] = '')
+    // 设置商家搜索
+    searchInfo.value.tag = merchant
+    displayMode.value = 'all'
+    page.value = 1
+    getTableData()
+    ElMessage.success(`正在搜索 ${merchant} 的产品`)
+}
 
 const fetchAnnouncement = async () => {
     isFetching.value = true
@@ -337,12 +368,32 @@ onMounted(() => {
 .left-section {
     display: flex;
     align-items: center;
+    gap: 12px;
 }
 
 .logo {
     height: 32px;
     width: auto;
-    margin-right: 16px;
+}
+
+.merchant-dropdown {
+    margin-left: 4px;
+}
+
+.dropdown-button {
+    font-size: 12px;
+    padding: 6px 12px;
+    background-color: #42b883;
+    border-color: #42b883;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-button:hover {
+    background-color: #33a06f;
+    border-color: #33a06f;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(66, 184, 131, 0.3);
 }
 
 .nav-links {
@@ -422,6 +473,7 @@ onMounted(() => {
 
 .sidebar-toggle:hover {
     background-color: #33a06f;
+    transform: translateX(2px);
 }
 
 .main-content {
@@ -518,12 +570,28 @@ onMounted(() => {
 :deep(.el-table) {
     font-size: 11px;
     flex: 1;
+    background-color: #ffffff !important;
+    color: #2f3f2f !important;
+}
+
+:deep(.el-table__body-wrapper) {
+    overflow-x: auto;
+    background-color: #ffffff !important;
+}
+
+:deep(.el-table__body) {
+    background-color: #ffffff !important;
+}
+
+:deep(.el-table tbody tr) {
+    background-color: #ffffff !important;
+    color: #2f3f2f !important;
 }
 
 :deep(.el-table th) {
-    background-color: #f0f6f0;
+    background-color: #f0f6f0 !important;
     font-weight: 600;
-    color: #2f3f2f;
+    color: #2f3f2f !important;
     font-size: 11px;
     padding: 8px 6px;
 }
@@ -531,20 +599,33 @@ onMounted(() => {
 :deep(.el-table td) {
     padding: 6px 6px;
     font-size: 11px;
+    background-color: #ffffff !important;
+    color: #2f3f2f !important;
 }
 
 :deep(.el-table .cell) {
     padding: 0 4px;
     line-height: 1.3;
     word-break: break-all;
+    color: #2f3f2f !important;
 }
 
 :deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
-    background-color: #f9fff9;
+    background-color: #f9fff9 !important;
 }
 
 :deep(.el-table--enable-row-hover .el-table__body tr:hover > td) {
-    background-color: #e8f5e8;
+    background-color: #e8f5e8 !important;
+}
+
+:deep(.el-card) {
+    background-color: #ffffff !important;
+    border: 1px solid #e8f5e8 !important;
+}
+
+:deep(.el-card__body) {
+    background-color: #ffffff !important;
+    color: #2f3f2f !important;
 }
 
 :deep(.el-button--small) {
@@ -563,6 +644,7 @@ onMounted(() => {
 
 :deep(.el-input__wrapper) {
     box-shadow: 0 0 0 1px #c0cfc0 inset;
+    transition: all 0.3s ease;
 }
 
 :deep(.el-input__wrapper:hover) {
@@ -585,11 +667,13 @@ onMounted(() => {
 :deep(.el-button--primary) {
     background-color: #42b883;
     border-color: #42b883;
+    transition: all 0.3s ease;
 }
 
 :deep(.el-button--primary:hover) {
     background-color: #33a06f;
     border-color: #33a06f;
+    transform: translateY(-1px);
 }
 
 :deep(.el-button--primary.is-plain) {
@@ -638,10 +722,6 @@ onMounted(() => {
     font-size: 14px;
 }
 
-:deep(.el-table__body-wrapper) {
-    overflow-x: auto;
-}
-
 :deep(.el-pagination) {
     font-size: 12px;
 }
@@ -651,6 +731,16 @@ onMounted(() => {
     min-width: 28px;
     height: 28px;
     line-height: 28px;
+    transition: all 0.3s ease;
+}
+
+:deep(.el-pagination .el-pager li:hover) {
+    color: #42b883;
+    transform: translateY(-1px);
+}
+
+:deep(.el-pagination .el-pager li.is-active) {
+    color: #42b883;
 }
 
 :deep(.el-pagination .btn-prev, .el-pagination .btn-next) {
@@ -658,10 +748,39 @@ onMounted(() => {
     min-width: 28px;
     height: 28px;
     line-height: 28px;
+    transition: all 0.3s ease;
+}
+
+:deep(.el-pagination .btn-prev:hover, .el-pagination .btn-next:hover) {
+    color: #42b883;
 }
 
 :deep(.el-pagination .el-pagination__sizes .el-select .el-input) {
     width: 90px;
+}
+
+/* 下拉菜单样式 */
+:deep(.el-dropdown-menu) {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e8f5e8;
+    background-color: #ffffff;
+    padding: 4px;
+}
+
+:deep(.el-dropdown-menu__item) {
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin: 2px 0;
+    transition: all 0.3s ease;
+    color: #2f3f2f;
+}
+
+:deep(.el-dropdown-menu__item:hover) {
+    background-color: #e8f5e8;
+    color: #42b883;
+    transform: translateX(2px);
 }
 
 @media (max-width: 1200px) {
@@ -683,31 +802,42 @@ onMounted(() => {
         flex-direction: column;
         align-items: flex-start;
         padding: 8px;
+        gap: 8px;
     }
 
     .left-section {
         flex-direction: column;
         align-items: flex-start;
         width: 100%;
+        gap: 8px;
     }
 
     .logo {
-        margin-bottom: 8px;
         height: 28px;
+    }
+
+    .merchant-dropdown {
+        width: 100%;
+    }
+
+    .dropdown-button {
+        width: 100%;
+        justify-content: center;
     }
 
     .nav-links,
     .auth-buttons {
-        margin-top: 8px;
         width: 100%;
+        flex-wrap: wrap;
     }
 
     .nav-links .el-button,
     .auth-buttons .el-button {
-        width: 100%;
-        margin-bottom: 4px;
+        flex: 1;
+        min-width: 120px;
         font-size: 11px;
         padding: 5px 10px;
+        margin: 2px;
     }
 
     .content-wrapper {
@@ -725,7 +855,7 @@ onMounted(() => {
     }
 
     .main-content {
-        height: calc(100vh - 250px - 120px);
+        height: calc(100vh - 250px - 150px);
         padding: 12px;
     }
 
@@ -768,6 +898,17 @@ onMounted(() => {
 @media (max-width: 480px) {
     .product-dashboard {
         font-size: 10px;
+    }
+
+    .left-section {
+        gap: 6px;
+    }
+
+    .nav-links .el-button,
+    .auth-buttons .el-button {
+        font-size: 10px;
+        padding: 4px 8px;
+        min-width: 100px;
     }
 
     :deep(.el-table .cell) {
