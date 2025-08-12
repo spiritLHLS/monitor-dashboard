@@ -2,7 +2,7 @@
 package digitalproducts
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"server/global"
 )
 
 // 数字商品表 结构体  DigitalProducts

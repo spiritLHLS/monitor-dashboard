@@ -1,10 +1,10 @@
 package client
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/model"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/router"
 	"github.com/gin-gonic/gin"
+	"server/global"
+	"server/plugin/client/model"
+	"server/plugin/client/router"
 )
 
 type RegisterPlugin struct {

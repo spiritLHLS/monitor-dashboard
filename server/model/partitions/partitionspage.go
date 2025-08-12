@@ -2,7 +2,7 @@
 package partitions
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"server/global"
 )
 
 // partitionspage表 结构体  Partitionspage

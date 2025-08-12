@@ -2,10 +2,10 @@ package initialize
 
 import (
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl/plugin"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"server/global"
+	"server/plugin/cryptourl/plugin"
 )
 
 func Viper() {

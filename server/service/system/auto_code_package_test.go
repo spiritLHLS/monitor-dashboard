@@ -2,9 +2,9 @@ package system
 
 import (
 	"context"
-	model "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"reflect"
+	model "server/model/system"
+	"server/model/system/request"
 	"testing"
 )
 

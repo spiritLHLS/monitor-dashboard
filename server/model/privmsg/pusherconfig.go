@@ -2,7 +2,7 @@
 package privmsg
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"server/global"
 	"time"
 )
 

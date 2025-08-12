@@ -1,10 +1,10 @@
 package internal
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
+	"server/global"
 	"time"
 )
 

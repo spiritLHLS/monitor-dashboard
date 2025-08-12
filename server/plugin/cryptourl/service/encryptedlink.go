@@ -5,10 +5,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl/model"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl/model/request"
 	"gorm.io/gorm"
+	"server/global"
+	"server/plugin/cryptourl/model"
+	"server/plugin/cryptourl/model/request"
 )
 
 var EncryptedLink = new(EL)

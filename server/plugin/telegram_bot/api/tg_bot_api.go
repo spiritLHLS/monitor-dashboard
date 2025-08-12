@@ -1,13 +1,13 @@
 package api
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot/model"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot/service"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	"server/plugin/telegram_bot/model"
+	"server/plugin/telegram_bot/service"
+	"server/utils"
 )
 
 type Telegram_botApi struct{}

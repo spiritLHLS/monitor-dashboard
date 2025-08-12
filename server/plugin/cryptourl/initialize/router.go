@@ -1,10 +1,10 @@
 package initialize
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl/router"
 	"github.com/gin-gonic/gin"
+	"server/global"
+	"server/middleware"
+	"server/plugin/cryptourl/router"
 )
 
 func Router(engine *gin.Engine) {

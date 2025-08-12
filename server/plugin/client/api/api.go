@@ -2,14 +2,14 @@ package api
 
 import (
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/model"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/service"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	systemRes "server/model/system/response"
+	"server/plugin/client/model"
+	"server/plugin/client/service"
+	"server/utils"
 	"time"
 )
 

@@ -1,8 +1,8 @@
 package products
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
 	"github.com/gin-gonic/gin"
+	"server/middleware"
 )
 
 type ProductsRouter struct{}

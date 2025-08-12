@@ -1,15 +1,15 @@
 package initialize
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/allpdspiders"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/obopush"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/spiders"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegrampush"
 	"github.com/gin-gonic/gin"
+	"server/global"
+	"server/plugin/allpdspiders"
+	"server/plugin/client"
+	"server/plugin/cryptourl"
+	"server/plugin/obopush"
+	"server/plugin/spiders"
+	"server/plugin/telegram_bot"
+	"server/plugin/telegrampush"
 )
 
 func InstallPlugin(PrivateGroup *gin.RouterGroup, PublicGroup *gin.RouterGroup, engine *gin.Engine) {

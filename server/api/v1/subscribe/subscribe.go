@@ -2,14 +2,14 @@ package subscribe
 
 import (
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/subscribe"
-	subscribeReq "github.com/flipped-aurora/gin-vue-admin/server/model/subscribe/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	productsReq "server/model/products/request"
+	"server/model/subscribe"
+	subscribeReq "server/model/subscribe/request"
+	"server/utils"
 )
 
 type SubscribeApi struct{}

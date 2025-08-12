@@ -1,18 +1,18 @@
 package v1
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/digitalproducts"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/ecsusers"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/example"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/findallpd"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/invite_codes"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/partitions"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/privmsg"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/products"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/shops"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/subscribe"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1/tgchannel"
+	"server/api/v1/digitalproducts"
+	"server/api/v1/ecsusers"
+	"server/api/v1/example"
+	"server/api/v1/findallpd"
+	"server/api/v1/invite_codes"
+	"server/api/v1/partitions"
+	"server/api/v1/privmsg"
+	"server/api/v1/products"
+	"server/api/v1/shops"
+	"server/api/v1/subscribe"
+	"server/api/v1/system"
+	"server/api/v1/tgchannel"
 )
 
 var ApiGroupApp = new(ApiGroup)

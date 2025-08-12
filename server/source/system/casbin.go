@@ -4,9 +4,9 @@ import (
 	"context"
 
 	adapter "github.com/casbin/gorm-adapter/v3"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"server/service/system"
 )
 
 const initOrderCasbin = initOrderApiIgnore + 1

@@ -1,6 +1,6 @@
 package api
 
-import "github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl/service"
+import "server/plugin/cryptourl/service"
 
 var (
 	Api                  = new(api)

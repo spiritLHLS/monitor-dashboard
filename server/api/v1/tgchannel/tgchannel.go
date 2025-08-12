@@ -1,18 +1,15 @@
 package tgchannel
 
 import (
-	
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/tgchannel"
-    tgchannelReq "github.com/flipped-aurora/gin-vue-admin/server/model/tgchannel/request"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	"server/model/tgchannel"
+	tgchannelReq "server/model/tgchannel/request"
 )
 
-type TgchannelApi struct {}
-
-
+type TgchannelApi struct{}
 
 // CreateTgchannel 创建tgchannel表
 // @Tags Tgchannel
@@ -32,11 +29,11 @@ func (tgcApi *TgchannelApi) CreateTgchannel(c *gin.Context) {
 	}
 	err = tgcService.CreateTgchannel(&tgc)
 	if err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
-		response.FailWithMessage("创建失败:" + err.Error(), c)
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		response.FailWithMessage("创建失败:"+err.Error(), c)
 		return
 	}
-    response.OkWithMessage("创建成功", c)
+	response.OkWithMessage("创建成功", c)
 }
 
 // DeleteTgchannel 删除tgchannel表
@@ -52,8 +49,8 @@ func (tgcApi *TgchannelApi) DeleteTgchannel(c *gin.Context) {
 	ID := c.Query("ID")
 	err := tgcService.DeleteTgchannel(ID)
 	if err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
-		response.FailWithMessage("删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("删除成功", c)
@@ -71,8 +68,8 @@ func (tgcApi *TgchannelApi) DeleteTgchannelByIds(c *gin.Context) {
 	IDs := c.QueryArray("IDs[]")
 	err := tgcService.DeleteTgchannelByIds(IDs)
 	if err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
-		response.FailWithMessage("批量删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		response.FailWithMessage("批量删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("批量删除成功", c)
@@ -96,8 +93,8 @@ func (tgcApi *TgchannelApi) UpdateTgchannel(c *gin.Context) {
 	}
 	err = tgcService.UpdateTgchannel(tgc)
 	if err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
-		response.FailWithMessage("更新失败:" + err.Error(), c)
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		response.FailWithMessage("更新失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("更新成功", c)
@@ -116,8 +113,8 @@ func (tgcApi *TgchannelApi) FindTgchannel(c *gin.Context) {
 	ID := c.Query("ID")
 	retgc, err := tgcService.GetTgchannel(ID)
 	if err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
-		response.FailWithMessage("查询失败:" + err.Error(), c)
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		response.FailWithMessage("查询失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithData(retgc, c)
@@ -141,16 +138,16 @@ func (tgcApi *TgchannelApi) GetTgchannelList(c *gin.Context) {
 	}
 	list, total, err := tgcService.GetTgchannelInfoList(pageInfo)
 	if err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败:" + err.Error(), c)
-        return
-    }
-    response.OkWithDetailed(response.PageResult{
-        List:     list,
-        Total:    total,
-        Page:     pageInfo.Page,
-        PageSize: pageInfo.PageSize,
-    }, "获取成功", c)
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败:"+err.Error(), c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
 }
 
 // GetTgchannelPublic 不需要鉴权的tgchannel表接口
@@ -162,10 +159,10 @@ func (tgcApi *TgchannelApi) GetTgchannelList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /tgc/getTgchannelPublic [get]
 func (tgcApi *TgchannelApi) GetTgchannelPublic(c *gin.Context) {
-    // 此接口不需要鉴权
-    // 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
-    tgcService.GetTgchannelPublic()
-    response.OkWithDetailed(gin.H{
-       "info": "不需要鉴权的tgchannel表接口信息",
-    }, "获取成功", c)
+	// 此接口不需要鉴权
+	// 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
+	tgcService.GetTgchannelPublic()
+	response.OkWithDetailed(gin.H{
+		"info": "不需要鉴权的tgchannel表接口信息",
+	}, "获取成功", c)
 }

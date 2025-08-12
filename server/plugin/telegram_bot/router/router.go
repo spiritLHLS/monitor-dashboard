@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/telegram_bot/api"
 	"github.com/gin-gonic/gin"
+	"server/plugin/telegram_bot/api"
 )
 
 type Telegram_botRouter struct{}

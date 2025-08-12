@@ -5,7 +5,7 @@ import (
 	"path/filepath" //go:generate go mod tidy
 	//go:generate go mod download
 	//go:generate go run gen.go
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/announcement/model"
+	"server/plugin/announcement/model"
 )
 
 func main() {

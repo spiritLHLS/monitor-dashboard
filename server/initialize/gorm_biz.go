@@ -1,17 +1,17 @@
 package initialize
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/digitalproducts"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/findallpd"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/partitions"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/privmsg"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/products"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/shops"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/subscribe"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/tgchannel"
+	"server/global"
+	"server/model/digitalproducts"
+	"server/model/ecsusers"
+	"server/model/findallpd"
+	"server/model/invite_codes"
+	"server/model/partitions"
+	"server/model/privmsg"
+	"server/model/products"
+	"server/model/shops"
+	"server/model/subscribe"
+	"server/model/tgchannel"
 )
 
 func bizModel() error {

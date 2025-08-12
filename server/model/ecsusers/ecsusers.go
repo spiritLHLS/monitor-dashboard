@@ -2,8 +2,8 @@
 package ecsusers
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/google/uuid"
+	"server/global"
 )
 
 // 订阅用户 结构体  EcsUsers

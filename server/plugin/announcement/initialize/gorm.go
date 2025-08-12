@@ -3,10 +3,10 @@ package initialize
 import (
 	"context"
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/announcement/model"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"server/global"
+	"server/plugin/announcement/model"
 )
 
 func Gorm(ctx context.Context) {

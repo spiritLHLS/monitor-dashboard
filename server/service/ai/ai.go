@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"server/global"
 	"sync"
 	"time"
 )
@@ -41,11 +42,20 @@ type ChatResponse struct {
 }
 
 var (
-	lastRequestTime time.Time
-	mu              sync.Mutex
+	lastRequestTime                                                                                       time.Time
+	mu                                                                                                    sync.Mutex
+	TbaiURL, TbaiModel, TbaiApiKey, UnlimitURL, UnlimitApiKey, OpenrouterURL, DeepSeekURL, DeepseekApiKey string
 )
 
 func GetResponse(originText string) string {
+	TbaiURL = global.GVA_VP.GetString("aiconfig.tbai_url")
+	TbaiModel = global.GVA_VP.GetString("aiconfig.tbai_model")
+	TbaiApiKey = global.GVA_VP.GetString("aiconfig.tbai_api_key")
+	UnlimitURL = global.GVA_VP.GetString("aiconfig.unlimit_url")
+	UnlimitApiKey = global.GVA_VP.GetString("aiconfig.unlimit_api_key")
+	OpenrouterURL = global.GVA_VP.GetString("aiconfig.openrouter_url")
+	DeepSeekURL = global.GVA_VP.GetString("aiconfig.deepseek_url")
+	DeepseekApiKey = global.GVA_VP.GetString("aiconfig.deepseek_api_key")
 	mu.Lock()
 	now := time.Now()
 	if !lastRequestTime.IsZero() {

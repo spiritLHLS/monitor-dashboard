@@ -2,13 +2,13 @@ package digitalproducts
 
 import (
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/digitalproducts"
-	digitalproductsReq "github.com/flipped-aurora/gin-vue-admin/server/model/digitalproducts/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	"server/model/digitalproducts"
+	digitalproductsReq "server/model/digitalproducts/request"
+	"server/utils"
 )
 
 type DigitalProductsApi struct{}

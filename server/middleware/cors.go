@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/config"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"server/config"
+	"server/global"
 )
 
 // Cors 直接放行所有跨域请求并放行所有 OPTIONS 方法

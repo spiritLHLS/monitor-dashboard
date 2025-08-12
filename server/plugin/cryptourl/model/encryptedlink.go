@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"server/global"
 )
 
 // EncryptedLink 加密链接 结构体

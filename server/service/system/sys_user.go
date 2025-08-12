@@ -3,15 +3,15 @@ package system
 import (
 	"errors"
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common"
-	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
+	"server/model/common"
+	systemReq "server/model/system/request"
 	"time"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"server/global"
+	"server/model/system"
+	"server/utils"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)

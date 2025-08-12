@@ -1,6 +1,6 @@
 package router
 
-import "github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl/api"
+import "server/plugin/cryptourl/api"
 
 var (
 	Router           = new(router)

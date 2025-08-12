@@ -4,11 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils/ast"
 	"github.com/mholt/archiver/v4"
 	cp "github.com/otiai10/copy"
 	"github.com/pkg/errors"
@@ -20,6 +15,11 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"server/global"
+	"server/model/system"
+	"server/model/system/request"
+	"server/utils"
+	"server/utils/ast"
 	"strings"
 )
 

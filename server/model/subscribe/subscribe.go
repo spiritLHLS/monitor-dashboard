@@ -2,8 +2,8 @@
 package subscribe
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/google/uuid"
+	"server/global"
 	"time"
 )
 

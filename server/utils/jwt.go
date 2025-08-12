@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	jwt "github.com/golang-jwt/jwt/v5"
+	"server/global"
+	"server/model/system/request"
 )
 
 type JWT struct {

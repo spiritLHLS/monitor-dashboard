@@ -1,18 +1,18 @@
 package router
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/router/digitalproducts"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/ecsusers"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/example"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/findallpd"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/invite_codes"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/partitions"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/privmsg"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/products"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/shops"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/subscribe"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/router/tgchannel"
+	"server/router/digitalproducts"
+	"server/router/ecsusers"
+	"server/router/example"
+	"server/router/findallpd"
+	"server/router/invite_codes"
+	"server/router/partitions"
+	"server/router/privmsg"
+	"server/router/products"
+	"server/router/shops"
+	"server/router/subscribe"
+	"server/router/system"
+	"server/router/tgchannel"
 )
 
 var RouterGroupApp = new(RouterGroup)

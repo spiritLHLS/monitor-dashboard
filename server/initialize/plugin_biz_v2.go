@@ -1,9 +1,9 @@
 package initialize
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/announcement"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils/plugin/v2"
 	"github.com/gin-gonic/gin"
+	"server/plugin/announcement"
+	"server/utils/plugin/v2"
 )
 
 func PluginInitV2(group *gin.Engine, plugins ...plugin.Plugin) {

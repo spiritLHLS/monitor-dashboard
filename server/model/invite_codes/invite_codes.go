@@ -2,8 +2,8 @@
 package invite_codes
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/robfig/cron/v3"
+	"server/global"
 	"time"
 )
 

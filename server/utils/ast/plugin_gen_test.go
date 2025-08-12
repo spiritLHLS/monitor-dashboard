@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"path/filepath"
+	"server/global"
 	"testing"
 )
 
@@ -25,7 +25,7 @@ func TestPluginGenModel_Injection(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginGen,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "gen", "main.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"server/plugin/gva/model"`,
 				PackageName: "model",
 				StructName:  "User",
 				IsNew:       false,
@@ -36,7 +36,7 @@ func TestPluginGenModel_Injection(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginGen,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "gen", "main.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"server/plugin/gva/model"`,
 				PackageName: "model",
 				StructName:  "User",
 				IsNew:       true,
@@ -85,7 +85,7 @@ func TestPluginGenModel_Rollback(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginGen,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "gen", "main.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"server/plugin/gva/model"`,
 				PackageName: "model",
 				StructName:  "User",
 				IsNew:       false,
@@ -96,7 +96,7 @@ func TestPluginGenModel_Rollback(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginGen,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "gen", "main.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"server/plugin/gva/model"`,
 				PackageName: "model",
 				StructName:  "User",
 				IsNew:       true,

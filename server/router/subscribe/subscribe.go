@@ -1,8 +1,8 @@
 package subscribe
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
 	"github.com/gin-gonic/gin"
+	"server/middleware"
 )
 
 type SubscribeRouter struct{}

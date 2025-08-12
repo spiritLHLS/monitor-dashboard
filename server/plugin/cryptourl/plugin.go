@@ -2,9 +2,9 @@ package cryptourl
 
 import (
 	"context"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/cryptourl/initialize"
-	interfaces "github.com/flipped-aurora/gin-vue-admin/server/utils/plugin/v2"
 	"github.com/gin-gonic/gin"
+	"server/plugin/cryptourl/initialize"
+	interfaces "server/utils/plugin/v2"
 )
 
 var _ interfaces.Plugin = (*plugin)(nil)

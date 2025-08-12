@@ -47,7 +47,7 @@ system:
 查看 ```server/initialize/plugin.go``` 文件中是否已注册插件，如若未注册，在```import```中插入
 
 ```
-"github.com/flipped-aurora/gin-vue-admin/server/plugin/register"
+"server/plugin/register"
 ```
 
 在函数

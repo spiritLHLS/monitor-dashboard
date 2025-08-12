@@ -1,6 +1,6 @@
 package privmsg
 
-import "github.com/flipped-aurora/gin-vue-admin/server/service"
+import "server/service"
 
 type ApiGroup struct{ PusherConfigApi }
 

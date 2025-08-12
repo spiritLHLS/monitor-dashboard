@@ -1,8 +1,8 @@
 package model
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"gorm.io/datatypes"
+	"server/global"
 )
 
 // Info 公告 结构体

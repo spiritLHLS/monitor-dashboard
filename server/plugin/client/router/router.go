@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/api"
 	"github.com/gin-gonic/gin"
+	"server/plugin/client/api"
 )
 
 type RegisterRouter struct {

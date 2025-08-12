@@ -1,18 +1,15 @@
 package partitions
 
 import (
-	
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/partitions"
-    partitionsReq "github.com/flipped-aurora/gin-vue-admin/server/model/partitions/request"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	"server/model/partitions"
+	partitionsReq "server/model/partitions/request"
 )
 
-type PartitionspageApi struct {}
-
-
+type PartitionspageApi struct{}
 
 // CreatePartitionspage 创建partitionspage表
 // @Tags Partitionspage
@@ -32,11 +29,11 @@ func (pspApi *PartitionspageApi) CreatePartitionspage(c *gin.Context) {
 	}
 	err = pspService.CreatePartitionspage(&psp)
 	if err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
-		response.FailWithMessage("创建失败:" + err.Error(), c)
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		response.FailWithMessage("创建失败:"+err.Error(), c)
 		return
 	}
-    response.OkWithMessage("创建成功", c)
+	response.OkWithMessage("创建成功", c)
 }
 
 // DeletePartitionspage 删除partitionspage表
@@ -52,8 +49,8 @@ func (pspApi *PartitionspageApi) DeletePartitionspage(c *gin.Context) {
 	ID := c.Query("ID")
 	err := pspService.DeletePartitionspage(ID)
 	if err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
-		response.FailWithMessage("删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("删除成功", c)
@@ -71,8 +68,8 @@ func (pspApi *PartitionspageApi) DeletePartitionspageByIds(c *gin.Context) {
 	IDs := c.QueryArray("IDs[]")
 	err := pspService.DeletePartitionspageByIds(IDs)
 	if err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
-		response.FailWithMessage("批量删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		response.FailWithMessage("批量删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("批量删除成功", c)
@@ -96,8 +93,8 @@ func (pspApi *PartitionspageApi) UpdatePartitionspage(c *gin.Context) {
 	}
 	err = pspService.UpdatePartitionspage(psp)
 	if err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
-		response.FailWithMessage("更新失败:" + err.Error(), c)
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		response.FailWithMessage("更新失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("更新成功", c)
@@ -116,8 +113,8 @@ func (pspApi *PartitionspageApi) FindPartitionspage(c *gin.Context) {
 	ID := c.Query("ID")
 	repsp, err := pspService.GetPartitionspage(ID)
 	if err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
-		response.FailWithMessage("查询失败:" + err.Error(), c)
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		response.FailWithMessage("查询失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithData(repsp, c)
@@ -141,16 +138,16 @@ func (pspApi *PartitionspageApi) GetPartitionspageList(c *gin.Context) {
 	}
 	list, total, err := pspService.GetPartitionspageInfoList(pageInfo)
 	if err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败:" + err.Error(), c)
-        return
-    }
-    response.OkWithDetailed(response.PageResult{
-        List:     list,
-        Total:    total,
-        Page:     pageInfo.Page,
-        PageSize: pageInfo.PageSize,
-    }, "获取成功", c)
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败:"+err.Error(), c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
 }
 
 // GetPartitionspagePublic 不需要鉴权的partitionspage表接口
@@ -162,10 +159,10 @@ func (pspApi *PartitionspageApi) GetPartitionspageList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /psp/getPartitionspagePublic [get]
 func (pspApi *PartitionspageApi) GetPartitionspagePublic(c *gin.Context) {
-    // 此接口不需要鉴权
-    // 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
-    pspService.GetPartitionspagePublic()
-    response.OkWithDetailed(gin.H{
-       "info": "不需要鉴权的partitionspage表接口信息",
-    }, "获取成功", c)
+	// 此接口不需要鉴权
+	// 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
+	pspService.GetPartitionspagePublic()
+	response.OkWithDetailed(gin.H{
+		"info": "不需要鉴权的partitionspage表接口信息",
+	}, "获取成功", c)
 }

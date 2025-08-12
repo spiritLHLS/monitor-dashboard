@@ -2,12 +2,12 @@ package invite_codes
 
 import (
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes"
-	invite_codesReq "github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes/request"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	"server/model/invite_codes"
+	invite_codesReq "server/model/invite_codes/request"
 )
 
 type InviteCodesApi struct{}

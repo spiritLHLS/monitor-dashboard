@@ -1,18 +1,18 @@
 package service
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/service/digitalproducts"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/ecsusers"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/example"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/findallpd"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/invite_codes"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/partitions"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/privmsg"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/products"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/shops"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/subscribe"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/tgchannel"
+	"server/service/digitalproducts"
+	"server/service/ecsusers"
+	"server/service/example"
+	"server/service/findallpd"
+	"server/service/invite_codes"
+	"server/service/partitions"
+	"server/service/privmsg"
+	"server/service/products"
+	"server/service/shops"
+	"server/service/subscribe"
+	"server/service/system"
+	"server/service/tgchannel"
 )
 
 var ServiceGroupApp = new(ServiceGroup)

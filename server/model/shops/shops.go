@@ -2,7 +2,7 @@
 package shops
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"server/global"
 )
 
 // shops表 结构体  Shops

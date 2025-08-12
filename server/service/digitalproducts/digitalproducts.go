@@ -3,12 +3,12 @@ package digitalproducts
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/digitalproducts"
-	digitalproductsReq "github.com/flipped-aurora/gin-vue-admin/server/model/digitalproducts/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/products"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/ai"
 	"gorm.io/gorm"
+	"server/global"
+	"server/model/digitalproducts"
+	digitalproductsReq "server/model/digitalproducts/request"
+	"server/model/products"
+	"server/service/ai"
 	"strings"
 )
 

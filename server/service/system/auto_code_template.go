@@ -13,12 +13,12 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	model "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
-	utilsAst "github.com/flipped-aurora/gin-vue-admin/server/utils/ast"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"server/global"
+	model "server/model/system"
+	"server/model/system/request"
+	utilsAst "server/utils/ast"
 )
 
 var AutoCodeTemplate = new(autoCodeTemplate)

@@ -1,14 +1,14 @@
 package ecsusers
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
-	ecsusersReq "github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/client/model"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	"server/model/ecsusers"
+	ecsusersReq "server/model/ecsusers/request"
+	"server/plugin/client/model"
+	"server/utils"
 )
 
 type EcsUsersApi struct{}

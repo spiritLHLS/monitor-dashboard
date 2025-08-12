@@ -1,8 +1,8 @@
 package invite_codes
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
 	"github.com/gin-gonic/gin"
+	"server/middleware"
 )
 
 type InviteCodesRouter struct{}

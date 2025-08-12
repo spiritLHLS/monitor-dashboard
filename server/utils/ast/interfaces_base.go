@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/pkg/errors"
 	"go/ast"
 	"go/format"
@@ -11,6 +10,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"server/global"
 	"strings"
 )
 

@@ -1,9 +1,9 @@
 package request
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	productsReq "github.com/flipped-aurora/gin-vue-admin/server/model/products/request"
 	"github.com/google/uuid"
+	"server/global"
+	productsReq "server/model/products/request"
 	"time"
 )
 

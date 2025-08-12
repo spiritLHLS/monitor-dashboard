@@ -1,18 +1,15 @@
 package findallpd
 
 import (
-	
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/findallpd"
-    findallpdReq "github.com/flipped-aurora/gin-vue-admin/server/model/findallpd/request"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"server/global"
+	"server/model/common/response"
+	"server/model/findallpd"
+	findallpdReq "server/model/findallpd/request"
 )
 
-type FindallpdApi struct {}
-
-
+type FindallpdApi struct{}
 
 // CreateFindallpd 创建findallpd表
 // @Tags Findallpd
@@ -32,11 +29,11 @@ func (fapdApi *FindallpdApi) CreateFindallpd(c *gin.Context) {
 	}
 	err = fapdService.CreateFindallpd(&fapd)
 	if err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
-		response.FailWithMessage("创建失败:" + err.Error(), c)
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		response.FailWithMessage("创建失败:"+err.Error(), c)
 		return
 	}
-    response.OkWithMessage("创建成功", c)
+	response.OkWithMessage("创建成功", c)
 }
 
 // DeleteFindallpd 删除findallpd表
@@ -52,8 +49,8 @@ func (fapdApi *FindallpdApi) DeleteFindallpd(c *gin.Context) {
 	ID := c.Query("ID")
 	err := fapdService.DeleteFindallpd(ID)
 	if err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
-		response.FailWithMessage("删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("删除成功", c)
@@ -71,8 +68,8 @@ func (fapdApi *FindallpdApi) DeleteFindallpdByIds(c *gin.Context) {
 	IDs := c.QueryArray("IDs[]")
 	err := fapdService.DeleteFindallpdByIds(IDs)
 	if err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
-		response.FailWithMessage("批量删除失败:" + err.Error(), c)
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		response.FailWithMessage("批量删除失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("批量删除成功", c)
@@ -96,8 +93,8 @@ func (fapdApi *FindallpdApi) UpdateFindallpd(c *gin.Context) {
 	}
 	err = fapdService.UpdateFindallpd(fapd)
 	if err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
-		response.FailWithMessage("更新失败:" + err.Error(), c)
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		response.FailWithMessage("更新失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithMessage("更新成功", c)
@@ -116,8 +113,8 @@ func (fapdApi *FindallpdApi) FindFindallpd(c *gin.Context) {
 	ID := c.Query("ID")
 	refapd, err := fapdService.GetFindallpd(ID)
 	if err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
-		response.FailWithMessage("查询失败:" + err.Error(), c)
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		response.FailWithMessage("查询失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithData(refapd, c)
@@ -141,16 +138,16 @@ func (fapdApi *FindallpdApi) GetFindallpdList(c *gin.Context) {
 	}
 	list, total, err := fapdService.GetFindallpdInfoList(pageInfo)
 	if err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败:" + err.Error(), c)
-        return
-    }
-    response.OkWithDetailed(response.PageResult{
-        List:     list,
-        Total:    total,
-        Page:     pageInfo.Page,
-        PageSize: pageInfo.PageSize,
-    }, "获取成功", c)
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败:"+err.Error(), c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
 }
 
 // GetFindallpdPublic 不需要鉴权的findallpd表接口
@@ -162,10 +159,10 @@ func (fapdApi *FindallpdApi) GetFindallpdList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /fapd/getFindallpdPublic [get]
 func (fapdApi *FindallpdApi) GetFindallpdPublic(c *gin.Context) {
-    // 此接口不需要鉴权
-    // 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
-    fapdService.GetFindallpdPublic()
-    response.OkWithDetailed(gin.H{
-       "info": "不需要鉴权的findallpd表接口信息",
-    }, "获取成功", c)
+	// 此接口不需要鉴权
+	// 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
+	fapdService.GetFindallpdPublic()
+	response.OkWithDetailed(gin.H{
+		"info": "不需要鉴权的findallpd表接口信息",
+	}, "获取成功", c)
 }
