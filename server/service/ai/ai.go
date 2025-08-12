@@ -42,9 +42,9 @@ type ChatResponse struct {
 }
 
 var (
-	lastRequestTime                                                                                       time.Time
-	mu                                                                                                    sync.Mutex
-	TbaiURL, TbaiModel, TbaiApiKey, UnlimitURL, UnlimitApiKey, OpenrouterURL, DeepSeekURL, DeepseekApiKey string
+	lastRequestTime                                                                                                                      time.Time
+	mu                                                                                                                                   sync.Mutex
+	TbaiURL, TbaiModel, TbaiApiKey, UnlimitURL, UnlimitModel, UnlimitApiKey, OpenrouterURL, OpenrouterModel, DeepSeekURL, DeepseekApiKey string
 )
 
 func GetResponse(originText string) string {
@@ -52,10 +52,13 @@ func GetResponse(originText string) string {
 	TbaiModel = global.GVA_VP.GetString("aiconfig.tbai_model")
 	TbaiApiKey = global.GVA_VP.GetString("aiconfig.tbai_api_key")
 	UnlimitURL = global.GVA_VP.GetString("aiconfig.unlimit_url")
+	UnlimitModel = global.GVA_VP.GetString("aiconfig.unlimit_model")
 	UnlimitApiKey = global.GVA_VP.GetString("aiconfig.unlimit_api_key")
 	OpenrouterURL = global.GVA_VP.GetString("aiconfig.openrouter_url")
+	OpenrouterModel = global.GVA_VP.GetString("aiconfig.openrouter_model")
 	DeepSeekURL = global.GVA_VP.GetString("aiconfig.deepseek_url")
 	DeepseekApiKey = global.GVA_VP.GetString("aiconfig.deepseek_api_key")
+
 	mu.Lock()
 	now := time.Now()
 	if !lastRequestTime.IsZero() {
@@ -68,8 +71,15 @@ func GetResponse(originText string) string {
 	}
 	lastRequestTime = time.Now()
 	mu.Unlock()
+
+	// 如果 UnlimitModel 为空，使用默认值
+	unlimitModel := UnlimitModel
+	if unlimitModel == "" {
+		unlimitModel = "gpt-4.1-nano"
+	}
+
 	requestData := ChatRequest{
-		Model: "gpt-4.1-nano",
+		Model: unlimitModel,
 		Messages: []Message{
 			{
 				Role:    "user",
@@ -77,8 +87,11 @@ func GetResponse(originText string) string {
 			},
 		},
 	}
+
 	maxRetries := 3
 	baseDelay := 35 * time.Second
+
+	// 尝试 Unlimit API
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
 			delay := time.Duration(1<<uint(attempt-1)) * baseDelay
@@ -99,8 +112,17 @@ func GetResponse(originText string) string {
 		}
 		return result
 	}
+
 	fmt.Println("Unlimit API 不可用，切换到 Tbai API")
-	requestData.Model = TbaiModel
+
+	// 如果 TbaiModel 为空，使用默认值
+	tbaiModel := TbaiModel
+	if tbaiModel == "" {
+		tbaiModel = "gpt-4.1-nano"
+	}
+	requestData.Model = tbaiModel
+
+	// 尝试 Tbai API
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
 			delay := time.Duration(1<<uint(attempt-1)) * baseDelay
@@ -121,8 +143,11 @@ func GetResponse(originText string) string {
 		}
 		return result
 	}
+
 	fmt.Println("Tbai API 不可用，切换到 DeepSeek API")
 	requestData.Model = "deepseek-chat"
+
+	// 尝试 DeepSeek API
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
 			delay := time.Duration(1<<uint(attempt-1)) * baseDelay
@@ -144,6 +169,93 @@ func GetResponse(originText string) string {
 		return result
 	}
 	return ""
+}
+
+func makeUnlimitRequest(requestData ChatRequest, apiKey string) (string, bool, error) {
+	jsonData, err := json.Marshal(requestData)
+	if err != nil {
+		return "", false, fmt.Errorf("JSON序列化错误: %v", err)
+	}
+	req, err := http.NewRequest("POST", UnlimitURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", false, fmt.Errorf("创建请求错误: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	return sendRequest(req)
+}
+
+func makeTbaiRequest(requestData ChatRequest, apiKey string) (string, bool, error) {
+	jsonData, err := json.Marshal(requestData)
+	if err != nil {
+		return "", false, fmt.Errorf("JSON序列化错误: %v", err)
+	}
+	req, err := http.NewRequest("POST", TbaiURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", false, fmt.Errorf("创建请求错误: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	return sendRequest(req)
+}
+
+func makeDeepSeekRequest(requestData ChatRequest, apiKey string) (string, bool, error) {
+	jsonData, err := json.Marshal(requestData)
+	if err != nil {
+		return "", false, fmt.Errorf("JSON序列化错误: %v", err)
+	}
+	req, err := http.NewRequest("POST", DeepSeekURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", false, fmt.Errorf("创建请求错误: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	return sendRequest(req)
+}
+
+func makeOpenRouterRequest(requestData ChatRequest, apiKey string) (string, bool, error) {
+	jsonData, err := json.Marshal(requestData)
+	if err != nil {
+		return "", false, fmt.Errorf("JSON序列化错误: %v", err)
+	}
+	req, err := http.NewRequest("POST", OpenrouterURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", false, fmt.Errorf("创建请求错误: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	return sendRequest(req)
+}
+
+func sendRequest(req *http.Request) (string, bool, error) {
+	client := &http.Client{Timeout: 60 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", true, fmt.Errorf("发送请求错误: %v", err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", true, fmt.Errorf("读取响应错误: %v", err)
+	}
+	if resp.StatusCode == 429 {
+		return "", true, fmt.Errorf("速率限制错误: HTTP %d, 响应: %s", resp.StatusCode, string(body))
+	}
+	if resp.StatusCode != http.StatusOK {
+		shouldRetry := resp.StatusCode >= 500
+		return "", shouldRetry, fmt.Errorf("HTTP错误: %d, 响应: %s", resp.StatusCode, string(body))
+	}
+	var chatResponse ChatResponse
+	err = json.Unmarshal(body, &chatResponse)
+	if err != nil {
+		return "", false, fmt.Errorf("JSON解析错误: %v, 原始响应: %s", err, string(body))
+	}
+	if len(chatResponse.Choices) > 0 {
+		fmt.Printf("使用的token数: %d\n", chatResponse.Usage.TotalTokens)
+		return chatResponse.Choices[0].Message.Content, false, nil
+	} else {
+		return "", false, fmt.Errorf("没有收到有效回复")
+	}
 }
 
 func DeepSeekResponse(apiKey, originText string) string {
@@ -191,91 +303,4 @@ func DeepSeekResponse(apiKey, originText string) string {
 		return result
 	}
 	return ""
-}
-
-func makeOpenRouterRequest(requestData ChatRequest, apiKey string) (string, bool, error) {
-	jsonData, err := json.Marshal(requestData)
-	if err != nil {
-		return "", false, fmt.Errorf("JSON序列化错误: %v", err)
-	}
-	req, err := http.NewRequest("POST", OpenrouterURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", false, fmt.Errorf("创建请求错误: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
-	return sendRequest(req)
-}
-
-func makeUnlimitRequest(requestData ChatRequest, apiKey string) (string, bool, error) {
-	jsonData, err := json.Marshal(requestData)
-	if err != nil {
-		return "", false, fmt.Errorf("JSON序列化错误: %v", err)
-	}
-	req, err := http.NewRequest("POST", UnlimitURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", false, fmt.Errorf("创建请求错误: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
-	return sendRequest(req)
-}
-
-func makeTbaiRequest(requestData ChatRequest, apiKey string) (string, bool, error) {
-	jsonData, err := json.Marshal(requestData)
-	if err != nil {
-		return "", false, fmt.Errorf("JSON序列化错误: %v", err)
-	}
-	req, err := http.NewRequest("POST", TbaiURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", false, fmt.Errorf("创建请求错误: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
-	return sendRequest(req)
-}
-
-func makeDeepSeekRequest(requestData ChatRequest, apiKey string) (string, bool, error) {
-	jsonData, err := json.Marshal(requestData)
-	if err != nil {
-		return "", false, fmt.Errorf("JSON序列化错误: %v", err)
-	}
-	req, err := http.NewRequest("POST", DeepSeekURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", false, fmt.Errorf("创建请求错误: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
-	return sendRequest(req)
-}
-
-func sendRequest(req *http.Request) (string, bool, error) {
-	client := &http.Client{Timeout: 60 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", true, fmt.Errorf("发送请求错误: %v", err)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", true, fmt.Errorf("读取响应错误: %v", err)
-	}
-	if resp.StatusCode == 429 {
-		return "", true, fmt.Errorf("速率限制错误: HTTP %d, 响应: %s", resp.StatusCode, string(body))
-	}
-	if resp.StatusCode != http.StatusOK {
-		shouldRetry := resp.StatusCode >= 500
-		return "", shouldRetry, fmt.Errorf("HTTP错误: %d, 响应: %s", resp.StatusCode, string(body))
-	}
-	var chatResponse ChatResponse
-	err = json.Unmarshal(body, &chatResponse)
-	if err != nil {
-		return "", false, fmt.Errorf("JSON解析错误: %v, 原始响应: %s", err, string(body))
-	}
-	if len(chatResponse.Choices) > 0 {
-		fmt.Printf("使用的token数: %d\n", chatResponse.Usage.TotalTokens)
-		return chatResponse.Choices[0].Message.Content, false, nil
-	} else {
-		return "", false, fmt.Errorf("没有收到有效回复")
-	}
 }
