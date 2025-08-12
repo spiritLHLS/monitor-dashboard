@@ -1,10 +1,6 @@
-# 展示图
+# 前言
 
-https://github.com/spiritLHLS/monitor-dashboard/blob/master/%E5%B1%95%E7%A4%BA.md
-
-# agent
-
-https://github.com/spiritLHLS/monitor-agent
+仅部分主体框架内容，所有实际业务逻辑剥离不开源
 
 # 环境
 
@@ -150,3 +146,7 @@ sudo systemctl stop ecs-spider.service
 ```
 sudo systemctl restart ecs-spider.service
 ```
+
+# agent
+
+https://github.com/spiritLHLS/monitor-agent
