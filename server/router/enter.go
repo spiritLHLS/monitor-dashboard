@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/flipped-aurora/gin-vue-admin/server/router/digitalproducts"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/ecsusers"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/findallpd"
@@ -17,15 +18,16 @@ import (
 var RouterGroupApp = new(RouterGroup)
 
 type RouterGroup struct {
-	System       system.RouterGroup
-	Example      example.RouterGroup
-	Products     products.RouterGroup
-	Shops        shops.RouterGroup
-	Partitions   partitions.RouterGroup
-	Tgchannel    tgchannel.RouterGroup
-	Findallpd    findallpd.RouterGroup
-	Ecsusers     ecsusers.RouterGroup
-	Subscribe    subscribe.RouterGroup
-	Privmsg      privmsg.RouterGroup
-	Invite_codes invite_codes.RouterGroup
+	System          system.RouterGroup
+	Example         example.RouterGroup
+	Products        products.RouterGroup
+	Shops           shops.RouterGroup
+	Partitions      partitions.RouterGroup
+	Tgchannel       tgchannel.RouterGroup
+	Findallpd       findallpd.RouterGroup
+	Ecsusers        ecsusers.RouterGroup
+	Subscribe       subscribe.RouterGroup
+	Privmsg         privmsg.RouterGroup
+	Invite_codes    invite_codes.RouterGroup
+	Digitalproducts digitalproducts.RouterGroup
 }

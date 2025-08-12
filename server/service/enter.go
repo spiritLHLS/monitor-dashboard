@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/flipped-aurora/gin-vue-admin/server/service/digitalproducts"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/ecsusers"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/findallpd"
@@ -17,15 +18,16 @@ import (
 var ServiceGroupApp = new(ServiceGroup)
 
 type ServiceGroup struct {
-	SystemServiceGroup       system.ServiceGroup
-	ExampleServiceGroup      example.ServiceGroup
-	ProductsServiceGroup     products.ServiceGroup
-	ShopsServiceGroup        shops.ServiceGroup
-	PartitionsServiceGroup   partitions.ServiceGroup
-	TgchannelServiceGroup    tgchannel.ServiceGroup
-	FindallpdServiceGroup    findallpd.ServiceGroup
-	EcsusersServiceGroup     ecsusers.ServiceGroup
-	SubscribeServiceGroup    subscribe.ServiceGroup
-	PrivmsgServiceGroup      privmsg.ServiceGroup
-	Invite_codesServiceGroup invite_codes.ServiceGroup
+	SystemServiceGroup          system.ServiceGroup
+	ExampleServiceGroup         example.ServiceGroup
+	ProductsServiceGroup        products.ServiceGroup
+	ShopsServiceGroup           shops.ServiceGroup
+	PartitionsServiceGroup      partitions.ServiceGroup
+	TgchannelServiceGroup       tgchannel.ServiceGroup
+	FindallpdServiceGroup       findallpd.ServiceGroup
+	EcsusersServiceGroup        ecsusers.ServiceGroup
+	SubscribeServiceGroup       subscribe.ServiceGroup
+	PrivmsgServiceGroup         privmsg.ServiceGroup
+	Invite_codesServiceGroup    invite_codes.ServiceGroup
+	DigitalproductsServiceGroup digitalproducts.ServiceGroup
 }

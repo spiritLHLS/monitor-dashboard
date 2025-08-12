@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/digitalproducts"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ecsusers"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/findallpd"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/invite_codes"
@@ -15,7 +16,7 @@ import (
 
 func bizModel() error {
 	db := global.GVA_DB
-	err := db.AutoMigrate(products.Products{}, shops.Shops{}, partitions.Partitionspage{}, tgchannel.Tgchannel{}, findallpd.Findallpd{}, ecsusers.EcsUsers{}, subscribe.Subscribe{}, privmsg.PusherConfig{}, invite_codes.InviteCodes{})
+	err := db.AutoMigrate(products.Products{}, shops.Shops{}, partitions.Partitionspage{}, tgchannel.Tgchannel{}, findallpd.Findallpd{}, ecsusers.EcsUsers{}, subscribe.Subscribe{}, privmsg.PusherConfig{}, invite_codes.InviteCodes{}, digitalproducts.DigitalProducts{})
 	if err != nil {
 		return err
 	}

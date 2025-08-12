@@ -22,6 +22,8 @@
   "/src/view/dashboard/components/table.vue": "Table",
   "/src/view/dashboard/components/wiki.vue": "Wiki",
   "/src/view/dashboard/index.vue": "Index",
+  "/src/view/digitalproducts/digitalproducts/digitalproducts.vue": "DigitalProducts",
+  "/src/view/digitalproducts/digitalproducts/digitalproductsForm.vue": "DigitalProductsForm",
   "/src/view/ecsusers/ecsusers/ecsusers.vue": "EcsUsers",
   "/src/view/ecsusers/ecsusers/ecsusersForm.vue": "EcsUsersForm",
   "/src/view/error/index.vue": "Error",
