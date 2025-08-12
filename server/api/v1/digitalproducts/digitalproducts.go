@@ -1,6 +1,7 @@
 package digitalproducts
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/digitalproducts"
@@ -169,4 +170,35 @@ func (dpdApi *DigitalProductsApi) GetDigitalProductsPublic(c *gin.Context) {
 	response.OkWithDetailed(gin.H{
 		"info": "不需要鉴权的数字商品表接口信息",
 	}, "获取成功", c)
+}
+
+// ConvertProductsToDigital 将products表数据转换为数字商品表
+// @Tags DigitalProducts
+// @Summary 将products表数据转换为数字商品表
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Param productIds body []uint true "需要转换的产品ID列表"
+// @Success 200 {object} response.Response{msg=string} "转换成功"
+// @Router /dpd/convertProductsToDigital [post]
+func (dpdApi *DigitalProductsApi) ConvertProductsToDigital(c *gin.Context) {
+	var productIds []uint
+	err := c.ShouldBindJSON(&productIds)
+	if err != nil {
+		response.FailWithMessage("参数错误: "+err.Error(), c)
+		return
+	}
+	if len(productIds) == 0 {
+		response.FailWithMessage("产品ID列表不能为空", c)
+		return
+	}
+	userID := utils.GetUserID(c)
+	successCount, failCount, err := dpdService.ConvertProductsToDigital(productIds, userID)
+	if err != nil {
+		global.GVA_LOG.Error("转换失败!", zap.Error(err))
+		response.FailWithMessage("转换失败: "+err.Error(), c)
+		return
+	}
+	message := fmt.Sprintf("转换完成，成功: %d 条，失败: %d 条", successCount, failCount)
+	response.OkWithMessage(message, c)
 }
