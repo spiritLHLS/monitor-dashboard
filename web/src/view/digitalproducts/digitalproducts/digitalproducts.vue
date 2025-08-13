@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <div class="gva-search-box">
@@ -37,7 +36,7 @@
         <div class="gva-btn-list">
             <el-button v-auth="btnAuth.add" type="primary" icon="plus" @click="openDialog()">新增</el-button>
             <el-button v-auth="btnAuth.batchDelete" icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="onDelete">删除</el-button>
-            
+            <el-button type="success" icon="refresh" style="margin-left: 10px;" @click="onConvert" :loading="convertLoading">一键转换</el-button>
         </div>
         <el-table
         ref="multipleTable"
@@ -187,7 +186,8 @@ import {
   deleteDigitalProductsByIds,
   updateDigitalProducts,
   findDigitalProducts,
-  getDigitalProductsList
+  getDigitalProductsList,
+  convertProductsToDigital
 } from '@/api/digitalproducts/digitalproducts'
 
 // 全量引入格式化工具 请按需保留
@@ -209,6 +209,8 @@ defineOptions({
 
 // 提交按钮loading
 const btnLoading = ref(false)
+// 转换按钮loading
+const convertLoading = ref(false)
 const appStore = useAppStore()
 
 // 控制更多查询条件显示/隐藏状态
@@ -361,6 +363,36 @@ const onDelete = async() => {
       }
       })
     }
+
+// 一键转换
+const onConvert = async() => {
+  ElMessageBox.confirm('确定要将products表数据转换为数字商品表吗？此操作会同步所有数据。', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'info'
+  }).then(async() => {
+    convertLoading.value = true
+    try {
+      const res = await convertProductsToDigital()
+      if (res.code === 0) {
+        ElMessage({
+          type: 'success',
+          message: '转换成功'
+        })
+        getTableData() // 重新加载数据
+      }
+    } catch (error) {
+      ElMessage({
+        type: 'error',
+        message: '转换失败，请重试'
+      })
+    } finally {
+      convertLoading.value = false
+    }
+  }).catch(() => {
+    // 用户取消操作
+  })
+}
 
 // 行为控制标记（弹窗内部需要增还是改）
 const type = ref('')

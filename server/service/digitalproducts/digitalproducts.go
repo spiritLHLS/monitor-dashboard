@@ -10,9 +10,27 @@ import (
 	"server/model/products"
 	"server/service/ai"
 	"strings"
+	"sync"
+	"time"
 )
 
-type DigitalProductsService struct{}
+// ConversionStatus 转换任务状态
+type ConversionStatus struct {
+	IsRunning     bool      `json:"is_running"`
+	StartTime     time.Time `json:"start_time"`
+	CurrentStep   string    `json:"current_step"`
+	Progress      int       `json:"progress"`       // 已处理的产品数量
+	TotalProducts int       `json:"total_products"` // 总产品数量
+	SuccessCount  int       `json:"success_count"`
+	FailCount     int       `json:"fail_count"`
+	LastError     string    `json:"last_error"`
+	UserID        uint      `json:"user_id"`
+}
+
+type DigitalProductsService struct {
+	conversionMutex  sync.Mutex
+	conversionStatus *ConversionStatus
+}
 
 // CreateDigitalProducts 创建数字商品表记录
 // Author [yourname](https://github.com/yourname)
@@ -84,49 +102,102 @@ func (dpdService *DigitalProductsService) GetDigitalProductsInfoList(info digita
 	if err != nil {
 		return
 	}
-
 	if limit != 0 {
 		db = db.Limit(limit).Offset(offset)
 	}
-
 	err = db.Find(&dpds).Error
 	return dpds, total, err
 }
+
 func (dpdService *DigitalProductsService) GetDigitalProductsPublic() {
 	// 此方法为获取数据源定义的数据
 	// 请自行实现
 }
 
-// Service函数 - 添加到 DigitalProductsService 结构体中
-// ConvertProductsToDigital 将products表数据转换为数字商品表
-// Author [yourname](https://github.com/yourname)
-func (dpdService *DigitalProductsService) ConvertProductsToDigital(productIds []uint, userID uint) (successCount int, failCount int, err error) {
-	// 获取所有需要转换的产品
-	var products []products.Products
-	err = global.GVA_DB.Where("id IN ?", productIds).Find(&products).Error
-	if err != nil {
-		return 0, 0, fmt.Errorf("获取产品信息失败: %v", err)
+// ConvertProductsToDigital 将products表数据转换为数字商品表，并清理无效记录
+func (dpdService *DigitalProductsService) ConvertProductsToDigital(userID uint) (successCount int, failCount int, err error) {
+	dpdService.conversionMutex.Lock()
+	defer dpdService.conversionMutex.Unlock()
+	// 检查是否有任务正在运行
+	if dpdService.conversionStatus != nil && dpdService.conversionStatus.IsRunning {
+		return 0, 0, fmt.Errorf("转换任务正在进行中，当前步骤：%s，进度：%d/%d，成功：%d，失败：%d",
+			dpdService.conversionStatus.CurrentStep,
+			dpdService.conversionStatus.Progress,
+			dpdService.conversionStatus.TotalProducts,
+			dpdService.conversionStatus.SuccessCount,
+			dpdService.conversionStatus.FailCount)
 	}
-	if len(products) == 0 {
-		return 0, 0, fmt.Errorf("未找到指定的产品")
+	// 初始化状态
+	dpdService.conversionStatus = &ConversionStatus{
+		IsRunning:   true,
+		StartTime:   time.Now(),
+		CurrentStep: "初始化",
+		Progress:    0,
+		UserID:      userID,
 	}
-	successCount = 0
-	failCount = 0
-	// 逐个处理产品转换
-	for _, product := range products {
-		// 检查是否已经转换过
-		var existingCount int64
-		global.GVA_DB.Model(&digitalproducts.DigitalProducts{}).Where("origin_id = ?", product.ID).Count(&existingCount)
-		if existingCount > 0 {
-			global.GVA_LOG.Info(fmt.Sprintf("产品ID %d 已经转换过，跳过", product.ID))
-			failCount++
-			continue
+	// 启动后台任务
+	go dpdService.runConversionTask(userID)
+	return 0, 0, nil
+}
+
+// runConversionTask 在后台运行转换任务
+func (dpdService *DigitalProductsService) runConversionTask(userID uint) {
+	defer func() {
+		dpdService.conversionMutex.Lock()
+		if dpdService.conversionStatus != nil {
+			dpdService.conversionStatus.IsRunning = false
 		}
+		dpdService.conversionMutex.Unlock()
+		if r := recover(); r != nil {
+			global.GVA_LOG.Error(fmt.Sprintf("转换任务异常退出: %v", r))
+		}
+	}()
+	// 第一步：清理无效的数字商品记录
+	dpdService.updateStatus("清理无效记录", 0, 0)
+	cleanupResult := global.GVA_DB.Where("origin_id NOT IN (?)",
+		global.GVA_DB.Model(&products.Products{}).Select("id")).
+		Delete(&digitalproducts.DigitalProducts{})
+	if cleanupResult.Error != nil {
+		errMsg := fmt.Sprintf("清理无效数字商品记录失败: %v", cleanupResult.Error)
+		global.GVA_LOG.Error(errMsg)
+		dpdService.updateStatusError(errMsg)
+		return
+	}
+	if cleanupResult.RowsAffected > 0 {
+		global.GVA_LOG.Info(fmt.Sprintf("已清理 %d 条无效的数字商品记录", cleanupResult.RowsAffected))
+	}
+	// 第二步：获取所有未转换的产品
+	dpdService.updateStatus("获取待转换产品", 0, 0)
+	var productsList []products.Products
+	err := global.GVA_DB.Where("id NOT IN (?)",
+		global.GVA_DB.Model(&digitalproducts.DigitalProducts{}).Select("origin_id").Where("origin_id IS NOT NULL")).
+		Find(&productsList).Error
+	if err != nil {
+		errMsg := fmt.Sprintf("获取未转换产品信息失败: %v", err)
+		global.GVA_LOG.Error(errMsg)
+		dpdService.updateStatusError(errMsg)
+		return
+	}
+	if len(productsList) == 0 {
+		global.GVA_LOG.Info("没有需要转换的新产品")
+		dpdService.updateStatus("完成", 0, len(productsList))
+		return
+	}
+	global.GVA_LOG.Info(fmt.Sprintf("找到 %d 个需要转换的产品", len(productsList)))
+	// 更新总数
+	dpdService.conversionMutex.Lock()
+	if dpdService.conversionStatus != nil {
+		dpdService.conversionStatus.TotalProducts = len(productsList)
+	}
+	dpdService.conversionMutex.Unlock()
+	// 第三步：逐个处理产品转换
+	for i, product := range productsList {
+		dpdService.updateStatus(fmt.Sprintf("转换产品 ID:%d", product.ID), i, len(productsList))
 		// 使用AI解析产品信息
 		digitalProduct, parseErr := dpdService.parseProductWithAI(product)
 		if parseErr != nil {
 			global.GVA_LOG.Error(fmt.Sprintf("AI解析产品ID %d 失败: %v", product.ID, parseErr))
-			failCount++
+			dpdService.incrementFailCount()
 			continue
 		}
 		// 设置创建者和原始ID
@@ -136,13 +207,66 @@ func (dpdService *DigitalProductsService) ConvertProductsToDigital(productIds []
 		createErr := global.GVA_DB.Create(&digitalProduct).Error
 		if createErr != nil {
 			global.GVA_LOG.Error(fmt.Sprintf("保存数字商品失败，产品ID %d: %v", product.ID, createErr))
-			failCount++
+			dpdService.incrementFailCount()
 			continue
 		}
-		successCount++
+		dpdService.incrementSuccessCount()
 		global.GVA_LOG.Info(fmt.Sprintf("成功转换产品ID %d", product.ID))
 	}
-	return successCount, failCount, nil
+	dpdService.updateStatus("完成", len(productsList), len(productsList))
+	global.GVA_LOG.Info(fmt.Sprintf("转换完成: 成功 %d 个，失败 %d 个",
+		dpdService.conversionStatus.SuccessCount, dpdService.conversionStatus.FailCount))
+}
+
+// updateStatus 更新任务状态
+func (dpdService *DigitalProductsService) updateStatus(step string, progress int, total int) {
+	dpdService.conversionMutex.Lock()
+	defer dpdService.conversionMutex.Unlock()
+	if dpdService.conversionStatus != nil {
+		dpdService.conversionStatus.CurrentStep = step
+		dpdService.conversionStatus.Progress = progress
+		if total > 0 {
+			dpdService.conversionStatus.TotalProducts = total
+		}
+	}
+}
+
+// updateStatusError 更新错误状态
+func (dpdService *DigitalProductsService) updateStatusError(errMsg string) {
+	dpdService.conversionMutex.Lock()
+	defer dpdService.conversionMutex.Unlock()
+	if dpdService.conversionStatus != nil {
+		dpdService.conversionStatus.LastError = errMsg
+	}
+}
+
+// incrementSuccessCount 增加成功计数
+func (dpdService *DigitalProductsService) incrementSuccessCount() {
+	dpdService.conversionMutex.Lock()
+	defer dpdService.conversionMutex.Unlock()
+	if dpdService.conversionStatus != nil {
+		dpdService.conversionStatus.SuccessCount++
+	}
+}
+
+// incrementFailCount 增加失败计数
+func (dpdService *DigitalProductsService) incrementFailCount() {
+	dpdService.conversionMutex.Lock()
+	defer dpdService.conversionMutex.Unlock()
+	if dpdService.conversionStatus != nil {
+		dpdService.conversionStatus.FailCount++
+	}
+}
+
+// GetConversionStatus 获取转换任务状态
+func (dpdService *DigitalProductsService) GetConversionStatus() *ConversionStatus {
+	dpdService.conversionMutex.Lock()
+	defer dpdService.conversionMutex.Unlock()
+	if dpdService.conversionStatus == nil {
+		return nil
+	}
+	status := *dpdService.conversionStatus
+	return &status
 }
 
 // parseProductWithAI 使用AI解析产品信息
@@ -186,8 +310,7 @@ func (dpdService *DigitalProductsService) buildPromptForProduct(product products
   "location": "string",
   "price": int or null,
   "priceUnit": "string",
-  "additional": "string",
-  "stock": int or null
+  "additional": "string"
 }
 提取规则：
 1. CPU：提取核心数，如"4核心"→4，"2vCPU"→2，不存在的设为null
@@ -197,7 +320,7 @@ func (dpdService *DigitalProductsService) buildPromptForProduct(product products
 5. 带宽：提取Gbps数值，如"1Gbps"→1，"100Mbps"→0.1（小于1Mbps或不存在的设为null）
 6. 价格：只提取数值部分，如"$10/月"→10，如果非美元计价，则请按照当前汇率直接转换为美元计价的，不存在的设为null
 7. 价格单位：提取单位，如"/月"、"/年"、"monthly"等，单年付的设为"Annually"，月的设为"monthly"，两年付的三年付的依此类推，不存在的设为null
-8. 库存：如果有库存信息则提取数值，否则设为10`
+`
 	return prompt
 }
 
@@ -218,7 +341,6 @@ func (dpdService *DigitalProductsService) parseAIResponse(aiResponse string, ori
 		Price      *int   `json:"price"`
 		PriceUnit  string `json:"priceUnit"`
 		Additional string `json:"additional"`
-		Stock      *int   `json:"stock"`
 	}
 	err := json.Unmarshal([]byte(jsonStr), &aiResult)
 	if err != nil {
@@ -236,7 +358,7 @@ func (dpdService *DigitalProductsService) parseAIResponse(aiResponse string, ori
 		Price:      aiResult.Price,
 		PriceUnit:  &aiResult.PriceUnit,
 		Additional: &aiResult.Additional,
-		Stock:      aiResult.Stock,
+		Stock:      new(int),
 	}
 	// 如果AI解析失败，使用原始数据作为备用
 	if digitalProduct.Tag == nil || *digitalProduct.Tag == "" {
@@ -247,6 +369,11 @@ func (dpdService *DigitalProductsService) parseAIResponse(aiResponse string, ori
 	}
 	if digitalProduct.Additional == nil || *digitalProduct.Additional == "" {
 		digitalProduct.Additional = &originalProduct.Additional
+	}
+	if originalProduct.Stock != nil && *originalProduct.Stock == 1000 {
+		*digitalProduct.Stock = 6
+	} else if originalProduct.Stock != nil && *originalProduct.Stock != 1000 {
+		*digitalProduct.Stock = *originalProduct.Stock
 	}
 	return digitalProduct, nil
 }

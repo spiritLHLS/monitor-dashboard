@@ -108,3 +108,17 @@ export const getDigitalProductsPublic = () => {
     method: 'get',
   })
 }
+
+// @Tags DigitalProducts
+// @Summary 将products表数据转换为数字商品表
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{msg=string} "转换成功"
+// @Router /dpd/convertProductsToDigital [get]
+export const convertProductsToDigital = () => {
+  return service({
+    url: '/dpd/convertProductsToDigital',
+    method: 'get',
+  })
+}

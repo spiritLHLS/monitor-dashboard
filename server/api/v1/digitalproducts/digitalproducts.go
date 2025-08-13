@@ -182,18 +182,8 @@ func (dpdApi *DigitalProductsApi) GetDigitalProductsPublic(c *gin.Context) {
 // @Success 200 {object} response.Response{msg=string} "转换成功"
 // @Router /dpd/convertProductsToDigital [post]
 func (dpdApi *DigitalProductsApi) ConvertProductsToDigital(c *gin.Context) {
-	var productIds []uint
-	err := c.ShouldBindJSON(&productIds)
-	if err != nil {
-		response.FailWithMessage("参数错误: "+err.Error(), c)
-		return
-	}
-	if len(productIds) == 0 {
-		response.FailWithMessage("产品ID列表不能为空", c)
-		return
-	}
 	userID := utils.GetUserID(c)
-	successCount, failCount, err := dpdService.ConvertProductsToDigital(productIds, userID)
+	successCount, failCount, err := dpdService.ConvertProductsToDigital(userID)
 	if err != nil {
 		global.GVA_LOG.Error("转换失败!", zap.Error(err))
 		response.FailWithMessage("转换失败: "+err.Error(), c)
