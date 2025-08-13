@@ -39,6 +39,8 @@ server/service/shops
 server/service/tgchannel
 server/service/privmsg
 server/service/invite_codes
+server/service/ai
+server/service/digitalproducts
 server/plugin/spiders
 server/plugin/allpdspiders
 server/plugin/telegrampush
