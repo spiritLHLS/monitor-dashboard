@@ -246,49 +246,49 @@ func sendRequest(req *http.Request) (string, bool, error) {
 	}
 }
 
-func DeepSeekResponse(apiKey, originText string) string {
-	mu.Lock()
-	now := time.Now()
-	if !lastRequestTime.IsZero() {
-		elapsed := now.Sub(lastRequestTime)
-		if elapsed < 20*time.Second {
-			waitTime := 20*time.Second - elapsed
-			fmt.Printf("等待 %v 以避免速率限制\n", waitTime)
-			time.Sleep(waitTime)
-		}
-	}
-	lastRequestTime = time.Now()
-	mu.Unlock()
-	requestData := ChatRequest{
-		Model: "deepseek-chat",
-		Messages: []Message{
-			{
-				Role:    "user",
-				Content: originText,
-			},
-		},
-	}
-	maxRetries := 5
-	baseDelay := 35 * time.Second
-	for attempt := 0; attempt < maxRetries; attempt++ {
-		if attempt > 0 {
-			delay := time.Duration(1<<uint(attempt-1)) * baseDelay
-			if delay > 3*time.Minute {
-				delay = 3 * time.Minute
-			}
-			fmt.Printf("第 %d 次重试，等待 %v\n", attempt+1, delay)
-			time.Sleep(delay)
-		}
-		result, shouldRetry, err := makeDeepSeekRequest(requestData, apiKey)
-		if err != nil {
-			if !shouldRetry || attempt == maxRetries-1 {
-				fmt.Printf("最终错误: %v\n", err)
-				return ""
-			}
-			fmt.Printf("请求失败，准备重试: %v\n", err)
-			continue
-		}
-		return result
-	}
-	return ""
-}
+//func DeepSeekResponse(apiKey, originText string) string {
+//	mu.Lock()
+//	now := time.Now()
+//	if !lastRequestTime.IsZero() {
+//		elapsed := now.Sub(lastRequestTime)
+//		if elapsed < 20*time.Second {
+//			waitTime := 20*time.Second - elapsed
+//			fmt.Printf("等待 %v 以避免速率限制\n", waitTime)
+//			time.Sleep(waitTime)
+//		}
+//	}
+//	lastRequestTime = time.Now()
+//	mu.Unlock()
+//	requestData := ChatRequest{
+//		Model: "deepseek-chat",
+//		Messages: []Message{
+//			{
+//				Role:    "user",
+//				Content: originText,
+//			},
+//		},
+//	}
+//	maxRetries := 5
+//	baseDelay := 35 * time.Second
+//	for attempt := 0; attempt < maxRetries; attempt++ {
+//		if attempt > 0 {
+//			delay := time.Duration(1<<uint(attempt-1)) * baseDelay
+//			if delay > 3*time.Minute {
+//				delay = 3 * time.Minute
+//			}
+//			fmt.Printf("第 %d 次重试，等待 %v\n", attempt+1, delay)
+//			time.Sleep(delay)
+//		}
+//		result, shouldRetry, err := makeDeepSeekRequest(requestData, apiKey)
+//		if err != nil {
+//			if !shouldRetry || attempt == maxRetries-1 {
+//				fmt.Printf("最终错误: %v\n", err)
+//				return ""
+//			}
+//			fmt.Printf("请求失败，准备重试: %v\n", err)
+//			continue
+//		}
+//		return result
+//	}
+//	return ""
+//}
