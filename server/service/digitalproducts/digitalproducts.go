@@ -290,7 +290,6 @@ func (dpdService *DigitalProductsService) parseProductWithAI(product products.Pr
 func (dpdService *DigitalProductsService) buildPromptForProduct(product products.Products) string {
 	prompt := `请从以下商品信息中提取规范化的硬件配置信息，并以JSON格式返回。请严格按照以下格式返回，不要包含任何其他文字：
 商品信息：
-- TAG: ` + product.Tag + `
 - CPU: ` + product.Cpu + `
 - 内存: ` + product.Memory + `
 - 硬盘: ` + product.Disk + `
@@ -301,7 +300,6 @@ func (dpdService *DigitalProductsService) buildPromptForProduct(product products
 - 其他信息: ` + product.Additional + `
 请提取并转换为以下JSON格式，数值类型请转换为整数（如果无法确定数值则设为null）：
 {
-  "tag": "string",
   "cpu": int or null,
   "memory": int or null,
   "disk": int or null,
@@ -317,9 +315,9 @@ func (dpdService *DigitalProductsService) buildPromptForProduct(product products
 2. 内存：提取GB数值，如"8GB"→8，"4G"→4，不存在的设为null
 3. 硬盘：提取GB数值，如"100GB SSD"→100，"1TB"→1024，不存在的设为null
 4. 流量：提取TB数值，如"10TB"→10，"不限"→10240，不存在的设为null
-5. 带宽：提取Gbps数值，如"1Gbps"→1，"100Mbps"→0.1（小于1Mbps或不存在的设为null）
-6. 价格：只提取数值部分，如"$10/月"→10，如果非美元计价，则请按照当前汇率直接转换为美元计价的，不存在的设为null
-7. 价格单位：提取单位，如"/月"、"/年"、"monthly"等，单年付的设为"Annually"，月的设为"monthly"，两年付的三年付的依此类推，不存在的设为null
+5. 带宽：提取Gbps数值，如"1Gbps"→1，"100Mbps"→0.1，小于1Mbps或不存在的设为null
+6. 价格：只提取数值部分，如"$10/月"→10，如果非美元计价，则请按照当前汇率直接转换为美元计价的，不存在的设为null，如果存在多个，那么仅保留最小的那个，一般是按月计费的那个，不存在的设为null
+7. 价格单位：提取单位，如"/月"、"/年"、"monthly"等，单年付的设为"Annually"，月的设为"monthly"，两年付的三年付的依此类推，不存在的设为monthly，如果有多个都仅保留月的
 `
 	return prompt
 }
@@ -348,7 +346,7 @@ func (dpdService *DigitalProductsService) parseAIResponse(aiResponse string, ori
 	}
 	// 构建数字商品对象
 	digitalProduct := digitalproducts.DigitalProducts{
-		Tag:        &aiResult.Tag,
+		Tag:        &originalProduct.Tag,
 		Cpu:        aiResult.Cpu,
 		Memory:     aiResult.Memory,
 		Disk:       aiResult.Disk,

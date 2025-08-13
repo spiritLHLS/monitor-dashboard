@@ -58,7 +58,6 @@ func GetResponse(originText string) string {
 	OpenrouterModel = global.GVA_VP.GetString("aiconfig.openrouter_model")
 	DeepSeekURL = global.GVA_VP.GetString("aiconfig.deepseek_url")
 	DeepseekApiKey = global.GVA_VP.GetString("aiconfig.deepseek_api_key")
-
 	mu.Lock()
 	now := time.Now()
 	if !lastRequestTime.IsZero() {
@@ -71,13 +70,10 @@ func GetResponse(originText string) string {
 	}
 	lastRequestTime = time.Now()
 	mu.Unlock()
-
-	// 如果 UnlimitModel 为空，使用默认值
 	unlimitModel := UnlimitModel
 	if unlimitModel == "" {
 		unlimitModel = "gpt-4.1-nano"
 	}
-
 	requestData := ChatRequest{
 		Model: unlimitModel,
 		Messages: []Message{
@@ -87,10 +83,8 @@ func GetResponse(originText string) string {
 			},
 		},
 	}
-
 	maxRetries := 3
 	baseDelay := 35 * time.Second
-
 	// 尝试 Unlimit API
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
@@ -112,16 +106,12 @@ func GetResponse(originText string) string {
 		}
 		return result
 	}
-
 	fmt.Println("Unlimit API 不可用，切换到 Tbai API")
-
-	// 如果 TbaiModel 为空，使用默认值
 	tbaiModel := TbaiModel
 	if tbaiModel == "" {
 		tbaiModel = "gpt-4.1-nano"
 	}
 	requestData.Model = tbaiModel
-
 	// 尝试 Tbai API
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
@@ -143,10 +133,8 @@ func GetResponse(originText string) string {
 		}
 		return result
 	}
-
 	fmt.Println("Tbai API 不可用，切换到 DeepSeek API")
 	requestData.Model = "deepseek-chat"
-
 	// 尝试 DeepSeek API
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
