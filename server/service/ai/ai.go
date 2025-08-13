@@ -83,14 +83,14 @@ func GetResponse(originText string) string {
 			},
 		},
 	}
-	maxRetries := 3
+	maxRetries := 2
 	baseDelay := 35 * time.Second
 	// 尝试 Unlimit API
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
 			delay := time.Duration(1<<uint(attempt-1)) * baseDelay
-			if delay > 3*time.Minute {
-				delay = 3 * time.Minute
+			if delay > 2*time.Minute {
+				delay = 2 * time.Minute
 			}
 			fmt.Printf("Unlimit API 第 %d 次重试，等待 %v\n", attempt+1, delay)
 			time.Sleep(delay)
@@ -116,8 +116,8 @@ func GetResponse(originText string) string {
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
 			delay := time.Duration(1<<uint(attempt-1)) * baseDelay
-			if delay > 3*time.Minute {
-				delay = 3 * time.Minute
+			if delay > 2*time.Minute {
+				delay = 2 * time.Minute
 			}
 			fmt.Printf("Tbai API 第 %d 次重试，等待 %v\n", attempt+1, delay)
 			time.Sleep(delay)

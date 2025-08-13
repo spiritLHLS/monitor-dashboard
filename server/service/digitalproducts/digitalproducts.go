@@ -202,6 +202,9 @@ func (dpdService *DigitalProductsService) runConversionTask(userID uint) {
 		}
 		// 设置创建者和原始ID
 		digitalProduct.CreatedBy = userID
+		if digitalProduct.OriginId == nil {
+			digitalProduct.OriginId = new(int)
+		}
 		*digitalProduct.OriginId = int(product.ID)
 		// 保存到数字商品表
 		createErr := global.GVA_DB.Create(&digitalProduct).Error
@@ -344,34 +347,64 @@ func (dpdService *DigitalProductsService) parseAIResponse(aiResponse string, ori
 	if err != nil {
 		return digitalproducts.DigitalProducts{}, fmt.Errorf("JSON解析失败: %v", err)
 	}
+	// 安全地处理字符串指针
+	var tag, location, priceUnit, additional *string
+	// 处理tag
+	if originalProduct.Tag != "" {
+		tag = &originalProduct.Tag
+	} else {
+		emptyStr := ""
+		tag = &emptyStr
+	}
+	// 处理location
+	if aiResult.Location != "" && aiResult.Location != "string" {
+		location = &aiResult.Location
+	} else if originalProduct.Location != "" {
+		location = &originalProduct.Location
+	} else {
+		emptyStr := ""
+		location = &emptyStr
+	}
+	// 处理priceUnit
+	if aiResult.PriceUnit != "" && aiResult.PriceUnit != "string" {
+		priceUnit = &aiResult.PriceUnit
+	} else {
+		defaultUnit := "monthly"
+		priceUnit = &defaultUnit
+	}
+	// 处理additional
+	if aiResult.Additional != "" && aiResult.Additional != "string" {
+		additional = &aiResult.Additional
+	} else if originalProduct.Additional != "" {
+		additional = &originalProduct.Additional
+	} else {
+		emptyStr := ""
+		additional = &emptyStr
+	}
 	// 构建数字商品对象
 	digitalProduct := digitalproducts.DigitalProducts{
-		Tag:        &originalProduct.Tag,
+		Tag:        tag,
 		Cpu:        aiResult.Cpu,
 		Memory:     aiResult.Memory,
 		Disk:       aiResult.Disk,
 		Traffic:    aiResult.Traffic,
 		PortSpeed:  aiResult.PortSpeed,
-		Location:   &aiResult.Location,
+		Location:   location,
 		Price:      aiResult.Price,
-		PriceUnit:  &aiResult.PriceUnit,
-		Additional: &aiResult.Additional,
+		PriceUnit:  priceUnit,
+		Additional: additional,
 		Stock:      new(int),
+		OriginId:   new(int),
 	}
-	// 如果AI解析失败，使用原始数据作为备用
-	if digitalProduct.Tag == nil || *digitalProduct.Tag == "" {
-		digitalProduct.Tag = &originalProduct.Tag
-	}
-	if digitalProduct.Location == nil || *digitalProduct.Location == "" {
-		digitalProduct.Location = &originalProduct.Location
-	}
-	if digitalProduct.Additional == nil || *digitalProduct.Additional == "" {
-		digitalProduct.Additional = &originalProduct.Additional
-	}
-	if originalProduct.Stock != nil && *originalProduct.Stock == 1000 {
-		*digitalProduct.Stock = 6
-	} else if originalProduct.Stock != nil && *originalProduct.Stock != 1000 {
-		*digitalProduct.Stock = *originalProduct.Stock
+	// 处理Stock字段
+	if originalProduct.Stock != nil {
+		if *originalProduct.Stock == 1000 {
+			*digitalProduct.Stock = 6
+		} else {
+			*digitalProduct.Stock = *originalProduct.Stock
+		}
+	} else {
+		*digitalProduct.Stock = 0 // 默认值
 	}
 	return digitalProduct, nil
 }
