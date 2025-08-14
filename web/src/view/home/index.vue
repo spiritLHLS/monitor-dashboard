@@ -52,46 +52,67 @@
                 <div class="sidebar-content" v-show="!isCollapsed">
                     <h1 class="site-title">全球VPS余量监控</h1>
                     <el-form @submit.prevent="handleSearch" class="search-form">
-                    <template v-for="(field, key) in searchFields" :key="key">
-                        <!-- 字符串类型字段使用普通输入框 -->
-                        <el-input 
-                            v-if="field.type === 'string'" 
-                            v-model="searchInfo[key]"
-                            :placeholder="field.placeholder" 
-                            class="search-input">
-                            <template #prefix>
-                                <el-icon>
-                                    <Search />
-                                </el-icon>
-                            </template>
-                        </el-input>
-                        <!-- 数值类型字段使用数字输入框 -->
-                        <el-input-number 
-                            v-else-if="field.type === 'number'"
-                            v-model="searchInfo[key]"
-                            :placeholder="field.placeholder"
-                            class="search-input number-input"
-                            :precision="2"
-                            :step="0.1"
-                            :min="0"
-                            controls-position="right"
-                            style="width: 100%"
-                        />
-                    </template>
-                    
-                    <div class="stock-toggle">
-                        <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
-                            @click="displayMode = 'all'">显示所有</span>
-                        <span :class="['toggle-option', { 'active': displayMode === 'inStock' }]"
-                            @click="displayMode = 'inStock'">只显示有库存</span>
-                        <span :class="['toggle-option', { 'active': displayMode === 'dedicatedOnly' }]"
-                            @click="displayMode = 'dedicatedOnly'">仅独立服务器</span>
-                    </div>
-                    <div class="button-group">
-                        <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
-                        <el-button type="primary" plain @click="handleReset" class="reset-button">重置</el-button>
-                    </div>
-                </el-form>
+                        <template v-for="(field, key) in searchFields" :key="key">
+                            <!-- 字符串类型字段 -->
+                            <div v-if="field.type === 'string'" class="search-field">
+                                <label class="field-label">{{ field.label }}</label>
+                                <el-input 
+                                    v-model="searchInfo[key]"
+                                    :placeholder="field.placeholder" 
+                                    class="search-input">
+                                    <template #prefix>
+                                        <el-icon>
+                                            <Search />
+                                        </el-icon>
+                                    </template>
+                                </el-input>
+                            </div>
+                            
+                            <!-- 单个数值字段 -->
+                            <div v-else-if="field.type === 'number'" class="search-field">
+                                <label class="field-label">{{ field.label }}</label>
+                                <el-input 
+                                    v-model="searchInfo[key]"
+                                    :placeholder="field.placeholder"
+                                    type="number"
+                                    class="search-input"
+                                />
+                            </div>
+                            
+                            <!-- 区间类型字段 -->
+                            <div v-else-if="field.type === 'range'" class="search-field range-field">
+                                <label class="field-label">{{ field.label }}</label>
+                                <div class="range-inputs">
+                                    <el-input 
+                                        v-model="searchInfo[`${key}Min`]"
+                                        :placeholder="field.minPlaceholder"
+                                        type="number"
+                                        class="range-input"
+                                    />
+                                    <span class="range-separator">-</span>
+                                    <el-input 
+                                        v-model="searchInfo[`${key}Max`]"
+                                        :placeholder="field.maxPlaceholder"
+                                        type="number"
+                                        class="range-input"
+                                    />
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <div class="stock-toggle">
+                            <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
+                                @click="displayMode = 'all'">显示所有</span>
+                            <span :class="['toggle-option', { 'active': displayMode === 'inStock' }]"
+                                @click="displayMode = 'inStock'">只显示有库存</span>
+                            <span :class="['toggle-option', { 'active': displayMode === 'dedicatedOnly' }]"
+                                @click="displayMode = 'dedicatedOnly'">仅独立服务器</span>
+                        </div>
+                        <div class="button-group">
+                            <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
+                            <el-button type="primary" plain @click="handleReset" class="reset-button">重置</el-button>
+                        </div>
+                    </el-form>
                 </div>
             </aside>
             <div class="toggle-container">
@@ -197,16 +218,16 @@ const fetchAnnouncement = async () => {
 const router = useRouter()
 
 const searchFields = {
-    tag: { placeholder: '搜索TAG 等于', type: 'string' },
-    cpu: { placeholder: '搜索CPU 等于', type: 'number' },
-    memory: { placeholder: '搜索内存 等于', type: 'number' },
-    disk: { placeholder: '搜索磁盘 等于', type: 'number' },
-    traffic: { placeholder: '搜索流量 等于', type: 'number' },
-    portSpeed: { placeholder: '搜索端口 等于', type: 'number' },
-    location: { placeholder: '搜索地点 等于', type: 'string' },
-    price: { placeholder: '搜索价格 等于', type: 'number' },
-    stock: { placeholder: '搜索库存 大于', type: 'number' },
-    additional: { placeholder: '搜索其他 关键词', type: 'string' },
+    tag: { label: '商家TAG', type: 'string', placeholder: '搜索TAG 等于' },
+    cpu: { label: 'CPU', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    memory: { label: '内存(GB)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    disk: { label: '磁盘(GB)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    traffic: { label: '流量(TB)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    portSpeed: { label: '端口(Gbps)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    location: { label: '地点', type: 'string', placeholder: '搜索地点 等于' },
+    price: { label: '价格(USD)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    stock: { label: '库存', type: 'number', placeholder: '搜索库存 大于' },
+    additional: { label: '其他信息', type: 'string', placeholder: '搜索其他 关键词' },
 }
 
 const tableColumns = [
@@ -235,10 +256,14 @@ const sortOrder = ref('desc')
 const initSearchInfo = () => {
     const info = {}
     Object.keys(searchFields).forEach(key => {
-        if (searchFields[key].type === 'number') {
-            info[key] = null // 数值字段初始化为 null
+        const field = searchFields[key]
+        if (field.type === 'range') {
+            info[`${key}Min`] = null
+            info[`${key}Max`] = null
+        } else if (field.type === 'number') {
+            info[key] = null
         } else {
-            info[key] = '' // 字符串字段初始化为空字符串
+            info[key] = ''
         }
     })
     return info
@@ -264,7 +289,7 @@ const getTableData = async () => {
         Object.entries(searchInfo.value).forEach(([key, value]) => {
             if (value != null && value !== '') {
                 // 对于数值类型，直接设置值
-                if (searchFields[key].type === 'number') {
+                if (searchFields[key] && searchFields[key].type === 'number') {
                     if (typeof value === 'number') {
                         params.set(key, value.toString())
                     }
@@ -282,6 +307,8 @@ const getTableData = async () => {
         } else if (displayMode.value === 'dedicatedOnly') {
             params.append('additional', '独服')
         }
+        
+        // 添加排序参数
         if (sortBy.value) {
             params.set('sortBy', sortBy.value)
             params.set('sortOrder', sortOrder.value)
@@ -308,9 +335,12 @@ const handleSearch = () => {
 }
 
 const handleReset = () => {
-    // 根据字段类型重置不同的默认值
     Object.keys(searchFields).forEach(key => {
-        if (searchFields[key].type === 'number') {
+        const field = searchFields[key]
+        if (field.type === 'range') {
+            searchInfo.value[`${key}Min`] = null
+            searchInfo.value[`${key}Max`] = null
+        } else if (field.type === 'number') {
             searchInfo.value[key] = null
         } else {
             searchInfo.value[key] = ''
@@ -337,7 +367,8 @@ const handleCurrentChange = (val) => {
 const handleSortChange = ({ prop, order }) => {
     sortBy.value = prop
     sortOrder.value = order === 'ascending' ? 'asc' : 'desc'
-    getTableData()
+    page.value = 1 // 重置到第一页
+    getTableData() // 立即请求新数据
 }
 
 const handleRedirectFunc = async (rowshortCode) => {
@@ -563,6 +594,40 @@ onMounted(() => {
     gap: 10px;
 }
 
+/* 新增的搜索字段样式 */
+.search-field {
+    margin-bottom: 12px;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #2f3f2f;
+    font-weight: 500;
+}
+
+.range-field {
+    margin-bottom: 12px;
+}
+
+.range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-input {
+    flex: 1;
+}
+
+.range-separator {
+    color: #666;
+    font-weight: bold;
+    min-width: 12px;
+    text-align: center;
+}
+
 /* 数字输入框样式 */
 .number-input {
     margin-bottom: 10px;
@@ -716,6 +781,20 @@ onMounted(() => {
 }
 
 :deep(.el-input__wrapper.is-focus) {
+    box-shadow: 0 0 0 2px rgba(66, 184, 131, 0.2);
+}
+
+/* 区间输入框的深度样式 */
+:deep(.range-input .el-input__wrapper) {
+    box-shadow: 0 0 0 1px #c0cfc0 inset;
+    transition: all 0.3s ease;
+}
+
+:deep(.range-input .el-input__wrapper:hover) {
+    box-shadow: 0 0 0 1px #42b883 inset;
+}
+
+:deep(.range-input .el-input__wrapper.is-focus) {
     box-shadow: 0 0 0 2px rgba(66, 184, 131, 0.2);
 }
 
@@ -995,6 +1074,20 @@ onMounted(() => {
     :deep(.el-table td) {
         padding: 4px 4px;
     }
+
+    /* 移动端区间输入框样式调整 */
+    .range-inputs {
+        gap: 4px;
+    }
+
+    .range-separator {
+        min-width: 8px;
+        font-size: 10px;
+    }
+
+    .field-label {
+        font-size: 11px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1020,6 +1113,20 @@ onMounted(() => {
     :deep(.el-button--small) {
         font-size: 9px;
         padding: 3px 6px;
+    }
+
+    /* 更小屏幕的区间输入框调整 */
+    .range-inputs {
+        gap: 2px;
+    }
+
+    .field-label {
+        font-size: 10px;
+        margin-bottom: 2px;
+    }
+
+    .search-field {
+        margin-bottom: 8px;
     }
 }
 </style>
