@@ -40,6 +40,7 @@
         <el-button type="warning" icon="edit" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="openBatchEditDialog">批量修改</el-button>
         <el-button type="success" icon="refresh" style="margin-left: 10px;" @click="onConvert" :loading="convertLoading">一键转换</el-button>
         <el-button type="info" icon="upload" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="onBatchConvert" :loading="batchConvertLoading">批量转换</el-button>
+        <el-button type="primary" icon="view" style="margin-left: 10px;" @click="checkConversionStatus" :loading="statusLoading" plain>查询状态</el-button>
       </div>
       
       <el-table
@@ -104,19 +105,19 @@
 
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
         <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label + ':'" :prop="field.prop">
-          <el-input 
-            v-if="field.type === 'number'"
-            v-model.number="formData[field.prop]" 
-            :clearable="true" 
-            :placeholder="'请输入' + field.label"
-          />
-          <el-input 
-            v-else
-            v-model="formData[field.prop]" 
-            :clearable="true" 
-            :placeholder="'请输入' + field.label"
-          />
-        </el-form-item>
+  <el-input 
+    v-if="field.type === 'number' || field.type === 'float'"
+    v-model.number="formData[field.prop]" 
+    :clearable="true" 
+    :placeholder="'请输入' + field.label"
+  />
+  <el-input 
+    v-else
+    v-model="formData[field.prop]" 
+    :clearable="true" 
+    :placeholder="'请输入' + field.label"
+  />
+</el-form-item>
       </el-form>
     </el-drawer>
 
@@ -142,19 +143,19 @@
 
       <el-form :model="batchEditData" label-position="top" ref="elBatchEditFormRef" label-width="80px">
         <el-form-item v-for="field in batchEditFields" :key="field.prop" :label="field.label + ':'">
-          <el-input 
-            v-if="field.type === 'number'"
-            v-model.number="batchEditData[field.prop]" 
-            :clearable="true" 
-            :placeholder="'留空则不修改' + field.label"
-          />
-          <el-input 
-            v-else
-            v-model="batchEditData[field.prop]" 
-            :clearable="true" 
-            :placeholder="'留空则不修改' + field.label"
-          />
-        </el-form-item>
+  <el-input 
+    v-if="field.type === 'number' || field.type === 'float'"
+    v-model.number="batchEditData[field.prop]" 
+    :clearable="true" 
+    :placeholder="'留空则不修改' + field.label"
+  />
+  <el-input 
+    v-else
+    v-model="batchEditData[field.prop]" 
+    :clearable="true" 
+    :placeholder="'留空则不修改' + field.label"
+  />
+</el-form-item>
       </el-form>
     </el-drawer>
 
@@ -195,30 +196,34 @@ defineOptions({
 // 字段配置
 const formFields = [
   { prop: 'tag', label: 'TAG', type: 'string' },
-  { prop: 'cpu', label: '核心', type: 'number' },
-  { prop: 'memory', label: '内存', type: 'number' },
-  { prop: 'disk', label: '硬盘', type: 'number' },
-  { prop: 'traffic', label: '流量', type: 'number' },
-  { prop: 'portSpeed', label: '带宽', type: 'number' },
+  { prop: 'cpu', label: '核心', type: 'float' },
+  { prop: 'memory', label: '内存', type: 'float' },
+  { prop: 'disk', label: '硬盘', type: 'float' },
+  { prop: 'traffic', label: '流量', type: 'float' },
+  { prop: 'portSpeed', label: '带宽', type: 'float' },
   { prop: 'location', label: '位置', type: 'string' },
-  { prop: 'price', label: '价格', type: 'number' },
+  { prop: 'price', label: '价格', type: 'float' },
   { prop: 'priceUnit', label: '价格单位', type: 'string' },
   { prop: 'additional', label: '其他', type: 'string' },
   { prop: 'stock', label: '库存', type: 'number' },
   { prop: 'originId', label: '原表ID', type: 'number' }
 ]
 
-// 批量编辑字段（排除不需要批量修改的字段）
-const batchEditFields = formFields.filter(field => !['originId'].includes(field.prop))
-
 // 初始化表单数据
 const getInitialFormData = () => {
   const data = {}
   formFields.forEach(field => {
-    data[field.prop] = field.type === 'number' ? undefined : ''
+    if (field.type === 'number' || field.type === 'float') {
+      data[field.prop] = undefined
+    } else {
+      data[field.prop] = ''
+    }
   })
   return data
 }
+
+// 批量编辑字段（排除不需要批量修改的字段）
+const batchEditFields = formFields.filter(field => !['originId'].includes(field.prop))
 
 // 基础配置
 const btnAuth = useBtnAuth()
@@ -273,6 +278,7 @@ const batchEditVisible = ref(false)
 const detailShow = ref(false)
 const detailFrom = ref({})
 const batchConvertLoading = ref(false)
+const statusLoading = ref(false)
 
 // 表格操作方法
 const onReset = () => {
@@ -357,28 +363,6 @@ const deleteDigitalProductsFunc = async (row) => {
   }
 }
 
-// 转换操作
-const onConvert = async() => {
-  ElMessageBox.confirm('确定要将products表数据转换为数字商品表吗？此操作会同步所有数据。', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'info'
-  }).then(async() => {
-    convertLoading.value = true
-    try {
-      const res = await convertProductsToDigital()
-      if (res.code === 0) {
-        ElMessage({ type: 'success', message: '转换成功' })
-        getTableData()
-      }
-    } catch (error) {
-      ElMessage({ type: 'error', message: '转换失败，请重试' })
-    } finally {
-      convertLoading.value = false
-    }
-  })
-}
-
 // 单个编辑操作
 const updateDigitalProductsFunc = async(row) => {
   const res = await findDigitalProducts({ ID: row.ID })
@@ -442,9 +426,7 @@ const closeBatchEditDialog = () => {
 
 const enterBatchEditDialog = async () => {
   batchEditLoading.value = true
-  
   try {
-    // 构建更新数据，只包含非空字段
     const updateData = {}
     Object.keys(batchEditData.value).forEach(key => {
       const value = batchEditData.value[key]
@@ -452,31 +434,24 @@ const enterBatchEditDialog = async () => {
         updateData[key] = value
       }
     })
-    
     if (Object.keys(updateData).length === 0) {
       ElMessage({ type: 'warning', message: '请至少填写一个要修改的字段' })
       batchEditLoading.value = false
       return
     }
-    
-    // 批量更新选中的记录
     const promises = multipleSelection.value.map(item => {
       const data = { ...item, ...updateData }
       return updateDigitalProducts(data)
     })
-    
     const results = await Promise.all(promises)
     const successCount = results.filter(res => res.code === 0).length
-    
     if (successCount === multipleSelection.value.length) {
       ElMessage({ type: 'success', message: `批量修改成功，共更新 ${successCount} 条记录` })
     } else {
       ElMessage({ type: 'warning', message: `部分更新成功，成功 ${successCount} 条，失败 ${multipleSelection.value.length - successCount} 条` })
-    }
-    
+    }  
     closeBatchEditDialog()
     getTableData()
-    
   } catch (error) {
     ElMessage({ type: 'error', message: '批量修改失败，请重试' })
   } finally {
@@ -498,13 +473,37 @@ const closeDetailShow = () => {
   detailFrom.value = {}
 }
 
+// 转换操作 - 一键转换（全量转换）
+const onConvert = async() => {
+  ElMessageBox.confirm('确定要将products表数据转换为数字商品表吗？此操作会同步所有数据。', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'info'
+  }).then(async() => {
+    convertLoading.value = true
+    try {
+      const res = await convertProductsToDigital()
+      if (res.code === 0) {
+        ElMessage({ 
+          type: 'success', 
+          message: '转换任务已启动，请点击"查询状态"按钮查看进度',
+          duration: 5000 
+        })
+      }
+    } catch (error) {
+      ElMessage({ type: 'error', message: '转换失败，请重试' })
+    } finally {
+      convertLoading.value = false
+    }
+  })
+}
+
 // 批量转换操作
 const onBatchConvert = async() => {
   if (multipleSelection.value.length === 0) {
     ElMessage({ type: 'warning', message: '请选择要重新转换的数据' })
     return
   }
-  
   ElMessageBox.confirm(`确定要重新转换选中的 ${multipleSelection.value.length} 条记录吗？此操作会从原表重新解析数据并覆盖当前记录。`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -512,15 +511,15 @@ const onBatchConvert = async() => {
   }).then(async() => {
     batchConvertLoading.value = true
     try {
-      // 提取数字商品表的ID（不是原表ID）
       const digitalProductIds = multipleSelection.value.map(item => item.ID)
       
       const res = await batchConvertProductsToDigital(digitalProductIds)
       if (res.code === 0) {
-        ElMessage({ type: 'success', message: res.msg })
-        
-        // 开始轮询任务状态
-        pollConversionStatus()
+        ElMessage({ 
+          type: 'success', 
+          message: res.msg + '，请点击"查询状态"按钮查看进度',
+          duration: 5000 
+        })
       }
     } catch (error) {
       ElMessage({ type: 'error', message: '批量转换失败，请重试' })
@@ -530,35 +529,56 @@ const onBatchConvert = async() => {
   })
 }
 
-// 轮询转换状态
-const pollConversionStatus = async () => {
+// 手动查询转换状态
+const checkConversionStatus = async () => {
+  statusLoading.value = true
   try {
     const res = await getConversionStatus()
-    if (res.code === 0 && res.data.is_running) {
-      const status = res.data
-      ElMessage({ 
-        type: 'info', 
-        message: `${status.current_step}：${status.progress}/${status.total_products}，成功：${status.success_count}，失败：${status.fail_count}` 
-      })
-      
-      // 如果任务还在运行，3秒后再次查询
-      setTimeout(pollConversionStatus, 3000)
-    } else {
-      // 任务完成，刷新表格数据
-      if (res.data && res.data.success_count !== undefined) {
+    if (res.code === 0) {
+      if (!res.data) {
         ElMessage({ 
-          type: 'success', 
-          message: `批量转换完成！成功：${res.data.success_count} 条，失败：${res.data.fail_count} 条` 
+          type: 'info', 
+          message: '当前没有运行中的转换任务' 
         })
+        return
       }
-      getTableData()
+      const status = res.data
+      if (status.is_running) {
+        const progressPercent = status.total_products > 0 
+          ? Math.round((status.progress / status.total_products) * 100) 
+          : 0
+        ElMessage({ 
+          type: 'info', 
+          message: `转换任务进行中 - ${status.current_step}
+进度：${status.progress}/${status.total_products} (${progressPercent}%)
+成功：${status.success_count} 条，失败：${status.fail_count} 条`,
+          duration: 6000,
+          dangerouslyUseHTMLString: false
+        })
+      } else {
+        const completionTime = new Date(status.start_time).toLocaleString()
+        const messageType = status.fail_count > 0 ? 'warning' : 'success'
+        ElMessage({ 
+          type: messageType, 
+          message: `最近转换任务已完成，
+开始时间：${completionTime}
+结果：成功 ${status.success_count} 条，失败 ${status.fail_count} 条
+${status.last_error ? '错误信息：' + status.last_error : ''}`,
+          duration: 8000
+        })
+        getTableData()
+      }
+    } else {
+      ElMessage({ type: 'error', message: '查询状态失败：' + (res.msg || '未知错误') })
     }
   } catch (error) {
-    console.error('获取转换状态失败:', error)
+    console.error('查询转换状态失败:', error)
+    ElMessage({ type: 'error', message: '查询状态失败，请重试' })
+  } finally {
+    statusLoading.value = false
   }
 }
 
-// 初始化
 getTableData()
 </script>
 

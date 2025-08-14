@@ -301,26 +301,32 @@ func (dpdService *DigitalProductsService) buildPromptForProduct(product products
 - 位置: ` + product.Location + `
 - 价格: ` + product.Price + `
 - 其他信息: ` + product.Additional + `
-请提取并转换为以下JSON格式，数值类型请转换为整数（如果无法确定数值则设为null）：
+请提取并转换为以下JSON格式，数值类型请转换为浮点数（如果无法确定数值则设为null）：
 {
-  "cpu": int or null,
-  "memory": int or null,
-  "disk": int or null,
-  "traffic": int or null,
-  "portSpeed": int or null,
+  "cpu": float64 or null,
+  "memory": float64 or null,
+  "disk": float64 or null,
+  "traffic": float64 or null,
+  "portSpeed": float64 or null,
   "location": "string",
-  "price": int or null,
+  "price": float64 or null,
   "priceUnit": "string",
   "additional": "string"
 }
 提取规则：
-1. CPU：提取核心数，如"4核心"→4，"2vCPU"→2，不存在的设为null
-2. 内存：提取GB数值，如"8GB"→8，"4G"→4，不存在的设为null
-3. 硬盘：提取GB数值，如"100GB SSD"→100，"1TB"→1024，不存在的设为null
-4. 流量：提取TB数值，如"10TB"→10，"不限"→10240，不存在的设为null
-5. 带宽：提取Gbps数值，如"1Gbps"→1，"100Mbps"→0.1，小于1Mbps或不存在的设为null
-6. 价格：只提取数值部分，如"$10/月"→10，如果非美元计价，则请按照当前汇率直接转换为美元计价的，不存在的设为null，如果存在多个，那么仅保留最小的那个，一般是按月计费的那个，不存在的设为null
-7. 价格单位：提取单位，如"/月"、"/年"、"monthly"等，单年付的设为"Annually"，月的设为"monthly"，两年付的三年付的依此类推，不存在的设为monthly，如果有多个都仅保留月的
+1. CPU：提取核心数，如"4核心"→4.0，"2vCPU"→2.0，"1.5核"→1.5，不存在的设为null
+2. 内存：提取GB数值，如"8GB"→8.0，"4G"→4.0，"1.5GB"→1.5，如果不存在单位，假设单位为GB直接提取数值，不存在的设为null
+3. 硬盘：提取GB数值，如"100GB SSD"→100.0，"1TB"→1024.0，"512MB"→0.512，如果不存在单位，假设单位为GB直接提取数值，不存在的设为null
+4. 流量：提取TB数值，如"10TB"→10.0，"不限"→10240.0，"500GB"→0.5，如果不存在单位，假设单位为TB直接提取数值不存在的设为null
+5. 带宽：提取Gbps数值，如"1Gbps"→1.0，"100Mbps"→0.1，"50Mbps"→0.05，小于1Mbps或不存在的设为null
+6. 价格：提取数值部分（保留小数），如"$10.99/月"→10.99，"$5.5/月"→5.5，"HK$151.80HKD"这种应该识别为港币，如果存在HKD、GBP等内容，应当优先识别英文代表的价格单位；如果非美元计价，则请按照当前汇率直接转换为美元计价的，不存在的设为null，如果存在多个，那么仅保留最小的那个，一般是按月计费的那个，不存在的设为null
+7. 价格单位：提取单位，如"/月"、"/年"、"monthly"等，单年付的设为"annually"，月的设为"monthly"，两年付的三年付的依此类推，不存在的设为"monthly"，如果有多个都仅保留月的
+8. 位置：必须按照"城市, 省份, 国家"格式提取，使用英文全称城市和省份名称，国家使用英文二字母缩写。如果某部分信息不存在则留空但保留逗号。例如：
+   - "New York, New York, US"（完整信息）
+   - "Tokyo, , JP"（无省份信息）
+   - ", , US"（仅有国家信息）
+   - "Los Angeles, California, US"（完整信息）
+   如果完全无法确定位置信息，则设为", , "
 `
 	return prompt
 }
@@ -332,16 +338,16 @@ func (dpdService *DigitalProductsService) parseAIResponse(aiResponse string, ori
 		return digitalproducts.DigitalProducts{}, fmt.Errorf("无法从AI响应中提取JSON")
 	}
 	var aiResult struct {
-		Tag        string `json:"tag"`
-		Cpu        *int   `json:"cpu"`
-		Memory     *int   `json:"memory"`
-		Disk       *int   `json:"disk"`
-		Traffic    *int   `json:"traffic"`
-		PortSpeed  *int   `json:"portSpeed"`
-		Location   string `json:"location"`
-		Price      *int   `json:"price"`
-		PriceUnit  string `json:"priceUnit"`
-		Additional string `json:"additional"`
+		Tag        string   `json:"tag"`
+		Cpu        *float64 `json:"cpu"`
+		Memory     *float64 `json:"memory"`
+		Disk       *float64 `json:"disk"`
+		Traffic    *float64 `json:"traffic"`
+		PortSpeed  *float64 `json:"portSpeed"`
+		Location   string   `json:"location"`
+		Price      *float64 `json:"price"`
+		PriceUnit  string   `json:"priceUnit"`
+		Additional string   `json:"additional"`
 	}
 	err := json.Unmarshal([]byte(jsonStr), &aiResult)
 	if err != nil {
