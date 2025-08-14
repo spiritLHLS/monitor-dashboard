@@ -155,41 +155,24 @@ func (pdApi *ProductsApi) GetProductsList(c *gin.Context) {
 // @Summary 不需要鉴权的products表接口
 // @accept application/json
 // @Produce application/json
-// @Param data query productsReq.ProductsSearch true "分页获取products表列表"
+// @Param data query productsReq.DigitalProductsSearch true "分页获取products表列表"
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /pd/getProductsPublic [get]
 func (pdApi *ProductsApi) GetProductsPublic(c *gin.Context) {
-	var pageInfo productsReq.PublicProductsSearch
+	var pageInfo productsReq.DigitalProductsSearch
 	err := c.ShouldBindQuery(&pageInfo)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	list, total, err := pdService.GetProductsPublic(pageInfo)
+	list, total, err := pdService.GetProductsPublicDigital(pageInfo)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败:"+err.Error(), c)
 		return
 	}
-	// 转换信息，避免输出敏感信息
-	publicList := make([]productsReq.PublicProductsSearch, len(list))
-	for i, product := range list {
-		publicList[i] = productsReq.PublicProductsSearch{
-			Tag:        product.Tag,
-			Cpu:        product.Cpu,
-			Memory:     product.Memory,
-			Disk:       product.Disk,
-			Traffic:    product.Traffic,
-			PortSpeed:  product.PortSpeed,
-			Location:   product.Location,
-			Price:      product.Price,
-			Additional: product.Additional,
-			Url:        product.Url,
-			Stock:      product.Stock,
-		}
-	}
 	response.OkWithDetailed(response.PageResult{
-		List:     publicList,
+		List:     list,
 		Total:    total,
 		Page:     pageInfo.Page,
 		PageSize: pageInfo.PageSize,

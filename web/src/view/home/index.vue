@@ -52,27 +52,46 @@
                 <div class="sidebar-content" v-show="!isCollapsed">
                     <h1 class="site-title">全球VPS余量监控</h1>
                     <el-form @submit.prevent="handleSearch" class="search-form">
-                        <el-input v-for="(field, key) in searchFields" :key="key" v-model="searchInfo[key]"
-                            :placeholder="field.placeholder" class="search-input">
+                    <template v-for="(field, key) in searchFields" :key="key">
+                        <!-- 字符串类型字段使用普通输入框 -->
+                        <el-input 
+                            v-if="field.type === 'string'" 
+                            v-model="searchInfo[key]"
+                            :placeholder="field.placeholder" 
+                            class="search-input">
                             <template #prefix>
                                 <el-icon>
                                     <Search />
                                 </el-icon>
                             </template>
                         </el-input>
-                        <div class="stock-toggle">
-                            <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
-                                @click="displayMode = 'all'">显示所有</span>
-                            <span :class="['toggle-option', { 'active': displayMode === 'inStock' }]"
-                                @click="displayMode = 'inStock'">只显示有库存</span>
-                            <span :class="['toggle-option', { 'active': displayMode === 'dedicatedOnly' }]"
-                                @click="displayMode = 'dedicatedOnly'">仅独立服务器</span>
-                        </div>
-                        <div class="button-group">
-                            <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
-                            <el-button type="primary" plain @click="handleReset" class="reset-button">重置</el-button>
-                        </div>
-                    </el-form>
+                        <!-- 数值类型字段使用数字输入框 -->
+                        <el-input-number 
+                            v-else-if="field.type === 'number'"
+                            v-model="searchInfo[key]"
+                            :placeholder="field.placeholder"
+                            class="search-input number-input"
+                            :precision="2"
+                            :step="0.1"
+                            :min="0"
+                            controls-position="right"
+                            style="width: 100%"
+                        />
+                    </template>
+                    
+                    <div class="stock-toggle">
+                        <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
+                            @click="displayMode = 'all'">显示所有</span>
+                        <span :class="['toggle-option', { 'active': displayMode === 'inStock' }]"
+                            @click="displayMode = 'inStock'">只显示有库存</span>
+                        <span :class="['toggle-option', { 'active': displayMode === 'dedicatedOnly' }]"
+                            @click="displayMode = 'dedicatedOnly'">仅独立服务器</span>
+                    </div>
+                    <div class="button-group">
+                        <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
+                        <el-button type="primary" plain @click="handleReset" class="reset-button">重置</el-button>
+                    </div>
+                </el-form>
                 </div>
             </aside>
             <div class="toggle-container">
@@ -142,7 +161,13 @@ const hotMerchants = ref(['racknerd', 'buyvm', 'bagevm', 'spartanhost', 'fiberst
 // 按商家搜索功能
 const searchByMerchant = (merchant) => {
     // 重置所有搜索条件
-    Object.keys(searchInfo.value).forEach(key => searchInfo.value[key] = '')
+    Object.keys(searchFields).forEach(key => {
+        if (searchFields[key].type === 'number') {
+            searchInfo.value[key] = null
+        } else {
+            searchInfo.value[key] = ''
+        }
+    })
     // 设置商家搜索
     searchInfo.value.tag = merchant
     displayMode.value = 'all'
@@ -172,33 +197,32 @@ const fetchAnnouncement = async () => {
 const router = useRouter()
 
 const searchFields = {
-    tag: { placeholder: '搜索TAG 等于' },
-    cpu: { placeholder: '搜索CPU 等于' },
-    memory: { placeholder: '搜索内存 等于' },
-    disk: { placeholder: '搜索磁盘 等于' },
-    traffic: { placeholder: '搜索流量 等于' },
-    portSpeed: { placeholder: '搜索端口 等于' },
-    location: { placeholder: '搜索地点 等于' },
-    price: { placeholder: '搜索价格 等于' },
-    stock: { placeholder: '搜索库存 大于' },
-    additional: { placeholder: '搜索其他 关键词' },
+    tag: { placeholder: '搜索TAG 等于', type: 'string' },
+    cpu: { placeholder: '搜索CPU 等于', type: 'number' },
+    memory: { placeholder: '搜索内存 等于', type: 'number' },
+    disk: { placeholder: '搜索磁盘 等于', type: 'number' },
+    traffic: { placeholder: '搜索流量 等于', type: 'number' },
+    portSpeed: { placeholder: '搜索端口 等于', type: 'number' },
+    location: { placeholder: '搜索地点 等于', type: 'string' },
+    price: { placeholder: '搜索价格 等于', type: 'number' },
+    stock: { placeholder: '搜索库存 大于', type: 'number' },
+    additional: { placeholder: '搜索其他 关键词', type: 'string' },
 }
 
 const tableColumns = [
     { label: '商家', prop: 'tag', minWidth: '120' },
-    { label: 'CPU', prop: 'cpu', minWidth: '120' },
-    { label: '内存', prop: 'memory', minWidth: '100' },
-    { label: '磁盘', prop: 'disk', minWidth: '120' },
-    { label: '流量', prop: 'traffic', minWidth: '120' },
-    { label: '端口', prop: 'portSpeed', minWidth: '100' },
+    { label: 'CPU', prop: 'cpu', minWidth: '100', sortable: true },
+    { label: '内存(GB)', prop: 'memory', minWidth: '120', sortable: true },
+    { label: '磁盘(GB)', prop: 'disk', minWidth: '120', sortable: true },
+    { label: '流量(TB)', prop: 'traffic', minWidth: '120', sortable: true },
+    { label: '端口(Gbps)', prop: 'portSpeed', minWidth: '120', sortable: true },
     { label: '地点', prop: 'location', minWidth: '150' },
-    { label: '价格', prop: 'price', minWidth: '120' },
+    { label: '价格(USD)', prop: 'price', minWidth: '120', sortable: true },
     { label: '库存', prop: 'stock', minWidth: '80', sortable: true },
     { label: '其他', prop: 'additional', minWidth: '300' },
     { label: '操作', prop: 'actions', minWidth: '120' },
 ]
 
-const searchInfo = ref(Object.fromEntries(Object.keys(searchFields).map(key => [key, ''])))
 const displayMode = ref('all')
 const loading = ref(false)
 const page = ref(1)
@@ -207,6 +231,19 @@ const total = ref(0)
 const tableData = ref([])
 const sortBy = ref('stock')
 const sortOrder = ref('desc')
+// 初始化搜索信息，区分字符串和数值类型
+const initSearchInfo = () => {
+    const info = {}
+    Object.keys(searchFields).forEach(key => {
+        if (searchFields[key].type === 'number') {
+            info[key] = null // 数值字段初始化为 null
+        } else {
+            info[key] = '' // 字符串字段初始化为空字符串
+        }
+    })
+    return info
+}
+const searchInfo = ref(initSearchInfo())
 
 const processData = (data) => {
     return data
@@ -221,10 +258,25 @@ const getTableData = async () => {
         const params = new URLSearchParams({
             page: page.value,
             pageSize: pageSize.value,
-            ...Object.fromEntries(
-                Object.entries(searchInfo.value).filter(([_, v]) => v != null && v !== '')
-            )
         })
+        
+        // 添加搜索条件，区分处理不同类型的字段
+        Object.entries(searchInfo.value).forEach(([key, value]) => {
+            if (value != null && value !== '') {
+                // 对于数值类型，直接设置值
+                if (searchFields[key].type === 'number') {
+                    if (typeof value === 'number') {
+                        params.set(key, value.toString())
+                    }
+                } else {
+                    // 对于字符串类型，检查是否为有效值
+                    if (typeof value === 'string' && value.trim() !== '') {
+                        params.set(key, value)
+                    }
+                }
+            }
+        })
+        
         if (displayMode.value === 'inStock') {
             params.set('stock', '1')
         } else if (displayMode.value === 'dedicatedOnly') {
@@ -256,7 +308,14 @@ const handleSearch = () => {
 }
 
 const handleReset = () => {
-    Object.keys(searchInfo.value).forEach(key => searchInfo.value[key] = '')
+    // 根据字段类型重置不同的默认值
+    Object.keys(searchFields).forEach(key => {
+        if (searchFields[key].type === 'number') {
+            searchInfo.value[key] = null
+        } else {
+            searchInfo.value[key] = ''
+        }
+    })
     displayMode.value = 'all'
     page.value = 1
     pageSize.value = 10
@@ -504,6 +563,11 @@ onMounted(() => {
     gap: 10px;
 }
 
+/* 数字输入框样式 */
+.number-input {
+    margin-bottom: 10px;
+}
+
 .stock-toggle {
     display: flex;
     background-color: #f0f6f0;
@@ -653,6 +717,44 @@ onMounted(() => {
 
 :deep(.el-input__wrapper.is-focus) {
     box-shadow: 0 0 0 2px rgba(66, 184, 131, 0.2);
+}
+
+/* 数字输入框深度样式 */
+:deep(.el-input-number) {
+    width: 100%;
+}
+
+:deep(.el-input-number .el-input__wrapper) {
+    box-shadow: 0 0 0 1px #c0cfc0 inset;
+    transition: all 0.3s ease;
+}
+
+:deep(.el-input-number .el-input__wrapper:hover) {
+    box-shadow: 0 0 0 1px #42b883 inset;
+}
+
+:deep(.el-input-number .el-input__wrapper.is-focus) {
+    box-shadow: 0 0 0 2px rgba(66, 184, 131, 0.2);
+}
+
+:deep(.el-input-number .el-input__inner) {
+    height: 32px;
+    font-size: 12px;
+    text-align: left;
+}
+
+:deep(.el-input-number__increase),
+:deep(.el-input-number__decrease) {
+    background-color: #f0f6f0;
+    border-color: #c0cfc0;
+    color: #42b883;
+}
+
+:deep(.el-input-number__increase:hover),
+:deep(.el-input-number__decrease:hover) {
+    background-color: #42b883;
+    border-color: #42b883;
+    color: white;
 }
 
 :deep(.el-switch__core) {
