@@ -239,7 +239,7 @@ func sendRequest(req *http.Request) (string, bool, error) {
 		return "", false, fmt.Errorf("JSON解析错误: %v, 原始响应: %s", err, string(body))
 	}
 	if len(chatResponse.Choices) > 0 {
-		fmt.Printf("使用的token数: %d\n", chatResponse.Usage.TotalTokens)
+		fmt.Printf("\n使用的token数: %d\n", chatResponse.Usage.TotalTokens)
 		return chatResponse.Choices[0].Message.Content, false, nil
 	} else {
 		return "", false, fmt.Errorf("没有收到有效回复")

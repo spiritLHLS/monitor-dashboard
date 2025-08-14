@@ -23,7 +23,7 @@
           </el-date-picker>
         </el-form-item>
         <template v-if="showAllQuery">
-          <div class="row">
+          <div class="search-fields-container">
             <el-form-item v-for="field in searchFields" :key="field.prop" :label="field.label" :prop="field.prop">
               <el-input v-model="searchInfo[field.prop]" :placeholder="field.placeholder || '搜索条件'"
                 :type="field.type || 'text'" />
@@ -573,6 +573,18 @@ getTableData()
 </script>
 
 <style>
+.search-fields-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.search-fields-container .el-form-item {
+  margin-right: 0;
+  margin-bottom: 10px;
+}
+
 .row {
   display: flex;
   justify-content: space-between;
@@ -608,6 +620,10 @@ getTableData()
 }
 
 @media (max-width: 768px) {
+  .search-fields-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .row {
     flex-direction: column;
   }
@@ -624,6 +640,12 @@ getTableData()
     margin: 2px 0;
     display: block;
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-fields-container {
+    grid-template-columns: 1fr;
   }
 }
 </style>
