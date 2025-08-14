@@ -192,3 +192,55 @@ func (dpdApi *DigitalProductsApi) ConvertProductsToDigital(c *gin.Context) {
 	message := fmt.Sprintf("转换完成，成功: %d 条，失败: %d 条", successCount, failCount)
 	response.OkWithMessage(message, c)
 }
+
+// BatchConvertProductsToDigital 批量转换指定产品到数字商品表
+// @Tags DigitalProducts
+// @Summary 批量转换指定产品到数字商品表
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Param data body []uint true "需要转换的产品ID列表"
+// @Success 200 {object} response.Response{msg=string} "转换开始"
+// @Router /dpd/batchConvertProductsToDigital [post]
+func (dpdApi *DigitalProductsApi) BatchConvertProductsToDigital(c *gin.Context) {
+	var productIds []uint
+	err := c.ShouldBindJSON(&productIds)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	if len(productIds) == 0 {
+		response.FailWithMessage("请选择要转换的产品", c)
+		return
+	}
+
+	userID := utils.GetUserID(c)
+	err = dpdService.BatchConvertProductsToDigital(productIds, userID)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	response.OkWithMessage(fmt.Sprintf("批量转换任务已开始，正在处理 %d 个产品", len(productIds)), c)
+}
+
+// GetConversionStatus 获取转换任务状态
+// @Tags DigitalProducts
+// @Summary 获取转换任务状态
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=ConversionStatus,msg=string} "获取成功"
+// @Router /dpd/getConversionStatus [get]
+func (dpdApi *DigitalProductsApi) GetConversionStatus(c *gin.Context) {
+	status := dpdService.GetConversionStatus()
+	if status == nil {
+		response.OkWithData(map[string]interface{}{
+			"is_running": false,
+			"message":    "当前没有正在运行的转换任务",
+		}, c)
+		return
+	}
+	response.OkWithData(status, c)
+}

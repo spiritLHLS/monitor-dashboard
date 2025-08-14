@@ -423,3 +423,158 @@ func (dpdService *DigitalProductsService) extractJSON(response string) string {
 	}
 	return response[start : end+1]
 }
+
+// BatchConvertProductsToDigital 批量转换指定数字商品记录（重新从原表转换并覆写）
+func (dpdService *DigitalProductsService) BatchConvertProductsToDigital(digitalProductIds []uint, userID uint) error {
+	dpdService.conversionMutex.Lock()
+	defer dpdService.conversionMutex.Unlock()
+	// 检查是否有任务正在运行
+	if dpdService.conversionStatus != nil && dpdService.conversionStatus.IsRunning {
+		return fmt.Errorf("转换任务正在进行中，当前步骤：%s，进度：%d/%d，成功：%d，失败：%d",
+			dpdService.conversionStatus.CurrentStep,
+			dpdService.conversionStatus.Progress,
+			dpdService.conversionStatus.TotalProducts,
+			dpdService.conversionStatus.SuccessCount,
+			dpdService.conversionStatus.FailCount)
+	}
+	// 初始化状态
+	dpdService.conversionStatus = &ConversionStatus{
+		IsRunning:   true,
+		StartTime:   time.Now(),
+		CurrentStep: "初始化批量重新转换",
+		Progress:    0,
+		UserID:      userID,
+	}
+	// 启动后台任务
+	go dpdService.runBatchReconversionTask(digitalProductIds, userID)
+	return nil
+}
+
+// runBatchReconversionTask 在后台运行批量重新转换任务
+func (dpdService *DigitalProductsService) runBatchReconversionTask(digitalProductIds []uint, userID uint) {
+	defer func() {
+		dpdService.conversionMutex.Lock()
+		if dpdService.conversionStatus != nil {
+			dpdService.conversionStatus.IsRunning = false
+		}
+		dpdService.conversionMutex.Unlock()
+		if r := recover(); r != nil {
+			global.GVA_LOG.Error(fmt.Sprintf("批量重新转换任务异常退出: %v", r))
+		}
+	}()
+	// 第一步：获取选中的数字商品记录
+	dpdService.updateStatus("获取选中的数字商品记录", 0, len(digitalProductIds))
+	var digitalProductsList []digitalproducts.DigitalProducts
+	err := global.GVA_DB.Where("id IN ?", digitalProductIds).Find(&digitalProductsList).Error
+	if err != nil {
+		errMsg := fmt.Sprintf("获取数字商品记录失败: %v", err)
+		global.GVA_LOG.Error(errMsg)
+		dpdService.updateStatusError(errMsg)
+		return
+	}
+	if len(digitalProductsList) == 0 {
+		global.GVA_LOG.Info("没有找到选中的数字商品记录")
+		dpdService.updateStatus("完成", 0, 0)
+		return
+	}
+	// 第二步：提取原表ID并获取对应的原表记录
+	dpdService.updateStatus("获取对应的原表记录", 0, len(digitalProductsList))
+	var originIds []int
+	digitalProductMap := make(map[int]digitalproducts.DigitalProducts) // originId -> digitalProduct
+	for _, dp := range digitalProductsList {
+		if dp.OriginId != nil && *dp.OriginId > 0 {
+			originIds = append(originIds, *dp.OriginId)
+			digitalProductMap[*dp.OriginId] = dp
+		}
+	}
+	if len(originIds) == 0 {
+		global.GVA_LOG.Info("选中的数字商品记录中没有有效的原表ID")
+		dpdService.updateStatus("完成", 0, len(digitalProductsList))
+		return
+	}
+	var productsList []products.Products
+	err = global.GVA_DB.Where("id IN ?", originIds).Find(&productsList).Error
+	if err != nil {
+		errMsg := fmt.Sprintf("获取原表记录失败: %v", err)
+		global.GVA_LOG.Error(errMsg)
+		dpdService.updateStatusError(errMsg)
+		return
+	}
+	global.GVA_LOG.Info(fmt.Sprintf("找到 %d 个原表记录需要重新转换", len(productsList)))
+	// 更新总数
+	dpdService.conversionMutex.Lock()
+	if dpdService.conversionStatus != nil {
+		dpdService.conversionStatus.TotalProducts = len(digitalProductsList)
+	}
+	dpdService.conversionMutex.Unlock()
+	// 第三步：处理所有选中的数字商品记录
+	processedCount := 0
+	for _, digitalProduct := range digitalProductsList {
+		processedCount++
+		dpdService.updateStatus(fmt.Sprintf("处理数字商品 ID:%d", digitalProduct.ID), processedCount-1, len(digitalProductsList))
+		// 检查是否有有效的原表ID
+		if digitalProduct.OriginId == nil || *digitalProduct.OriginId <= 0 {
+			global.GVA_LOG.Error(fmt.Sprintf("数字商品ID %d 没有有效的原表ID", digitalProduct.ID))
+			dpdService.incrementFailCount()
+			continue
+		}
+		originId := *digitalProduct.OriginId
+		// 查找对应的原表记录
+		var foundProduct *products.Products
+		for _, product := range productsList {
+			if int(product.ID) == originId {
+				foundProduct = &product
+				break
+			}
+		}
+		// 如果原表记录不存在（已被删除），删除对应的数字商品记录
+		if foundProduct == nil {
+			global.GVA_LOG.Info(fmt.Sprintf("原表记录ID %d 已删除，删除对应的数字商品记录ID %d", originId, digitalProduct.ID))
+			deleteErr := global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+				if err := tx.Model(&digitalproducts.DigitalProducts{}).Where("id = ?", digitalProduct.ID).Update("deleted_by", userID).Error; err != nil {
+					return err
+				}
+				if err := tx.Delete(&digitalproducts.DigitalProducts{}, "id = ?", digitalProduct.ID).Error; err != nil {
+					return err
+				}
+				return nil
+			})
+			if deleteErr != nil {
+				global.GVA_LOG.Error(fmt.Sprintf("删除数字商品记录失败，ID %d: %v", digitalProduct.ID, deleteErr))
+				dpdService.incrementFailCount()
+			} else {
+				global.GVA_LOG.Info(fmt.Sprintf("成功删除数字商品记录ID %d（原表记录已不存在）", digitalProduct.ID))
+				dpdService.incrementSuccessCount()
+			}
+			continue
+		}
+		// 使用AI重新解析产品信息
+		newDigitalProduct, parseErr := dpdService.parseProductWithAI(*foundProduct)
+		if parseErr != nil {
+			global.GVA_LOG.Error(fmt.Sprintf("AI重新解析产品ID %d 失败: %v", foundProduct.ID, parseErr))
+			dpdService.incrementFailCount()
+			continue
+		}
+		// 保持原有的ID、创建时间等不变，只更新解析出的字段
+		newDigitalProduct.ID = digitalProduct.ID
+		newDigitalProduct.CreatedAt = digitalProduct.CreatedAt
+		newDigitalProduct.CreatedBy = digitalProduct.CreatedBy
+		newDigitalProduct.UpdatedBy = userID
+		if newDigitalProduct.OriginId == nil {
+			newDigitalProduct.OriginId = new(int)
+		}
+		*newDigitalProduct.OriginId = int(foundProduct.ID)
+		// 覆写记录
+		saveErr := global.GVA_DB.Save(&newDigitalProduct).Error
+		if saveErr != nil {
+			global.GVA_LOG.Error(fmt.Sprintf("覆写数字商品失败，产品ID %d: %v", foundProduct.ID, saveErr))
+			dpdService.incrementFailCount()
+			continue
+		}
+		dpdService.incrementSuccessCount()
+		global.GVA_LOG.Info(fmt.Sprintf("成功重新转换并覆写产品ID %d", foundProduct.ID))
+	}
+	dpdService.updateStatus("批量重新转换完成", len(digitalProductsList), len(digitalProductsList))
+	global.GVA_LOG.Info(fmt.Sprintf("批量重新转换完成: 成功 %d 个，失败 %d 个",
+		dpdService.conversionStatus.SuccessCount, dpdService.conversionStatus.FailCount))
+}

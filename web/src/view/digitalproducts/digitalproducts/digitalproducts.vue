@@ -2,22 +2,22 @@
   <div>
     <div class="gva-search-box">
       <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline" :rules="searchRule" @keyup.enter="onSubmit">
-      <el-form-item label="创建日期" prop="createdAt">
-      <template #label>
-        <span>
-          创建日期
-          <el-tooltip content="搜索范围是开始日期（包含）至结束日期（不包含）">
-            <el-icon><QuestionFilled /></el-icon>
-          </el-tooltip>
-        </span>
-      </template>
-      <el-date-picker v-model="searchInfo.startCreatedAt" type="datetime" placeholder="开始日期" :disabled-date="time=> searchInfo.endCreatedAt ? time.getTime() > searchInfo.endCreatedAt.getTime() : false"></el-date-picker>
-       —
-      <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
-      </el-form-item>
-      
+        <el-form-item label="创建日期" prop="createdAt">
+          <template #label>
+            <span>
+              创建日期
+              <el-tooltip content="搜索范围是开始日期（包含）至结束日期（不包含）">
+                <el-icon><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </span>
+          </template>
+          <el-date-picker v-model="searchInfo.startCreatedAt" type="datetime" placeholder="开始日期" :disabled-date="time=> searchInfo.endCreatedAt ? time.getTime() > searchInfo.endCreatedAt.getTime() : false"></el-date-picker>
+          —
+          <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
+        </el-form-item>
+        
         <el-form-item label="价格单位" prop="priceUnit">
-         <el-input v-model="searchInfo.priceUnit" placeholder="搜索条件" />
+          <el-input v-model="searchInfo.priceUnit" placeholder="搜索条件" />
         </el-form-item>
 
         <template v-if="showAllQuery">
@@ -32,150 +32,140 @@
         </el-form-item>
       </el-form>
     </div>
+    
     <div class="gva-table-box">
-        <div class="gva-btn-list">
-            <el-button v-auth="btnAuth.add" type="primary" icon="plus" @click="openDialog()">新增</el-button>
-            <el-button v-auth="btnAuth.batchDelete" icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="onDelete">删除</el-button>
-            <el-button type="success" icon="refresh" style="margin-left: 10px;" @click="onConvert" :loading="convertLoading">一键转换</el-button>
-        </div>
-        <el-table
+      <div class="gva-btn-list">
+        <el-button type="primary" icon="plus" @click="openDialog()">新增</el-button>
+        <el-button icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="onDelete">删除</el-button>
+        <el-button type="warning" icon="edit" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="openBatchEditDialog">批量修改</el-button>
+        <el-button type="success" icon="refresh" style="margin-left: 10px;" @click="onConvert" :loading="convertLoading">一键转换</el-button>
+        <el-button type="info" icon="upload" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="onBatchConvert" :loading="batchConvertLoading">批量转换</el-button>
+      </div>
+      
+      <el-table
         ref="multipleTable"
         style="width: 100%"
         tooltip-effect="dark"
         :data="tableData"
         row-key="ID"
         @selection-change="handleSelectionChange"
-        >
+      >
         <el-table-column type="selection" width="55" />
-        
-        <el-table-column align="left" label="日期" prop="createdAt"width="180">
-            <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+        <el-table-column align="left" label="日期" prop="createdAt" width="180">
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        
-          <el-table-column align="left" label="TAG" prop="tag" width="120" />
-          <el-table-column align="left" label="核心" prop="cpu" width="120" />
-          <el-table-column align="left" label="内存" prop="memory" width="120" />
-          <el-table-column align="left" label="硬盘" prop="disk" width="120" />
-          <el-table-column align="left" label="流量" prop="traffic" width="120" />
-          <el-table-column align="left" label="带宽" prop="portSpeed" width="120" />
-          <el-table-column align="left" label="位置" prop="location" width="120" />
-          <el-table-column align="left" label="价格" prop="price" width="120" />
-          <el-table-column align="left" label="价格单位" prop="priceUnit" width="120" />
-          <el-table-column align="left" label="其他" prop="additional" width="120" />
-          <el-table-column align="left" label="库存" prop="stock" width="120" />
-          <el-table-column align="left" label="原表ID" prop="originId" width="120" />
+        <el-table-column align="left" label="TAG" prop="tag" width="120" />
+        <el-table-column align="left" label="核心" prop="cpu" width="120" />
+        <el-table-column align="left" label="内存" prop="memory" width="120" />
+        <el-table-column align="left" label="硬盘" prop="disk" width="120" />
+        <el-table-column align="left" label="流量" prop="traffic" width="120" />
+        <el-table-column align="left" label="带宽" prop="portSpeed" width="120" />
+        <el-table-column align="left" label="位置" prop="location" width="120" />
+        <el-table-column align="left" label="价格" prop="price" width="120" />
+        <el-table-column align="left" label="价格单位" prop="priceUnit" width="120" />
+        <el-table-column align="left" label="其他" prop="additional" width="120" />
+        <el-table-column align="left" label="库存" prop="stock" width="120" />
+        <el-table-column align="left" label="原表ID" prop="originId" width="120" />
         <el-table-column align="left" label="操作" fixed="right" :min-width="appStore.operateMinWith">
-            <template #default="scope">
-            <el-button v-auth="btnAuth.info" type="primary" link class="table-button" @click="getDetails(scope.row)"><el-icon style="margin-right: 5px"><InfoFilled /></el-icon>查看</el-button>
-            <el-button v-auth="btnAuth.edit" type="primary" link icon="edit" class="table-button" @click="updateDigitalProductsFunc(scope.row)">编辑</el-button>
-            <el-button  v-auth="btnAuth.delete" type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
-            </template>
+          <template #default="scope">
+            <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
+              <el-icon style="margin-right: 5px"><InfoFilled /></el-icon>查看
+            </el-button>
+            <el-button type="primary" link icon="edit" class="table-button" @click="updateDigitalProductsFunc(scope.row)">编辑</el-button>
+            <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
+          </template>
         </el-table-column>
-        </el-table>
-        <div class="gva-pagination">
-            <el-pagination
-            layout="total, sizes, prev, pager, next, jumper"
-            :current-page="page"
-            :page-size="pageSize"
-            :page-sizes="[10, 30, 50, 100]"
-            :total="total"
-            @current-change="handleCurrentChange"
-            @size-change="handleSizeChange"
-            />
-        </div>
+      </el-table>
+      
+      <div class="gva-pagination">
+        <el-pagination
+          layout="total, sizes, prev, pager, next, jumper"
+          :current-page="page"
+          :page-size="pageSize"
+          :page-sizes="[10, 30, 50, 100]"
+          :total="total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        />
+      </div>
     </div>
-    <el-drawer destroy-on-close :size="appStore.drawerSize" v-model="dialogFormVisible" :show-close="false" :before-close="closeDialog">
-       <template #header>
-              <div class="flex justify-between items-center">
-                <span class="text-lg">{{type==='create'?'新增':'编辑'}}</span>
-                <div>
-                  <el-button :loading="btnLoading" type="primary" @click="enterDialog">确 定</el-button>
-                  <el-button @click="closeDialog">取 消</el-button>
-                </div>
-              </div>
-            </template>
 
-          <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
-            <el-form-item label="TAG:"  prop="tag" >
-              <el-input v-model="formData.tag" :clearable="true"  placeholder="请输入TAG" />
-            </el-form-item>
-            <el-form-item label="核心:"  prop="cpu" >
-              <el-input v-model.number="formData.cpu" :clearable="true" placeholder="请输入核心" />
-            </el-form-item>
-            <el-form-item label="内存:"  prop="memory" >
-              <el-input v-model.number="formData.memory" :clearable="true" placeholder="请输入内存" />
-            </el-form-item>
-            <el-form-item label="硬盘:"  prop="disk" >
-              <el-input v-model.number="formData.disk" :clearable="true" placeholder="请输入硬盘" />
-            </el-form-item>
-            <el-form-item label="流量:"  prop="traffic" >
-              <el-input v-model.number="formData.traffic" :clearable="true" placeholder="请输入流量" />
-            </el-form-item>
-            <el-form-item label="带宽:"  prop="portSpeed" >
-              <el-input v-model.number="formData.portSpeed" :clearable="true" placeholder="请输入带宽" />
-            </el-form-item>
-            <el-form-item label="位置:"  prop="location" >
-              <el-input v-model="formData.location" :clearable="true"  placeholder="请输入位置" />
-            </el-form-item>
-            <el-form-item label="价格:"  prop="price" >
-              <el-input v-model.number="formData.price" :clearable="true" placeholder="请输入价格" />
-            </el-form-item>
-            <el-form-item label="价格单位:"  prop="priceUnit" >
-              <el-input v-model="formData.priceUnit" :clearable="true"  placeholder="请输入价格单位" />
-            </el-form-item>
-            <el-form-item label="其他:"  prop="additional" >
-              <el-input v-model="formData.additional" :clearable="true"  placeholder="请输入其他" />
-            </el-form-item>
-            <el-form-item label="库存:"  prop="stock" >
-              <el-input v-model.number="formData.stock" :clearable="true" placeholder="请输入库存" />
-            </el-form-item>
-            <el-form-item label="原表ID:"  prop="originId" >
-              <el-input v-model.number="formData.originId" :clearable="false" placeholder="请输入原表ID" />
-            </el-form-item>
-          </el-form>
+    <!-- 新增/编辑弹窗 -->
+    <el-drawer destroy-on-close :size="appStore.drawerSize" v-model="dialogFormVisible" :show-close="false" :before-close="closeDialog">
+      <template #header>
+        <div class="flex justify-between items-center">
+          <span class="text-lg">{{type==='create'?'新增':'编辑'}}</span>
+          <div>
+            <el-button :loading="btnLoading" type="primary" @click="enterDialog">确 定</el-button>
+            <el-button @click="closeDialog">取 消</el-button>
+          </div>
+        </div>
+      </template>
+
+      <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
+        <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label + ':'" :prop="field.prop">
+          <el-input 
+            v-if="field.type === 'number'"
+            v-model.number="formData[field.prop]" 
+            :clearable="true" 
+            :placeholder="'请输入' + field.label"
+          />
+          <el-input 
+            v-else
+            v-model="formData[field.prop]" 
+            :clearable="true" 
+            :placeholder="'请输入' + field.label"
+          />
+        </el-form-item>
+      </el-form>
     </el-drawer>
 
-    <el-drawer destroy-on-close :size="appStore.drawerSize" v-model="detailShow" :show-close="true" :before-close="closeDetailShow" title="查看">
-            <el-descriptions :column="1" border>
-                    <el-descriptions-item label="TAG">
-                        {{ detailFrom.tag }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="核心">
-                        {{ detailFrom.cpu }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="内存">
-                        {{ detailFrom.memory }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="硬盘">
-                        {{ detailFrom.disk }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="流量">
-                        {{ detailFrom.traffic }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="带宽">
-                        {{ detailFrom.portSpeed }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="位置">
-                        {{ detailFrom.location }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="价格">
-                        {{ detailFrom.price }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="价格单位">
-                        {{ detailFrom.priceUnit }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="其他">
-                        {{ detailFrom.additional }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="库存">
-                        {{ detailFrom.stock }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="原表ID">
-                        {{ detailFrom.originId }}
-                    </el-descriptions-item>
-            </el-descriptions>
-        </el-drawer>
+    <!-- 批量编辑弹窗 -->
+    <el-drawer destroy-on-close :size="appStore.drawerSize" v-model="batchEditVisible" :show-close="false" :before-close="closeBatchEditDialog">
+      <template #header>
+        <div class="flex justify-between items-center">
+          <span class="text-lg">批量修改 (已选择 {{multipleSelection.length}} 条记录)</span>
+          <div>
+            <el-button :loading="batchEditLoading" type="primary" @click="enterBatchEditDialog">确 定</el-button>
+            <el-button @click="closeBatchEditDialog">取 消</el-button>
+          </div>
+        </div>
+      </template>
 
+      <el-alert
+        title="批量修改说明"
+        description="只有填写了值的字段才会被更新，空白字段将保持原值不变"
+        type="info"
+        :closable="false"
+        style="margin-bottom: 20px;"
+      />
+
+      <el-form :model="batchEditData" label-position="top" ref="elBatchEditFormRef" label-width="80px">
+        <el-form-item v-for="field in batchEditFields" :key="field.prop" :label="field.label + ':'">
+          <el-input 
+            v-if="field.type === 'number'"
+            v-model.number="batchEditData[field.prop]" 
+            :clearable="true" 
+            :placeholder="'留空则不修改' + field.label"
+          />
+          <el-input 
+            v-else
+            v-model="batchEditData[field.prop]" 
+            :clearable="true" 
+            :placeholder="'留空则不修改' + field.label"
+          />
+        </el-form-item>
+      </el-form>
+    </el-drawer>
+
+    <!-- 查看详情弹窗 -->
+    <el-drawer destroy-on-close :size="appStore.drawerSize" v-model="detailShow" :show-close="true" :before-close="closeDetailShow" title="查看">
+      <el-descriptions :column="1" border>
+        <el-descriptions-item v-for="field in formFields" :key="field.prop" :label="field.label">
+          {{ detailFrom[field.prop] }}
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-drawer>
   </div>
 </template>
 
@@ -187,89 +177,109 @@ import {
   updateDigitalProducts,
   findDigitalProducts,
   getDigitalProductsList,
-  convertProductsToDigital
+  convertProductsToDigital,
+  batchConvertProductsToDigital,
+  getConversionStatus
 } from '@/api/digitalproducts/digitalproducts'
 
-// 全量引入格式化工具 请按需保留
-import { getDictFunc, formatDate, formatBoolean, filterDict ,filterDataSource, returnArrImg, onDownloadFile } from '@/utils/format'
+import { getDictFunc, formatDate, formatBoolean, filterDict, filterDataSource, returnArrImg, onDownloadFile } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ref, reactive } from 'vue'
-// 引入按钮权限标识
+import { ref, reactive, computed } from 'vue'
 import { useBtnAuth } from '@/utils/btnAuth'
 import { useAppStore } from "@/pinia"
 
-
-
-
 defineOptions({
-    name: 'DigitalProducts'
+  name: 'DigitalProducts'
 })
-// 按钮权限实例化
-    const btnAuth = useBtnAuth()
 
-// 提交按钮loading
-const btnLoading = ref(false)
-// 转换按钮loading
-const convertLoading = ref(false)
+// 字段配置
+const formFields = [
+  { prop: 'tag', label: 'TAG', type: 'string' },
+  { prop: 'cpu', label: '核心', type: 'number' },
+  { prop: 'memory', label: '内存', type: 'number' },
+  { prop: 'disk', label: '硬盘', type: 'number' },
+  { prop: 'traffic', label: '流量', type: 'number' },
+  { prop: 'portSpeed', label: '带宽', type: 'number' },
+  { prop: 'location', label: '位置', type: 'string' },
+  { prop: 'price', label: '价格', type: 'number' },
+  { prop: 'priceUnit', label: '价格单位', type: 'string' },
+  { prop: 'additional', label: '其他', type: 'string' },
+  { prop: 'stock', label: '库存', type: 'number' },
+  { prop: 'originId', label: '原表ID', type: 'number' }
+]
+
+// 批量编辑字段（排除不需要批量修改的字段）
+const batchEditFields = formFields.filter(field => !['originId'].includes(field.prop))
+
+// 初始化表单数据
+const getInitialFormData = () => {
+  const data = {}
+  formFields.forEach(field => {
+    data[field.prop] = field.type === 'number' ? undefined : ''
+  })
+  return data
+}
+
+// 基础配置
+const btnAuth = useBtnAuth()
 const appStore = useAppStore()
-
-// 控制更多查询条件显示/隐藏状态
+const btnLoading = ref(false)
+const convertLoading = ref(false)
+const batchEditLoading = ref(false)
 const showAllQuery = ref(false)
 
-// 自动化生成的字典（可能为空）以及字段
-const formData = ref({
-            tag: '',
-            cpu: undefined,
-            memory: undefined,
-            disk: undefined,
-            traffic: undefined,
-            portSpeed: undefined,
-            location: '',
-            price: undefined,
-            priceUnit: '',
-            additional: '',
-            stock: undefined,
-            originId: undefined,
-        })
-
-
+// 表单数据
+const formData = ref(getInitialFormData())
+const batchEditData = ref(getInitialFormData())
 
 // 验证规则
-const rule = reactive({
-})
-
+const rule = reactive({})
 const searchRule = reactive({
   createdAt: [
-    { validator: (rule, value, callback) => {
-      if (searchInfo.value.startCreatedAt && !searchInfo.value.endCreatedAt) {
-        callback(new Error('请填写结束日期'))
-      } else if (!searchInfo.value.startCreatedAt && searchInfo.value.endCreatedAt) {
-        callback(new Error('请填写开始日期'))
-      } else if (searchInfo.value.startCreatedAt && searchInfo.value.endCreatedAt && (searchInfo.value.startCreatedAt.getTime() === searchInfo.value.endCreatedAt.getTime() || searchInfo.value.startCreatedAt.getTime() > searchInfo.value.endCreatedAt.getTime())) {
-        callback(new Error('开始日期应当早于结束日期'))
-      } else {
-        callback()
-      }
-    }, trigger: 'change' }
+    { 
+      validator: (rule, value, callback) => {
+        if (searchInfo.value.startCreatedAt && !searchInfo.value.endCreatedAt) {
+          callback(new Error('请填写结束日期'))
+        } else if (!searchInfo.value.startCreatedAt && searchInfo.value.endCreatedAt) {
+          callback(new Error('请填写开始日期'))
+        } else if (searchInfo.value.startCreatedAt && searchInfo.value.endCreatedAt && 
+                  (searchInfo.value.startCreatedAt.getTime() >= searchInfo.value.endCreatedAt.getTime())) {
+          callback(new Error('开始日期应当早于结束日期'))
+        } else {
+          callback()
+        }
+      }, 
+      trigger: 'change' 
+    }
   ],
 })
 
 const elFormRef = ref()
+const elBatchEditFormRef = ref()
 const elSearchFormRef = ref()
 
-// =========== 表格控制部分 ===========
+// 表格控制
 const page = ref(1)
 const total = ref(0)
 const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({})
-// 重置
+const multipleSelection = ref([])
+
+// 弹窗控制
+const type = ref('')
+const dialogFormVisible = ref(false)
+const batchEditVisible = ref(false)
+const detailShow = ref(false)
+const detailFrom = ref({})
+const batchConvertLoading = ref(false)
+
+// 表格操作方法
 const onReset = () => {
   searchInfo.value = {}
   getTableData()
 }
 
-// 搜索
 const onSubmit = () => {
   elSearchFormRef.value?.validate(async(valid) => {
     if (!valid) return
@@ -278,19 +288,16 @@ const onSubmit = () => {
   })
 }
 
-// 分页
 const handleSizeChange = (val) => {
   pageSize.value = val
   getTableData()
 }
 
-// 修改页面容量
 const handleCurrentChange = (val) => {
   page.value = val
   getTableData()
 }
 
-// 查询
 const getTableData = async() => {
   const table = await getDigitalProductsList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
@@ -301,70 +308,56 @@ const getTableData = async() => {
   }
 }
 
-getTableData()
-
-// ============== 表格控制部分结束 ===============
-
-// 获取需要的字典 可能为空 按需保留
-const setOptions = async () =>{
-}
-
-// 获取需要的字典 可能为空 按需保留
-setOptions()
-
-
-// 多选数据
-const multipleSelection = ref([])
-// 多选
 const handleSelectionChange = (val) => {
-    multipleSelection.value = val
+  multipleSelection.value = val
 }
 
-// 删除行
+// 删除操作
 const deleteRow = (row) => {
-    ElMessageBox.confirm('确定要删除吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-    }).then(() => {
-            deleteDigitalProductsFunc(row)
-        })
-    }
+  ElMessageBox.confirm('确定要删除吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    deleteDigitalProductsFunc(row)
+  })
+}
 
-// 多选删除
 const onDelete = async() => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage({ type: 'warning', message: '请选择要删除的数据' })
+    return
+  }
+  
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async() => {
-      const IDs = []
-      if (multipleSelection.value.length === 0) {
-        ElMessage({
-          type: 'warning',
-          message: '请选择要删除的数据'
-        })
-        return
+    const IDs = multipleSelection.value.map(item => item.ID)
+    const res = await deleteDigitalProductsByIds({ IDs })
+    if (res.code === 0) {
+      ElMessage({ type: 'success', message: '删除成功' })
+      if (tableData.value.length === IDs.length && page.value > 1) {
+        page.value--
       }
-      multipleSelection.value &&
-        multipleSelection.value.map(item => {
-          IDs.push(item.ID)
-        })
-      const res = await deleteDigitalProductsByIds({ IDs })
-      if (res.code === 0) {
-        ElMessage({
-          type: 'success',
-          message: '删除成功'
-        })
-        if (tableData.value.length === IDs.length && page.value > 1) {
-          page.value--
-        }
-        getTableData()
-      }
-      })
+      getTableData()
     }
+  })
+}
 
-// 一键转换
+const deleteDigitalProductsFunc = async (row) => {
+  const res = await deleteDigitalProducts({ ID: row.ID })
+  if (res.code === 0) {
+    ElMessage({ type: 'success', message: '删除成功' })
+    if (tableData.value.length === 1 && page.value > 1) {
+      page.value--
+    }
+    getTableData()
+  }
+}
+
+// 转换操作
 const onConvert = async() => {
   ElMessageBox.confirm('确定要将products表数据转换为数字商品表吗？此操作会同步所有数据。', '提示', {
     confirmButtonText: '确定',
@@ -375,143 +368,199 @@ const onConvert = async() => {
     try {
       const res = await convertProductsToDigital()
       if (res.code === 0) {
-        ElMessage({
-          type: 'success',
-          message: '转换成功'
-        })
-        getTableData() // 重新加载数据
+        ElMessage({ type: 'success', message: '转换成功' })
+        getTableData()
       }
     } catch (error) {
-      ElMessage({
-        type: 'error',
-        message: '转换失败，请重试'
-      })
+      ElMessage({ type: 'error', message: '转换失败，请重试' })
     } finally {
       convertLoading.value = false
     }
-  }).catch(() => {
-    // 用户取消操作
   })
 }
 
-// 行为控制标记（弹窗内部需要增还是改）
-const type = ref('')
-
-// 更新行
+// 单个编辑操作
 const updateDigitalProductsFunc = async(row) => {
-    const res = await findDigitalProducts({ ID: row.ID })
-    type.value = 'update'
-    if (res.code === 0) {
-        formData.value = res.data
-        dialogFormVisible.value = true
-    }
-}
-
-
-// 删除行
-const deleteDigitalProductsFunc = async (row) => {
-    const res = await deleteDigitalProducts({ ID: row.ID })
-    if (res.code === 0) {
-        ElMessage({
-                type: 'success',
-                message: '删除成功'
-            })
-            if (tableData.value.length === 1 && page.value > 1) {
-            page.value--
-        }
-        getTableData()
-    }
-}
-
-// 弹窗控制标记
-const dialogFormVisible = ref(false)
-
-// 打开弹窗
-const openDialog = () => {
-    type.value = 'create'
-    dialogFormVisible.value = true
-}
-
-// 关闭弹窗
-const closeDialog = () => {
-    dialogFormVisible.value = false
-    formData.value = {
-        tag: '',
-        cpu: undefined,
-        memory: undefined,
-        disk: undefined,
-        traffic: undefined,
-        portSpeed: undefined,
-        location: '',
-        price: undefined,
-        priceUnit: '',
-        additional: '',
-        stock: undefined,
-        originId: undefined,
-        }
-}
-// 弹窗确定
-const enterDialog = async () => {
-     btnLoading.value = true
-     elFormRef.value?.validate( async (valid) => {
-             if (!valid) return btnLoading.value = false
-              let res
-              switch (type.value) {
-                case 'create':
-                  res = await createDigitalProducts(formData.value)
-                  break
-                case 'update':
-                  res = await updateDigitalProducts(formData.value)
-                  break
-                default:
-                  res = await createDigitalProducts(formData.value)
-                  break
-              }
-              btnLoading.value = false
-              if (res.code === 0) {
-                ElMessage({
-                  type: 'success',
-                  message: '创建/更改成功'
-                })
-                closeDialog()
-                getTableData()
-              }
-      })
-}
-
-
-const detailFrom = ref({})
-
-// 查看详情控制标记
-const detailShow = ref(false)
-
-
-// 打开详情弹窗
-const openDetailShow = () => {
-  detailShow.value = true
-}
-
-
-// 打开详情
-const getDetails = async (row) => {
-  // 打开弹窗
   const res = await findDigitalProducts({ ID: row.ID })
+  type.value = 'update'
   if (res.code === 0) {
-    detailFrom.value = res.data
-    openDetailShow()
+    formData.value = res.data
+    dialogFormVisible.value = true
   }
 }
 
+const openDialog = () => {
+  type.value = 'create'
+  dialogFormVisible.value = true
+}
 
-// 关闭详情弹窗
+const closeDialog = () => {
+  dialogFormVisible.value = false
+  formData.value = getInitialFormData()
+}
+
+const enterDialog = async () => {
+  btnLoading.value = true
+  elFormRef.value?.validate(async (valid) => {
+    if (!valid) return btnLoading.value = false
+    
+    let res
+    switch (type.value) {
+      case 'create':
+        res = await createDigitalProducts(formData.value)
+        break
+      case 'update':
+        res = await updateDigitalProducts(formData.value)
+        break
+      default:
+        res = await createDigitalProducts(formData.value)
+        break
+    }
+    btnLoading.value = false
+    if (res.code === 0) {
+      ElMessage({ type: 'success', message: '创建/更改成功' })
+      closeDialog()
+      getTableData()
+    }
+  })
+}
+
+// 批量编辑操作
+const openBatchEditDialog = () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage({ type: 'warning', message: '请选择要修改的数据' })
+    return
+  }
+  batchEditData.value = getInitialFormData()
+  batchEditVisible.value = true
+}
+
+const closeBatchEditDialog = () => {
+  batchEditVisible.value = false
+  batchEditData.value = getInitialFormData()
+}
+
+const enterBatchEditDialog = async () => {
+  batchEditLoading.value = true
+  
+  try {
+    // 构建更新数据，只包含非空字段
+    const updateData = {}
+    Object.keys(batchEditData.value).forEach(key => {
+      const value = batchEditData.value[key]
+      if (value !== '' && value !== undefined && value !== null) {
+        updateData[key] = value
+      }
+    })
+    
+    if (Object.keys(updateData).length === 0) {
+      ElMessage({ type: 'warning', message: '请至少填写一个要修改的字段' })
+      batchEditLoading.value = false
+      return
+    }
+    
+    // 批量更新选中的记录
+    const promises = multipleSelection.value.map(item => {
+      const data = { ...item, ...updateData }
+      return updateDigitalProducts(data)
+    })
+    
+    const results = await Promise.all(promises)
+    const successCount = results.filter(res => res.code === 0).length
+    
+    if (successCount === multipleSelection.value.length) {
+      ElMessage({ type: 'success', message: `批量修改成功，共更新 ${successCount} 条记录` })
+    } else {
+      ElMessage({ type: 'warning', message: `部分更新成功，成功 ${successCount} 条，失败 ${multipleSelection.value.length - successCount} 条` })
+    }
+    
+    closeBatchEditDialog()
+    getTableData()
+    
+  } catch (error) {
+    ElMessage({ type: 'error', message: '批量修改失败，请重试' })
+  } finally {
+    batchEditLoading.value = false
+  }
+}
+
+// 详情查看
+const getDetails = async (row) => {
+  const res = await findDigitalProducts({ ID: row.ID })
+  if (res.code === 0) {
+    detailFrom.value = res.data
+    detailShow.value = true
+  }
+}
+
 const closeDetailShow = () => {
   detailShow.value = false
   detailFrom.value = {}
 }
 
+// 批量转换操作
+const onBatchConvert = async() => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage({ type: 'warning', message: '请选择要重新转换的数据' })
+    return
+  }
+  
+  ElMessageBox.confirm(`确定要重新转换选中的 ${multipleSelection.value.length} 条记录吗？此操作会从原表重新解析数据并覆盖当前记录。`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async() => {
+    batchConvertLoading.value = true
+    try {
+      // 提取数字商品表的ID（不是原表ID）
+      const digitalProductIds = multipleSelection.value.map(item => item.ID)
+      
+      const res = await batchConvertProductsToDigital(digitalProductIds)
+      if (res.code === 0) {
+        ElMessage({ type: 'success', message: res.msg })
+        
+        // 开始轮询任务状态
+        pollConversionStatus()
+      }
+    } catch (error) {
+      ElMessage({ type: 'error', message: '批量转换失败，请重试' })
+    } finally {
+      batchConvertLoading.value = false
+    }
+  })
+}
 
+// 轮询转换状态
+const pollConversionStatus = async () => {
+  try {
+    const res = await getConversionStatus()
+    if (res.code === 0 && res.data.is_running) {
+      const status = res.data
+      ElMessage({ 
+        type: 'info', 
+        message: `${status.current_step}：${status.progress}/${status.total_products}，成功：${status.success_count}，失败：${status.fail_count}` 
+      })
+      
+      // 如果任务还在运行，3秒后再次查询
+      setTimeout(pollConversionStatus, 3000)
+    } else {
+      // 任务完成，刷新表格数据
+      if (res.data && res.data.success_count !== undefined) {
+        ElMessage({ 
+          type: 'success', 
+          message: `批量转换完成！成功：${res.data.success_count} 条，失败：${res.data.fail_count} 条` 
+        })
+      }
+      getTableData()
+    }
+  } catch (error) {
+    console.error('获取转换状态失败:', error)
+  }
+}
+
+// 初始化
+getTableData()
 </script>
 
 <style>
-
 </style>

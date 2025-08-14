@@ -122,3 +122,33 @@ export const convertProductsToDigital = () => {
     method: 'get',
   })
 }
+
+// @Tags DigitalProducts
+// @Summary 批量转换指定产品到数字商品表
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Param data body []uint true "需要转换的产品ID列表"
+// @Success 200 {object} response.Response{msg=string} "转换开始"
+// @Router /dpd/batchConvertProductsToDigital [post]
+export const batchConvertProductsToDigital = (data) => {
+  return service({
+    url: '/dpd/batchConvertProductsToDigital',
+    method: 'post',
+    data
+  })
+}
+
+// @Tags DigitalProducts
+// @Summary 获取转换任务状态
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Success 200 {object} response.Response{data=ConversionStatus,msg=string} "获取成功"
+// @Router /dpd/getConversionStatus [get]
+export const getConversionStatus = () => {
+  return service({
+    url: '/dpd/getConversionStatus',
+    method: 'get'
+  })
+}
