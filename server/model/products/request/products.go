@@ -31,21 +31,6 @@ type ProductsSearch struct {
 	request.PageInfo
 }
 
-type PublicProductsSearch struct {
-	Tag        string `json:"tag" form:"tag" `
-	Cpu        string `json:"cpu" form:"cpu" `
-	Memory     string `json:"memory" form:"memory" `
-	Disk       string `json:"disk" form:"disk" `
-	Traffic    string `json:"traffic" form:"traffic" `
-	PortSpeed  string `json:"portSpeed" form:"portSpeed" `
-	Location   string `json:"location" form:"location" `
-	Price      string `json:"price" form:"price" `
-	Additional string `json:"additional" form:"additional" `
-	Url        string `json:"url" form:"url" `
-	Stock      *int   `json:"stock" form:"stock" `
-	request.PageInfo
-}
-
 type DigitalProductsSearch struct {
 	Tag string `json:"tag" form:"tag"`
 

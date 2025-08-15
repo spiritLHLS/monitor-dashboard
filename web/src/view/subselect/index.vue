@@ -15,14 +15,51 @@
             <aside class="sidebar">
                 <h1 class="site-title">订阅配置</h1>
                 <el-form @submit.prevent="handleSearch" class="search-form">
-                    <el-input v-for="(field, key) in searchFields" :key="key" v-model="searchInfo[key]"
-                        :placeholder="field.placeholder" class="search-input">
-                        <template #prefix>
-                            <el-icon>
-                                <Search />
-                            </el-icon>
-                        </template>
-                    </el-input>
+                    <template v-for="(field, key) in searchFields" :key="key">
+                        <!-- 字符串类型字段 -->
+                        <div v-if="field.type === 'string'" class="search-field">
+                            <label class="field-label">{{ field.label }}</label>
+                            <el-input 
+                                v-model="searchInfo[key]"
+                                :placeholder="field.placeholder" 
+                                class="search-input">
+                                <template #prefix>
+                                    <el-icon>
+                                        <Search />
+                                    </el-icon>
+                                </template>
+                            </el-input>
+                        </div>
+                        <!-- 单个数值字段 -->
+                        <div v-else-if="field.type === 'number'" class="search-field">
+                            <label class="field-label">{{ field.label }}</label>
+                            <el-input 
+                                v-model="searchInfo[key]"
+                                :placeholder="field.placeholder"
+                                type="number"
+                                class="search-input"
+                            />
+                        </div>
+                        <!-- 区间类型字段 -->
+                        <div v-else-if="field.type === 'range'" class="search-field range-field">
+                            <label class="field-label">{{ field.label }}</label>
+                            <div class="range-inputs">
+                                <el-input 
+                                    v-model="searchInfo[`${key}Min`]"
+                                    :placeholder="field.minPlaceholder"
+                                    type="number"
+                                    class="range-input"
+                                />
+                                <span class="range-separator">-</span>
+                                <el-input 
+                                    v-model="searchInfo[`${key}Max`]"
+                                    :placeholder="field.maxPlaceholder"
+                                    type="number"
+                                    class="range-input"
+                                />
+                            </div>
+                        </div>
+                    </template>
                     <div class="display-toggle">
                         <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
                             @click="handleDisplayModeChange('all')">所有商品</span>
@@ -134,34 +171,52 @@ import { selfGetSub, selfCreateSub, selfDeleteSub, selfUpdateSub, selfBatchUpdat
 
 const router = useRouter()
 
+// 修改后的搜索字段配置，支持范围搜索
 const searchFields = {
-    tag: { placeholder: '搜索TAG 等于' },
-    cpu: { placeholder: '搜索CPU 等于' },
-    memory: { placeholder: '搜索内存 等于' },
-    disk: { placeholder: '搜索磁盘 等于' },
-    traffic: { placeholder: '搜索流量 等于' },
-    portSpeed: { placeholder: '搜索端口 等于' },
-    location: { placeholder: '搜索地点 等于' },
-    price: { placeholder: '搜索价格 等于' },
-    stock: { placeholder: '搜索库存 大于' },
-    additional: { placeholder: '搜索其他 关键词' },
+    tag: { label: '商家TAG', type: 'string', placeholder: '搜索TAG 等于' },
+    cpu: { label: 'CPU', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    memory: { label: '内存(GB)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    disk: { label: '磁盘(GB)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    traffic: { label: '流量(TB)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    portSpeed: { label: '端口(Gbps)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    location: { label: '地点', type: 'string', placeholder: '搜索地点 等于' },
+    price: { label: '价格(USD)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
+    stock: { label: '库存', type: 'number', placeholder: '搜索库存 大于' },
+    additional: { label: '其他信息', type: 'string', placeholder: '搜索其他 关键词' },
 }
 
 const tableColumns = [
     { label: '商家', prop: 'tag', minWidth: '100' },
-    { label: 'CPU', prop: 'cpu', minWidth: '120' },
-    { label: '内存', prop: 'memory', minWidth: '100' },
-    { label: '磁盘', prop: 'disk', minWidth: '100' },
-    { label: '流量', prop: 'traffic', minWidth: '100' },
-    { label: '端口', prop: 'portSpeed', minWidth: '100' },
+    { label: 'CPU', prop: 'cpu', minWidth: '120', sortable: true },
+    { label: '内存', prop: 'memory', minWidth: '100', sortable: true },
+    { label: '磁盘', prop: 'disk', minWidth: '100', sortable: true },
+    { label: '流量', prop: 'traffic', minWidth: '100', sortable: true },
+    { label: '端口', prop: 'portSpeed', minWidth: '100', sortable: true },
     { label: '地点', prop: 'location', minWidth: '150' },
-    { label: '价格', prop: 'price', minWidth: '100' },
+    { label: '价格', prop: 'price', minWidth: '100', sortable: true },
     { label: '库存', prop: 'stock', minWidth: '80', sortable: true },
     { label: '其他', prop: 'additional', minWidth: '300' },
     { label: '订阅渠道', prop: 'notify_channel', minWidth: '120' },
 ]
 
-const searchInfo = ref(Object.fromEntries(Object.keys(searchFields).map(key => [key, ''])))
+// 初始化搜索信息
+const initSearchInfo = () => {
+    const info = {}
+    Object.keys(searchFields).forEach(key => {
+        const field = searchFields[key]
+        if (field.type === 'range') {
+            info[`${key}Min`] = null
+            info[`${key}Max`] = null
+        } else if (field.type === 'number') {
+            info[key] = null
+        } else {
+            info[key] = ''
+        }
+    })
+    return info
+}
+
+const searchInfo = ref(initSearchInfo())
 const displayMode = ref('all')
 const loading = ref(false)
 const page = ref(1)
@@ -209,10 +264,23 @@ const getTableData = async () => {
         const params = new URLSearchParams({
             page: page.value,
             pageSize: pageSize.value,
-            ...Object.fromEntries(
-                Object.entries(searchInfo.value).filter(([_, v]) => v != null && v !== '')
-            )
         })
+        
+        // 处理搜索参数
+        Object.entries(searchInfo.value).forEach(([key, value]) => {
+            if (value != null && value !== '') {
+                if (searchFields[key] && searchFields[key].type === 'number') {
+                    if (typeof value === 'number') {
+                        params.set(key, value.toString())
+                    }
+                } else if (typeof value === 'string' && value.trim() !== '') {
+                    params.set(key, value)
+                } else if (typeof value === 'number') {
+                    params.set(key, value.toString())
+                }
+            }
+        })
+        
         if (sortBy.value) {
             params.set('sortBy', sortBy.value)
             params.set('sortOrder', sortOrder.value)
@@ -301,7 +369,17 @@ const handleSearch = () => {
 }
 
 const handleReset = () => {
-    Object.keys(searchInfo.value).forEach(key => searchInfo.value[key] = '')
+    Object.keys(searchFields).forEach(key => {
+        const field = searchFields[key]
+        if (field.type === 'range') {
+            searchInfo.value[`${key}Min`] = null
+            searchInfo.value[`${key}Max`] = null
+        } else if (field.type === 'number') {
+            searchInfo.value[key] = null
+        } else {
+            searchInfo.value[key] = ''
+        }
+    })
     displayMode.value = 'all'
     page.value = 1
     pageSize.value = 10
@@ -483,6 +561,39 @@ watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.search-field {
+    margin-bottom: 12px;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+    color: #2f3f2f;
+    font-weight: 500;
+}
+
+.range-field {
+    margin-bottom: 12px;
+}
+
+.range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-input {
+    flex: 1;
+}
+
+.range-separator {
+    color: #666;
+    font-weight: bold;
+    min-width: 12px;
+    text-align: center;
 }
 
 .display-toggle {
@@ -672,6 +783,15 @@ watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
 
     .main-content {
         padding: 10px;
+    }
+
+    .range-inputs {
+        gap: 4px;
+    }
+
+    .range-separator {
+        min-width: 8px;
+        font-size: 12px;
     }
 }
 </style>

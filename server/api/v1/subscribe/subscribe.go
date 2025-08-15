@@ -6,7 +6,6 @@ import (
 	"go.uber.org/zap"
 	"server/global"
 	"server/model/common/response"
-	productsReq "server/model/products/request"
 	"server/model/subscribe"
 	subscribeReq "server/model/subscribe/request"
 	"server/utils"
@@ -162,7 +161,7 @@ func (subApi *SubscribeApi) GetSubscribeList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /sub/selfGetSub [get]
 func (subApi *SubscribeApi) SelfGetSub(c *gin.Context) {
-	var searchInfo subscribeReq.SubscribeSearch
+	var searchInfo subscribeReq.SubProductsSearch
 	err := c.ShouldBindQuery(&searchInfo)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -291,7 +290,7 @@ func (subApi *SubscribeApi) SelfUpdateSub(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "成功"
 // @Router /sub/selfGetAllPd [GET]
 func (subApi *SubscribeApi) SelfGetAllPd(c *gin.Context) {
-	var searchInfo productsReq.ProductsSearch
+	var searchInfo subscribeReq.SubProductsSearch
 	err := c.ShouldBindQuery(&searchInfo)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)

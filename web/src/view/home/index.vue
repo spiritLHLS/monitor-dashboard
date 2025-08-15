@@ -20,9 +20,8 @@
                     </template>
                 </el-dropdown>
                 <nav class="nav-links">
-                    <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
-                    <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
                     <el-button type="primary" @click="openExternalLink('https://www.spiritlhl.net')">一键虚拟化项目</el-button>
+                    <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
                     <el-button type="primary" @click="router.push('/about')">关于</el-button>
                 </nav>
             </div>
@@ -150,7 +149,7 @@
                                         @click="handleRedirectFunc(row.url)">点击购买</el-button>
                                 </template>
                                 <template v-else-if="col.prop === 'stock'">
-                                    {{ row.stock === 1000 ? '有' : row.stock }}
+                                    {{ row.stock === 1000 ? '有' : row.stock === -1 ? '无' : row.stock }}
                                 </template>
                                 <template v-else-if="col.prop === 'priceUnit'">
                                     {{ formatPriceUnit(row.priceUnit) }}
