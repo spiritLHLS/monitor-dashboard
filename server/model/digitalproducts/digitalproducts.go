@@ -17,7 +17,6 @@ type DigitalProducts struct {
 	Price      *float64 `json:"price" form:"price" gorm:"column:price;comment:价格大小;"`                      //价格
 	PriceUnit  *string  `json:"priceUnit" form:"priceUnit" gorm:"column:price_unit;comment:价格单位;size:20;"` //价格单位
 	Additional *string  `json:"additional" form:"additional" gorm:"column:additional;comment:;size:191;"`  //其他
-	Stock      *int     `json:"stock" form:"stock" gorm:"column:stock;comment:库存存在但无数显示为10;size:20;"`      //库存
 	OriginId   *int     `json:"originId" form:"originId" gorm:"column:origin_id;comment:原表主键ID;size:20;"`  //原表ID
 	CreatedBy  uint     `gorm:"column:created_by;comment:创建者"`
 	UpdatedBy  uint     `gorm:"column:updated_by;comment:更新者"`

@@ -84,7 +84,6 @@
         <el-table-column align="left" label="价格" prop="price" width="120" />
         <el-table-column align="left" label="价格单位" prop="priceUnit" width="120" />
         <el-table-column align="left" label="其他" prop="additional" width="120" />
-        <el-table-column align="left" label="库存" prop="stock" width="120" />
         <el-table-column align="left" label="原表ID" prop="originId" width="120" />
         <el-table-column align="left" label="操作" fixed="right" :min-width="appStore.operateMinWith">
           <template #default="scope">
@@ -215,7 +214,6 @@ const formFields = [
   { prop: 'price', label: '价格', type: 'float' },
   { prop: 'priceUnit', label: '价格单位', type: 'string' },
   { prop: 'additional', label: '其他', type: 'string' },
-  { prop: 'stock', label: '库存', type: 'number' },
   { prop: 'originId', label: '原表ID', type: 'number' }
 ]
 

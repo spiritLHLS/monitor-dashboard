@@ -33,9 +33,6 @@
         <el-form-item label="其他:" prop="additional">
           <el-input v-model="formData.additional" :clearable="true"  placeholder="请输入其他" />
        </el-form-item>
-        <el-form-item label="库存:" prop="stock">
-          <el-input v-model.number="formData.stock" :clearable="true" placeholder="请输入" />
-       </el-form-item>
         <el-form-item label="原表ID:" prop="originId">
           <el-input v-model.number="formData.originId" :clearable="false" placeholder="请输入" />
        </el-form-item>
@@ -84,7 +81,6 @@ const formData = ref({
             price: undefined,
             priceUnit: '',
             additional: '',
-            stock: undefined,
             originId: undefined,
         })
 // 验证规则

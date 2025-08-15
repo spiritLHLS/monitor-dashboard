@@ -423,18 +423,7 @@ func (dpdService *DigitalProductsService) parseAIResponse(aiResponse string, ori
 		Price:      aiResult.Price,
 		PriceUnit:  priceUnit,
 		Additional: additional,
-		Stock:      new(int),
 		OriginId:   new(int),
-	}
-	// 处理Stock字段
-	if originalProduct.Stock != nil {
-		if *originalProduct.Stock == 1000 {
-			*digitalProduct.Stock = 6
-		} else {
-			*digitalProduct.Stock = *originalProduct.Stock
-		}
-	} else {
-		*digitalProduct.Stock = 0 // 默认值
 	}
 	return digitalProduct, nil
 }
