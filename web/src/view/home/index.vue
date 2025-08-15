@@ -187,7 +187,7 @@ const isCollapsed = ref(true)
 const toggleSidebar = () => {
     isCollapsed.value = !isCollapsed.value
 }
-const activeCollapse = ref(['1'])
+const activeCollapse = ref([])
 const announcement = ref({})
 const isFetching = ref(false)
 const error = ref(null)

@@ -2,54 +2,71 @@
   <div>
     <div class="gva-search-box">
       <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline" :rules="searchRule" @keyup.enter="onSubmit">
-        <el-form-item label="创建日期" prop="createdAt">
-          <template #label>
-            <span>
-              创建日期
-              <el-tooltip content="搜索范围是开始日期（包含）至结束日期（不包含）">
-                <el-icon><QuestionFilled /></el-icon>
-              </el-tooltip>
-            </span>
-          </template>
-          <el-date-picker v-model="searchInfo.startCreatedAt" type="datetime" placeholder="开始日期" :disabled-date="time=> searchInfo.endCreatedAt ? time.getTime() > searchInfo.endCreatedAt.getTime() : false"></el-date-picker>
-          —
-          <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
-        </el-form-item>
+        <!-- 第一行：创建日期 -->
+        <div class="search-row">
+          <el-form-item label="创建日期" prop="createdAt">
+            <template #label>
+              <span>
+                创建日期
+                <el-tooltip content="搜索范围是开始日期（包含）至结束日期（不包含）">
+                  <el-icon><QuestionFilled /></el-icon>
+                </el-tooltip>
+              </span>
+            </template>
+            <el-date-picker v-model="searchInfo.startCreatedAt" type="datetime" placeholder="开始日期" :disabled-date="time=> searchInfo.endCreatedAt ? time.getTime() > searchInfo.endCreatedAt.getTime() : false"></el-date-picker>
+            —
+            <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
+          </el-form-item>
+          
+          <el-form-item>
+            <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
+            <el-button icon="refresh" @click="onReset">重置</el-button>
+            <el-button link type="primary" icon="arrow-down" @click="showAllQuery=true" v-if="!showAllQuery">展开</el-button>
+            <el-button link type="primary" icon="arrow-up" @click="showAllQuery=false" v-else>收起</el-button>
+          </el-form-item>
+        </div>
+        
+        <!-- 展开的搜索条件 - 分多行显示 -->
         <template v-if="showAllQuery">
-          <el-form-item label="TAG" prop="tag">
-            <el-input v-model="searchInfo.tag" placeholder="搜索TAG" />
-          </el-form-item>
-          <el-form-item label="核心" prop="cpu">
-            <el-input v-model.number="searchInfo.cpu" placeholder="搜索核心数" />
-          </el-form-item>
-          <el-form-item label="内存" prop="memory">
-            <el-input v-model.number="searchInfo.memory" placeholder="搜索内存" />
-          </el-form-item>
-          <el-form-item label="硬盘" prop="disk">
-            <el-input v-model.number="searchInfo.disk" placeholder="搜索硬盘" />
-          </el-form-item>
-          <el-form-item label="流量" prop="traffic">
-            <el-input v-model.number="searchInfo.traffic" placeholder="搜索流量" />
-          </el-form-item>
-          <el-form-item label="带宽" prop="portSpeed">
-            <el-input v-model.number="searchInfo.portSpeed" placeholder="搜索带宽" />
-          </el-form-item>
-          <el-form-item label="位置" prop="location">
-            <el-input v-model="searchInfo.location" placeholder="搜索位置" />
-          </el-form-item>
-          <el-form-item label="价格" prop="price">
-            <el-input v-model.number="searchInfo.price" placeholder="搜索价格" />
-          </el-form-item>
-          <el-form-item label="价格单位" prop="priceUnit">
-            <el-input v-model="searchInfo.priceUnit" placeholder="搜索条件" />
-          </el-form-item>
+          <!-- 第二行：TAG、核心、内存、硬盘 -->
+          <div class="search-row">
+            <el-form-item label="TAG" prop="tag">
+              <el-input v-model="searchInfo.tag" placeholder="搜索TAG" />
+            </el-form-item>
+            <el-form-item label="核心" prop="cpu">
+              <el-input v-model.number="searchInfo.cpu" placeholder="搜索核心数" />
+            </el-form-item>
+            <el-form-item label="内存" prop="memory">
+              <el-input v-model.number="searchInfo.memory" placeholder="搜索内存" />
+            </el-form-item>
+            <el-form-item label="硬盘" prop="disk">
+              <el-input v-model.number="searchInfo.disk" placeholder="搜索硬盘" />
+            </el-form-item>
+          </div>
+          
+          <!-- 第三行：流量、带宽、位置、价格 -->
+          <div class="search-row">
+            <el-form-item label="流量" prop="traffic">
+              <el-input v-model.number="searchInfo.traffic" placeholder="搜索流量" />
+            </el-form-item>
+            <el-form-item label="带宽" prop="portSpeed">
+              <el-input v-model.number="searchInfo.portSpeed" placeholder="搜索带宽" />
+            </el-form-item>
+            <el-form-item label="位置" prop="location">
+              <el-input v-model="searchInfo.location" placeholder="搜索位置" />
+            </el-form-item>
+            <el-form-item label="价格" prop="price">
+              <el-input v-model.number="searchInfo.price" placeholder="搜索价格" />
+            </el-form-item>
+          </div>
+          
+          <!-- 第四行：价格单位 -->
+          <div class="search-row">
+            <el-form-item label="价格单位" prop="priceUnit">
+              <el-input v-model="searchInfo.priceUnit" placeholder="搜索条件" />
+            </el-form-item>
+          </div>
         </template>
-        <el-form-item>
-          <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
-          <el-button icon="refresh" @click="onReset">重置</el-button>
-          <el-button link type="primary" icon="arrow-down" @click="showAllQuery=true" v-if="!showAllQuery">展开</el-button>
-          <el-button link type="primary" icon="arrow-up" @click="showAllQuery=false" v-else>收起</el-button>
-        </el-form-item>
       </el-form>
     </div>
     <div class="gva-table-box">
@@ -590,5 +607,39 @@ ${status.last_error ? '错误信息：' + status.last_error : ''}`,
 getTableData()
 </script>
 
-<style>
+<style scoped>
+.search-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.search-row .el-form-item {
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+.search-row:last-of-type {
+  margin-bottom: 0;
+}
+
+/* 响应式布局 */
+@media (max-width: 1400px) {
+  .search-row .el-form-item {
+    margin-right: 15px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .search-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .search-row .el-form-item {
+    margin-right: 0;
+    width: 100%;
+  }
+}
 </style>
