@@ -75,9 +75,10 @@ type DigitalProductsSearch struct {
 	PortSpeed    *float64 `json:"portSpeed" form:"portSpeed"` // 保留兼容性
 
 	// 价格区间查询
-	PriceMin *float64 `json:"priceMin" form:"priceMin"`
-	PriceMax *float64 `json:"priceMax" form:"priceMax"`
-	Price    *float64 `json:"price" form:"price"` // 保留兼容性
+	PriceMin  *float64 `json:"priceMin" form:"priceMin"`
+	PriceMax  *float64 `json:"priceMax" form:"priceMax"`
+	Price     *float64 `json:"price" form:"price"` // 保留兼容性
+	PriceUnit string   `json:"priceUnit" form:"priceUnit"`
 
 	Location   string `json:"location" form:"location"`
 	Additional string `json:"additional" form:"additional"`

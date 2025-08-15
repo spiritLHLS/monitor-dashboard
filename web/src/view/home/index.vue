@@ -30,7 +30,6 @@
                 <el-button type="primary" @click="router.push('/login')">登录/注册</el-button>
             </div>
         </header>
-        
         <div class="content-wrapper">
             <aside :class="['sidebar', { 'collapsed': isCollapsed }]">
                 <div class="sidebar-content" v-show="!isCollapsed">
@@ -139,7 +138,6 @@
                         </div>
                     </el-collapse-item>
                 </el-collapse>
-                
                 <el-card class="table-card">
                     <el-table v-loading="loading" :data="tableData" style="width: 100%"
                         :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange">
@@ -153,6 +151,9 @@
                                 </template>
                                 <template v-else-if="col.prop === 'stock'">
                                     {{ row.stock === 1000 ? '有' : row.stock }}
+                                </template>
+                                <template v-else-if="col.prop === 'priceUnit'">
+                                    {{ formatPriceUnit(row.priceUnit) }}
                                 </template>
                                 <template v-else-if="col.prop === 'additional'">
                                     <span v-html="processData(row[col.prop])" style="white-space: pre-wrap;"></span>
@@ -236,9 +237,11 @@ const searchFields = {
     priceUnit: { label: '价格单位', type: 'select', options: [
         { value: '', label: '全部' },
         { value: 'monthly', label: '月付' },
-        { value: 'annually', label: '年付' },
         { value: 'quarterly', label: '季付' },
-        { value: 'semi-annually', label: '半年付' }
+        { value: 'semi-annually', label: '半年付' },
+        { value: 'annually', label: '年付' },
+        { value: 'biennially', label: '2年付' },
+        { value: 'triennially', label: '3年付' },
     ]},
     stock: { label: '库存', type: 'number', placeholder: '搜索库存 大于' },
     additional: { label: '其他信息', type: 'string', placeholder: '搜索其他 关键词' },
@@ -252,6 +255,7 @@ const tableColumns = [
     { label: '端口(Gbps)', prop: 'portSpeed', minWidth: '120', sortable: true },
     { label: '地点', prop: 'location', minWidth: '150' },
     { label: '价格(USD)', prop: 'price', minWidth: '120', sortable: true },
+    { label: '周期', prop: 'priceUnit', minWidth: '80' },
     { label: '库存', prop: 'stock', minWidth: '80', sortable: true },
     { label: '其他', prop: 'additional', minWidth: '300' },
     { label: '操作', prop: 'actions', minWidth: '120' },
@@ -301,6 +305,10 @@ const getTableData = async () => {
                     if (typeof value === 'number') {
                         params.set(key, value.toString())
                     }
+                } else if (searchFields[key] && searchFields[key].type === 'select') {
+                    if (typeof value === 'string' && value.trim() !== '') {
+                        params.set(key, value)
+                    }
                 } else {
                     if (typeof value === 'string' && value.trim() !== '') {
                         params.set(key, value)
@@ -330,6 +338,18 @@ const getTableData = async () => {
     } finally {
         loading.value = false
     }
+}
+const formatPriceUnit = (unit) => {
+    if (!unit) return '-'
+    const unitMap = {
+        'monthly': '月付',
+        'quarterly': '季付',
+        'semi-annually': '半年付',
+        'annually': '年付',
+        'biennially': '2年付',
+        'triennially': '3年付'
+    }
+    return unitMap[unit] || unit
 }
 const handleSearch = () => {
     page.value = 1
