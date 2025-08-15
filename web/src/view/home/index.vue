@@ -233,7 +233,7 @@ const searchFields = {
     portSpeed: { label: '端口(Gbps)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
     location: { label: '地点', type: 'string', placeholder: '搜索地点 等于' },
     price: { label: '价格(USD)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
-    priceUnit: { label: '价格单位', type: 'select', options: [
+    priceUnit: { label: '计费周期', type: 'select', options: [
         { value: '', label: '全部' },
         { value: 'monthly', label: '月付' },
         { value: 'quarterly', label: '季付' },
