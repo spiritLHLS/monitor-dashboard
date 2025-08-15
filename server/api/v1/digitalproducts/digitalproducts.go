@@ -209,19 +209,16 @@ func (dpdApi *DigitalProductsApi) BatchConvertProductsToDigital(c *gin.Context) 
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-
 	if len(productIds) == 0 {
 		response.FailWithMessage("请选择要转换的产品", c)
 		return
 	}
-
 	userID := utils.GetUserID(c)
 	err = dpdService.BatchConvertProductsToDigital(productIds, userID)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-
 	response.OkWithMessage(fmt.Sprintf("批量转换任务已开始，正在处理 %d 个产品", len(productIds)), c)
 }
 

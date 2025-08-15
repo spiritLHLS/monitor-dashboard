@@ -98,6 +98,30 @@ func (dpdService *DigitalProductsService) GetDigitalProductsInfoList(info digita
 	if info.PriceUnit != nil && *info.PriceUnit != "" {
 		db = db.Where("price_unit = ?", *info.PriceUnit)
 	}
+	if info.Tag != nil && *info.Tag != "" {
+		db = db.Where("tag LIKE ?", "%"+*info.Tag+"%")
+	}
+	if info.Cpu != nil {
+		db = db.Where("cpu = ?", *info.Cpu)
+	}
+	if info.Memory != nil {
+		db = db.Where("memory = ?", *info.Memory)
+	}
+	if info.Disk != nil {
+		db = db.Where("disk = ?", *info.Disk)
+	}
+	if info.Traffic != nil {
+		db = db.Where("traffic = ?", *info.Traffic)
+	}
+	if info.PortSpeed != nil {
+		db = db.Where("port_speed = ?", *info.PortSpeed)
+	}
+	if info.Location != nil && *info.Location != "" {
+		db = db.Where("location LIKE ?", "%"+*info.Location+"%")
+	}
+	if info.Price != nil {
+		db = db.Where("price = ?", *info.Price)
+	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return

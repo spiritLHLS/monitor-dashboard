@@ -15,15 +15,35 @@
           —
           <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
         </el-form-item>
-        
-        <el-form-item label="价格单位" prop="priceUnit">
-          <el-input v-model="searchInfo.priceUnit" placeholder="搜索条件" />
-        </el-form-item>
-
         <template v-if="showAllQuery">
-          <!-- 将需要控制显示状态的查询条件添加到此范围内 -->
+          <el-form-item label="TAG" prop="tag">
+            <el-input v-model="searchInfo.tag" placeholder="搜索TAG" />
+          </el-form-item>
+          <el-form-item label="核心" prop="cpu">
+            <el-input v-model.number="searchInfo.cpu" placeholder="搜索核心数" />
+          </el-form-item>
+          <el-form-item label="内存" prop="memory">
+            <el-input v-model.number="searchInfo.memory" placeholder="搜索内存" />
+          </el-form-item>
+          <el-form-item label="硬盘" prop="disk">
+            <el-input v-model.number="searchInfo.disk" placeholder="搜索硬盘" />
+          </el-form-item>
+          <el-form-item label="流量" prop="traffic">
+            <el-input v-model.number="searchInfo.traffic" placeholder="搜索流量" />
+          </el-form-item>
+          <el-form-item label="带宽" prop="portSpeed">
+            <el-input v-model.number="searchInfo.portSpeed" placeholder="搜索带宽" />
+          </el-form-item>
+          <el-form-item label="位置" prop="location">
+            <el-input v-model="searchInfo.location" placeholder="搜索位置" />
+          </el-form-item>
+          <el-form-item label="价格" prop="price">
+            <el-input v-model.number="searchInfo.price" placeholder="搜索价格" />
+          </el-form-item>
+          <el-form-item label="价格单位" prop="priceUnit">
+            <el-input v-model="searchInfo.priceUnit" placeholder="搜索条件" />
+          </el-form-item>
         </template>
-
         <el-form-item>
           <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button icon="refresh" @click="onReset">重置</el-button>
@@ -32,7 +52,6 @@
         </el-form-item>
       </el-form>
     </div>
-    
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button type="primary" icon="plus" @click="openDialog()">新增</el-button>
@@ -90,8 +109,6 @@
         />
       </div>
     </div>
-
-    <!-- 新增/编辑弹窗 -->
     <el-drawer destroy-on-close :size="appStore.drawerSize" v-model="dialogFormVisible" :show-close="false" :before-close="closeDialog">
       <template #header>
         <div class="flex justify-between items-center">
@@ -102,26 +119,23 @@
           </div>
         </div>
       </template>
-
       <el-form :model="formData" label-position="top" ref="elFormRef" :rules="rule" label-width="80px">
         <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label + ':'" :prop="field.prop">
-  <el-input 
-    v-if="field.type === 'number' || field.type === 'float'"
-    v-model.number="formData[field.prop]" 
-    :clearable="true" 
-    :placeholder="'请输入' + field.label"
-  />
-  <el-input 
-    v-else
-    v-model="formData[field.prop]" 
-    :clearable="true" 
-    :placeholder="'请输入' + field.label"
-  />
-</el-form-item>
+          <el-input 
+            v-if="field.type === 'number' || field.type === 'float'"
+            v-model.number="formData[field.prop]" 
+            :clearable="true" 
+            :placeholder="'请输入' + field.label"
+          />
+          <el-input 
+            v-else
+            v-model="formData[field.prop]" 
+            :clearable="true" 
+            :placeholder="'请输入' + field.label"
+          />
+        </el-form-item>
       </el-form>
     </el-drawer>
-
-    <!-- 批量编辑弹窗 -->
     <el-drawer destroy-on-close :size="appStore.drawerSize" v-model="batchEditVisible" :show-close="false" :before-close="closeBatchEditDialog">
       <template #header>
         <div class="flex justify-between items-center">
@@ -132,7 +146,6 @@
           </div>
         </div>
       </template>
-
       <el-alert
         title="批量修改说明"
         description="只有填写了值的字段才会被更新，空白字段将保持原值不变"
@@ -140,26 +153,23 @@
         :closable="false"
         style="margin-bottom: 20px;"
       />
-
       <el-form :model="batchEditData" label-position="top" ref="elBatchEditFormRef" label-width="80px">
         <el-form-item v-for="field in batchEditFields" :key="field.prop" :label="field.label + ':'">
-  <el-input 
-    v-if="field.type === 'number' || field.type === 'float'"
-    v-model.number="batchEditData[field.prop]" 
-    :clearable="true" 
-    :placeholder="'留空则不修改' + field.label"
-  />
-  <el-input 
-    v-else
-    v-model="batchEditData[field.prop]" 
-    :clearable="true" 
-    :placeholder="'留空则不修改' + field.label"
-  />
-</el-form-item>
+          <el-input 
+            v-if="field.type === 'number' || field.type === 'float'"
+            v-model.number="batchEditData[field.prop]" 
+            :clearable="true" 
+            :placeholder="'留空则不修改' + field.label"
+          />
+          <el-input 
+            v-else
+            v-model="batchEditData[field.prop]" 
+            :clearable="true" 
+            :placeholder="'留空则不修改' + field.label"
+          />
+        </el-form-item>
       </el-form>
     </el-drawer>
-
-    <!-- 查看详情弹窗 -->
     <el-drawer destroy-on-close :size="appStore.drawerSize" v-model="detailShow" :show-close="true" :before-close="closeDetailShow" title="查看">
       <el-descriptions :column="1" border>
         <el-descriptions-item v-for="field in formFields" :key="field.prop" :label="field.label">
