@@ -176,13 +176,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue'
+import { ref, reactive, onMounted, watch, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, InfoFilled, ArrowLeft, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
 import { getProductsPublic } from '@/api/products/products'
 import { useRouter } from 'vue-router'
 import { handleRedirect } from '@/plugin/cryptourl/api/encryptedlink'
 import { GetInfoPublic } from '@/plugin/announcement/api/info'
+function debounce(func, wait) {
+    let timeout
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout)
+            func(...args)
+        }
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
+    }
+}
 const isCollapsed = ref(true)
 const toggleSidebar = () => {
     isCollapsed.value = !isCollapsed.value
@@ -192,37 +203,6 @@ const announcement = ref({})
 const isFetching = ref(false)
 const error = ref(null)
 const hotMerchants = ref(['racknerd', 'buyvm', 'bagevm', 'spartanhost', 'fiberstate'])
-const searchByMerchant = (merchant) => {
-    Object.keys(searchFields).forEach(key => {
-        if (searchFields[key].type === 'number') {
-            searchInfo.value[key] = null
-        } else {
-            searchInfo.value[key] = ''
-        }
-    })
-    searchInfo.value.tag = merchant
-    displayMode.value = 'all'
-    page.value = 1
-    getTableData()
-    ElMessage.success(`正在搜索 ${merchant} 的产品`)
-}
-const fetchAnnouncement = async () => {
-    isFetching.value = true
-    error.value = null
-    try {
-        const response = await GetInfoPublic({ Title: "链接说明" })
-        if (response.code === 0) {
-            announcement.value = response.data
-        } else {
-            error.value = response.msg || '获取公告失败'
-        }
-    } catch (err) {
-        console.error('Error fetching announcement:', err)
-        error.value = '网络错误，请稍后再试'
-    } finally {
-        isFetching.value = false
-    }
-}
 const router = useRouter()
 const searchFields = {
     tag: { label: '商家TAG', type: 'string', placeholder: '搜索TAG 等于' },
@@ -233,15 +213,19 @@ const searchFields = {
     portSpeed: { label: '端口(Gbps)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
     location: { label: '地点', type: 'string', placeholder: '搜索地点 等于' },
     price: { label: '价格(USD)', type: 'range', minPlaceholder: '最小值', maxPlaceholder: '最大值' },
-    priceUnit: { label: '计费周期', type: 'select', options: [
-        { value: '', label: '全部' },
-        { value: 'monthly', label: '月付' },
-        { value: 'quarterly', label: '季付' },
-        { value: 'semi-annually', label: '半年付' },
-        { value: 'annually', label: '年付' },
-        { value: 'biennially', label: '2年付' },
-        { value: 'triennially', label: '3年付' },
-    ]},
+    priceUnit: { 
+        label: '计费周期', 
+        type: 'select', 
+        options: [
+            { value: '', label: '全部' },
+            { value: 'monthly', label: '月付' },
+            { value: 'quarterly', label: '季付' },
+            { value: 'semi-annually', label: '半年付' },
+            { value: 'annually', label: '年付' },
+            { value: 'biennially', label: '2年付' },
+            { value: 'triennially', label: '3年付' },
+        ]
+    },
     stock: { label: '库存', type: 'number', placeholder: '搜索库存 大于' },
     additional: { label: '其他信息', type: 'string', placeholder: '搜索其他 关键词' },
 }
@@ -267,6 +251,7 @@ const total = ref(0)
 const tableData = ref([])
 const sortBy = ref('stock')
 const sortOrder = ref('desc')
+const requestLock = ref(false)
 const initSearchInfo = () => {
     const info = {}
     Object.keys(searchFields).forEach(key => {
@@ -292,6 +277,11 @@ const processData = (data) => {
         .replace(/\n/g, '<br>');
 }
 const getTableData = async () => {
+    if (requestLock.value) {
+        console.log('Request locked, skipping...')
+        return
+    }
+    requestLock.value = true
     loading.value = true
     try {
         const params = new URLSearchParams({
@@ -326,10 +316,17 @@ const getTableData = async () => {
             params.set('sortBy', sortBy.value)
             params.set('sortOrder', sortOrder.value)
         }
+        console.log('Requesting data with params:', {
+            page: page.value,
+            pageSize: pageSize.value,
+            sortBy: sortBy.value,
+            sortOrder: sortOrder.value
+        })
         const response = await getProductsPublic(params)
         if (response.code === 0) {
             tableData.value = response.data.list
             total.value = response.data.total
+            console.log(`Loaded ${response.data.list.length} items, total: ${response.data.total}`)
         } else {
             ElMessage.error(response.message || '获取数据失败')
         }
@@ -338,8 +335,10 @@ const getTableData = async () => {
         ElMessage.error('获取数据出错')
     } finally {
         loading.value = false
+        requestLock.value = false
     }
 }
+const debouncedGetTableData = debounce(getTableData, 300)
 const formatPriceUnit = (unit) => {
     if (!unit) return '-'
     const unitMap = {
@@ -353,10 +352,14 @@ const formatPriceUnit = (unit) => {
     return unitMap[unit] || unit
 }
 const handleSearch = () => {
+    console.log('Search triggered')
     page.value = 1
-    getTableData()
+    nextTick(() => {
+        debouncedGetTableData()
+    })
 }
 const handleReset = () => {
+    console.log('Reset triggered')
     Object.keys(searchFields).forEach(key => {
         const field = searchFields[key]
         if (field.type === 'range') {
@@ -375,22 +378,37 @@ const handleReset = () => {
     pageSize.value = 10
     sortBy.value = 'stock'
     sortOrder.value = 'desc'
-    getTableData()
+    nextTick(() => {
+        debouncedGetTableData()
+    })
 }
 const handleSizeChange = (val) => {
-    pageSize.value = val
-    getTableData()
+    console.log('PageSize changed from', pageSize.value, 'to', val)
+    if (pageSize.value !== val) {
+        pageSize.value = val
+        page.value = 1 // 改变页面大小时重置到第一页
+        // 不在这里直接调用，让 watch 处理
+    }
 }
 const handleCurrentChange = (val) => {
-    page.value = val
-    getTableData()
+    console.log('Page changed from', page.value, 'to', val)
+    if (page.value !== val) {
+        page.value = val
+        // 不在这里直接调用，让 watch 处理
+    }
 }
 const handleSortChange = ({ prop, order }) => {
-    sortBy.value = prop
-    sortOrder.value = order === 'ascending' ? 'asc' : 'desc'
-    page.value = 1 // 重置到第一页
-    getTableData() // 立即请求新数据
+    console.log('Sort changed:', prop, order)
+    const newSortBy = prop
+    const newSortOrder = order === 'ascending' ? 'asc' : 'desc'
+    if (sortBy.value !== newSortBy || sortOrder.value !== newSortOrder) {
+        sortBy.value = newSortBy
+        sortOrder.value = newSortOrder
+        page.value = 1 // 排序变化时重置到第一页
+        // 不在这里直接调用，让 watch 处理
+    }
 }
+// 处理重定向
 const handleRedirectFunc = async (rowshortCode) => {
     try {
         if (rowshortCode.toLowerCase().includes('http') && rowshortCode.includes(':')) {
@@ -414,6 +432,7 @@ const handleRedirectFunc = async (rowshortCode) => {
         })
     }
 }
+// 打开URL
 const openUrl = (url) => {
     return new Promise((resolve) => {
         // 尝试打开新窗口
@@ -441,12 +460,77 @@ const openUrl = (url) => {
 const openExternalLink = (url) => {
     window.open(url, '_blank')
 }
-watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
-    getTableData()
+const searchByMerchant = (merchant) => {
+    console.log('Searching by merchant:', merchant)
+    Object.keys(searchFields).forEach(key => {
+        const field = searchFields[key]
+        if (field.type === 'range') {
+            searchInfo.value[`${key}Min`] = null
+            searchInfo.value[`${key}Max`] = null
+        } else if (field.type === 'number') {
+            searchInfo.value[key] = null
+        } else if (field.type === 'select') {
+            searchInfo.value[key] = ''
+        } else {
+            searchInfo.value[key] = ''
+        }
+    })
+    searchInfo.value.tag = merchant
+    displayMode.value = 'all'
+    page.value = 1
+    nextTick(() => {
+        debouncedGetTableData()
+        ElMessage.success(`正在搜索 ${merchant} 的产品`)
+    })
+}
+const fetchAnnouncement = async () => {
+    isFetching.value = true
+    error.value = null
+    try {
+        const response = await GetInfoPublic({ Title: "链接说明" })
+        if (response.code === 0) {
+            announcement.value = response.data
+        } else {
+            error.value = response.msg || '获取公告失败'
+        }
+    } catch (err) {
+        console.error('Error fetching announcement:', err)
+        error.value = '网络错误，请稍后再试'
+    } finally {
+        isFetching.value = false
+    }
+}
+watch(() => page.value, (newVal, oldVal) => {
+    console.log('Page watch triggered:', oldVal, '->', newVal)
+    if (newVal !== oldVal && newVal > 0) {
+        debouncedGetTableData()
+    }
+})
+watch(() => pageSize.value, (newVal, oldVal) => {
+    console.log('PageSize watch triggered:', oldVal, '->', newVal)
+    if (newVal !== oldVal && newVal > 0) {
+        debouncedGetTableData()
+    }
+})
+watch([() => sortBy.value, () => sortOrder.value], ([newSortBy, newSortOrder], [oldSortBy, oldSortOrder]) => {
+    console.log('Sort watch triggered:', [oldSortBy, oldSortOrder], '->', [newSortBy, newSortOrder])
+    if ((newSortBy !== oldSortBy || newSortOrder !== oldSortOrder)) {
+        debouncedGetTableData()
+    }
+})
+watch(() => displayMode.value, (newVal, oldVal) => {
+    console.log('DisplayMode watch triggered:', oldVal, '->', newVal)
+    if (newVal !== oldVal) {
+        page.value = 1
+        nextTick(() => {
+            debouncedGetTableData()
+        })
+    }
 })
 onMounted(() => {
+    console.log('Component mounted')
     fetchAnnouncement()
-    getTableData()
+    debouncedGetTableData()
 })
 </script>
 
