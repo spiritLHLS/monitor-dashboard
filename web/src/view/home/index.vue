@@ -318,6 +318,8 @@ const getTableData = async () => {
         })
         if (displayMode.value === 'inStock') {
             params.set('stock', '1')
+        } else if (searchInfo.value.stock != null && searchInfo.value.stock !== '') {
+            params.set('stock', searchInfo.value.stock.toString())
         } else if (displayMode.value === 'dedicatedOnly') {
             params.append('additional', '独服')
         }
