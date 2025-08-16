@@ -5,9 +5,8 @@
         <div class="left-section">
           <img src="~@/assets/logo.png" alt="Logo" class="logo">
           <nav class="nav-links">
-            <el-button type="primary" @click="openExternalLink('https://t.me/vps_reviews')">商家评价</el-button>
-            <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
             <el-button type="primary" @click="openExternalLink('https://www.spiritlhl.net')">一键虚拟化项目</el-button>
+            <el-button type="primary" @click="openExternalLink('https://t.me/vps_spiders')">监控频道</el-button>
             <el-button type="primary" @click="router.push('/home')">返回</el-button>
           </nav>
         </div>

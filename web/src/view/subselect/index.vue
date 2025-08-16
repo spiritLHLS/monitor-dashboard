@@ -10,120 +10,136 @@
                 </nav>
             </div>
         </header>
+        
         <div class="content-wrapper">
-            <aside class="sidebar">
-                <h1 class="site-title">订阅配置</h1>
-                <el-form @submit.prevent="handleSearch" class="search-form">
-                    <template v-for="(field, key) in searchFields" :key="key">
-                        <!-- 字符串类型字段 -->
-                        <div v-if="field.type === 'string'" class="search-field">
-                            <label class="field-label">{{ field.label }}</label>
-                            <el-input 
-                                v-model="searchInfo[key]"
-                                :placeholder="field.placeholder" 
-                                class="search-input">
-                                <template #prefix>
-                                    <el-icon>
-                                        <Search />
-                                    </el-icon>
-                                </template>
-                            </el-input>
-                        </div>
-                        <!-- 单个数值字段 -->
-                        <div v-else-if="field.type === 'number'" class="search-field">
-                            <label class="field-label">{{ field.label }}</label>
-                            <el-input 
-                                v-model="searchInfo[key]"
-                                :placeholder="field.placeholder"
-                                type="number"
-                                class="search-input"
-                            />
-                        </div>
-                        <!-- 下拉选择字段 -->
-                        <div v-else-if="field.type === 'select'" class="search-field">
-                            <label class="field-label">{{ field.label }}</label>
-                            <el-select 
-                                v-model="searchInfo[key]"
-                                :placeholder="'请选择' + field.label"
-                                class="search-select"
-                                clearable
-                            >
-                                <el-option 
-                                    v-for="option in field.options" 
-                                    :key="option.value"
-                                    :label="option.label" 
-                                    :value="option.value"
-                                />
-                            </el-select>
-                        </div>
-                        <!-- 区间类型字段 -->
-                        <div v-else-if="field.type === 'range'" class="search-field range-field">
-                            <label class="field-label">{{ field.label }}</label>
-                            <div class="range-inputs">
-                                <el-input 
-                                    v-model="searchInfo[`${key}Min`]"
-                                    :placeholder="field.minPlaceholder"
-                                    type="number"
-                                    class="range-input"
-                                />
-                                <span class="range-separator">-</span>
-                                <el-input 
-                                    v-model="searchInfo[`${key}Max`]"
-                                    :placeholder="field.maxPlaceholder"
-                                    type="number"
-                                    class="range-input"
-                                />
-                            </div>
-                        </div>
-                    </template>
-                    <div class="display-toggle">
-                        <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
-                            @click="handleDisplayModeChange('all')">所有商品</span>
-                        <span :class="['toggle-option', { 'active': displayMode === 'subscribed' }]"
-                            @click="handleDisplayModeChange('subscribed')">已订阅商品</span>
-                    </div>
-                    <div class="button-group">
-                        <el-button type="primary" @click="handleSearch" class="search-button">搜索</el-button>
-                        <el-button type="primary" plain @click="handleReset" class="reset-button">重置</el-button>
-                    </div>
-                </el-form>
-            </aside>
             <main class="main-content">
-                <el-card class="table-card">
-                    <div class="batch-actions">
+                <div class="top-actions-bar">
+                    <div class="left-actions">
+                        <el-button 
+                            type="primary" 
+                            @click="toggleSearch" 
+                            class="search-toggle-btn"
+                            :class="{ 'active': showSearch }"
+                        >
+                            <el-icon><Search /></el-icon>
+                            {{ showSearch ? '收起搜索' : '展开搜索' }}
+                        </el-button>
+                    </div>
+                    <div class="right-actions">
                         <template v-if="displayMode === 'all'">
+                            <el-select v-model="batchNotifyChannel" placeholder="选择订阅通知方式">
+                                <el-option label="Telegram" value="telegram_bot" />
+                                <el-option label="Email" value="email" />
+                                <el-option label="微信" value="wechat" />
+                            </el-select>
                             <el-button type="primary" @click="handleBatchSubscribe"
                                 :disabled="selectedProducts.length === 0">
                                 批量订阅
                             </el-button>
-                            <el-select v-model="batchNotifyChannel" placeholder="选择通知方式" style="margin-left: 10px;">
+                        </template>
+                        <template v-else>
+                            <el-select v-model="batchModifyNotifyChannel" placeholder="选择订阅通知方式">
                                 <el-option label="Telegram" value="telegram_bot" />
                                 <el-option label="Email" value="email" />
                                 <el-option label="微信" value="wechat" />
                             </el-select>
-                        </template>
-                        <template v-else>
                             <el-button type="primary" @click="handleBatchModifySubscribe"
                                 :disabled="selectedProducts.length === 0">
                                 批量修改订阅
                             </el-button>
-                            <el-select v-model="batchModifyNotifyChannel" placeholder="选择通知方式"
-                                style="margin-left: 10px;">
-                                <el-option label="Telegram" value="telegram_bot" />
-                                <el-option label="Email" value="email" />
-                                <el-option label="微信" value="wechat" />
-                            </el-select>
                             <el-button type="danger" @click="handleBatchUnsubscribe"
-                                :disabled="selectedProducts.length === 0" style="margin-left: 10px;">
+                                :disabled="selectedProducts.length === 0">
                                 批量取消订阅
                             </el-button>
                             <el-button type="warning" @click="handleBatchResetStatus"
-                                :disabled="selectedProducts.length === 0 || !selectedProducts.some(p => p.status === 1)"
-                                style="margin-left: 10px;">
+                                :disabled="selectedProducts.length === 0 || !selectedProducts.some(p => p.status === 1)">
                                 批量重置状态
                             </el-button>
                         </template>
                     </div>
+                </div>
+                
+                <div v-show="showSearch" class="search-panel">
+                    <div class="search-header">
+                        <h3>搜索筛选</h3>
+                        <div class="display-toggle">
+                            <span :class="['toggle-option', { 'active': displayMode === 'all' }]"
+                                @click="handleDisplayModeChange('all')">所有商品</span>
+                            <span :class="['toggle-option', { 'active': displayMode === 'subscribed' }]"
+                                @click="handleDisplayModeChange('subscribed')">已订阅商品</span>
+                        </div>
+                    </div>
+                    
+                    <el-form @submit.prevent="handleSearch" class="search-form">
+                        <div class="search-fields-grid">
+                            <template v-for="(field, key) in searchFields" :key="key">
+                                <div v-if="field.type === 'string'" class="search-field">
+                                    <label class="field-label">{{ field.label }}</label>
+                                    <el-input 
+                                        v-model="searchInfo[key]"
+                                        :placeholder="field.placeholder" 
+                                        class="search-input"
+                                        size="small">
+                                    </el-input>
+                                </div>
+                                <div v-else-if="field.type === 'number'" class="search-field">
+                                    <label class="field-label">{{ field.label }}</label>
+                                    <el-input 
+                                        v-model="searchInfo[key]"
+                                        :placeholder="field.placeholder"
+                                        type="number"
+                                        class="search-input"
+                                        size="small"
+                                    />
+                                </div>
+                                <div v-else-if="field.type === 'select'" class="search-field">
+                                    <label class="field-label">{{ field.label }}</label>
+                                    <el-select 
+                                        v-model="searchInfo[key]"
+                                        :placeholder="'请选择' + field.label"
+                                        class="search-select"
+                                        clearable
+                                        size="small"
+                                    >
+                                        <el-option 
+                                            v-for="option in field.options" 
+                                            :key="option.value"
+                                            :label="option.label" 
+                                            :value="option.value"
+                                        />
+                                    </el-select>
+                                </div>
+                                <div v-else-if="field.type === 'range'" class="search-field range-field">
+                                    <label class="field-label">{{ field.label }}</label>
+                                    <div class="range-inputs">
+                                        <el-input 
+                                            v-model="searchInfo[`${key}Min`]"
+                                            :placeholder="field.minPlaceholder"
+                                            type="number"
+                                            class="range-input"
+                                            size="small"
+                                        />
+                                        <span class="range-separator">-</span>
+                                        <el-input 
+                                            v-model="searchInfo[`${key}Max`]"
+                                            :placeholder="field.maxPlaceholder"
+                                            type="number"
+                                            class="range-input"
+                                            size="small"
+                                        />
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <div class="search-buttons">
+                            <el-button type="primary" @click="handleSearch">搜索</el-button>
+                            <el-button type="primary" plain @click="handleReset">重置</el-button>
+                        </div>
+                    </el-form>
+                </div>
+                
+                <el-card class="table-card">
                     <el-table v-loading="loading" :data="tableData" style="width: 100%"
                         :default-sort="{ prop: 'price', order: 'descending' }" @sort-change="handleSortChange"
                         @selection-change="handleSelectionChange">
@@ -131,22 +147,6 @@
                         <el-table-column v-for="col in visibleColumns" :key="col.prop" :prop="col.prop"
                             :label="col.label" :sortable="col.sortable" :min-width="col.minWidth"
                             :show-overflow-tooltip="col.prop !== 'additional'">
-                            <template #default="{ row }">
-                                <template v-if="col.prop === 'stock'">
-                                    {{ row.stock === 1000 ? '有' : row.stock }}
-                                </template>
-                                <template v-else-if="col.prop === 'notify_channel'">
-                                    {{ getNotifyChannelLabel(row.notify_channel) }}
-                                </template>
-                                <template v-else-if="col.prop === 'additional'">
-                                    <span v-html="processData(row.additional)" style="white-space: pre-wrap;"></span>
-                                </template>
-                                <template v-else>
-                                    {{ row[col.prop] }}
-                                </template>
-                            </template>
-                        </el-table-column>
-                        <el-table-column v-if="displayMode === 'subscribed'" label="状态" :min-width="100">
                             <template #default="{ row }">
                                 <template v-if="col.prop === 'stock'">
                                     {{ row.stock === 1000 ? '有' : row.stock === -1 ? '无' : row.stock }}
@@ -165,16 +165,30 @@
                                 </template>
                             </template>
                         </el-table-column>
+                        <el-table-column v-if="displayMode === 'subscribed'" label="状态" :min-width="100">
+                            <template #default="{ row }">
+                                <el-tag :type="row.status === 0 ? 'success' : 'warning'">
+                                    {{ row.status === 0 ? '正常' : '冻结' }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="操作" :min-width="200">
                             <template #default="{ row }">
-                                <el-button v-if="!row.isSubscribed" type="success" size="small"
-                                    @click="handleSubscribe(row)">添加订阅</el-button>
-                                <el-button v-else type="warning" size="small"
-                                    @click="handleUnsubscribe(row)">取消订阅</el-button>
+                                <template v-if="displayMode === 'all'">
+                                    <el-button v-if="!row.isSubscribed" type="success" size="small"
+                                        @click="handleSubscribe(row)">添加订阅</el-button>
+                                    <el-button v-else type="warning" size="small"
+                                        @click="handleUnsubscribe(row)">取消订阅</el-button>
+                                </template>
+                                <template v-else>
+                                    <el-button type="warning" size="small"
+                                        @click="handleUnsubscribe(row)">取消订阅</el-button>
+                                    <el-button v-if="row.status === 1" type="info" size="small"
+                                        @click="handleResetStatus(row)" style="margin-left: 5px;">重置状态</el-button>
+                                </template>
                             </template>
                         </el-table-column>
                     </el-table>
-
                     <div class="pagination-wrapper">
                         <el-pagination v-model:current-page="page" v-model:page-size="pageSize"
                             :page-sizes="[10, 20, 50, 100]" :total="total"
@@ -186,9 +200,8 @@
         </div>
     </div>
 </template>
-
 <script setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
@@ -275,6 +288,7 @@ const selectedProducts = ref([])
 const subscribedProductIds = ref(new Set())
 const batchNotifyChannel = ref('telegram_bot')
 const batchModifyNotifyChannel = ref('telegram_bot')
+const showSearch = ref(false)
 const processData = (data) => {
     return data
         .trim()
@@ -294,9 +308,13 @@ const visibleColumns = computed(() => {
         col.prop !== 'notify_channel' || displayMode.value === 'subscribed'
     )
 })
+const toggleSearch = () => {
+    showSearch.value = !showSearch.value
+}
 const handleDisplayModeChange = (mode) => {
     displayMode.value = mode
     page.value = 1
+    selectedProducts.value = []
     getTableData()
 }
 const getTableData = async () => {
@@ -344,7 +362,8 @@ const getTableData = async () => {
             tableData.value = response.data.list.map(item => ({
                 ...item,
                 id: item.ID,
-                isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.ID),
+                digital_product_id: item.digital_product_id || item.DigitalProductId || item.ID,
+                isSubscribed: displayMode.value === 'subscribed' || subscribedProductIds.value.has(item.digital_product_id || item.DigitalProductId || item.ID),
                 status: item.status
             }))
             total.value = response.data.total
@@ -364,7 +383,12 @@ const handleResetStatus = async (row) => {
         return
     }
     try {
-        const response = await selfBatchUpdateStatus({ IDs: [row.id] })
+        const digitalProductId = row.digital_product_id || row.DigitalProductId
+        if (!digitalProductId) {
+            ElMessage.error('产品ID未定义，无法重置状态')
+            return
+        }
+        const response = await selfBatchUpdateStatus({ IDs: [digitalProductId] })
         if (response.code === 0) {
             ElMessage.success('状态重置成功')
             row.status = 0
@@ -376,31 +400,13 @@ const handleResetStatus = async (row) => {
         ElMessage.error('状态重置出错')
     }
 }
-const handleBatchResetStatus = async () => {
-    const frozenProducts = selectedProducts.value.filter(product => product.status === 1)
-    if (frozenProducts.length === 0) {
-        ElMessage.info('没有需要重置的订阅')
-        return
-    }
-    try {
-        const IDs = frozenProducts.map(product => product.id)
-        const response = await selfBatchUpdateStatus({ IDs })
-        if (response.code === 0) {
-            ElMessage.success('批量重置状态成功')
-            frozenProducts.forEach(product => product.status = 0)
-        } else {
-            ElMessage.error(response.message || '批量重置状态失败')
-        }
-    } catch (error) {
-        console.error('批量重置状态出错:', error)
-        ElMessage.error('批量重置状态出错')
-    }
-}
 const getSubscribedProducts = async () => {
     try {
         const response = await selfGetSub({ page: 1, pageSize: 1000 })
         if (response.code === 0) {
-            subscribedProductIds.value = new Set(response.data.list.map(item => item.ID))
+            subscribedProductIds.value = new Set(response.data.list.map(item => 
+                item.digital_product_id || item.DigitalProductId || item.ID
+            ))
         }
     } catch (error) {
         console.error('获取已订阅商品出错:', error)
@@ -429,10 +435,12 @@ const handleReset = () => {
     pageSize.value = 10
     sortBy.value = 'stock'
     sortOrder.value = 'desc'
+    selectedProducts.value = []
     getTableData()
 }
 const handleSizeChange = (val) => {
     pageSize.value = val
+    page.value = 1
     getTableData()
 }
 const handleCurrentChange = (val) => {
@@ -442,15 +450,25 @@ const handleCurrentChange = (val) => {
 const handleSortChange = ({ prop, order }) => {
     sortBy.value = prop
     sortOrder.value = order === 'ascending' ? 'asc' : 'desc'
+    page.value = 1
     getTableData()
 }
 const handleSubscribe = async (row) => {
     try {
-        const response = await selfCreateSub({ product_id: row.id, notify_channel: batchNotifyChannel.value })
+        const digitalProductId = row.digital_product_id || row.DigitalProductId
+        if (!digitalProductId) {
+            ElMessage.error('产品ID未定义，无法订阅')
+            console.error('订阅失败，产品数据:', row)
+            return
+        }
+        const response = await selfCreateSub({ 
+            digital_product_id: digitalProductId, 
+            notify_channel: batchNotifyChannel.value 
+        })
         if (response.code === 0) {
             ElMessage.success('订阅成功')
-            subscribedProductIds.value.add(row.id)
-            await getTableData() // 重新获取当前页数据
+            subscribedProductIds.value.add(digitalProductId)
+            await getTableData()
         } else {
             ElMessage.error(response.message || '订阅失败')
         }
@@ -461,12 +479,18 @@ const handleSubscribe = async (row) => {
 }
 const handleUnsubscribe = async (row) => {
     try {
-        const response = await selfDeleteSub({ product_id: row.id })
+        const digitalProductId = row.digital_product_id || row.DigitalProductId
+        if (!digitalProductId) {
+            ElMessage.error('产品ID未定义，无法取消订阅')
+            console.error('取消订阅失败，产品数据:', row)
+            return
+        }
+        const response = await selfDeleteSub({ digital_product_id: digitalProductId })
         if (response.code === 0) {
             ElMessage.success('取消订阅成功')
-            subscribedProductIds.value.delete(row.id)
+            subscribedProductIds.value.delete(digitalProductId)
             if (displayMode.value === 'subscribed') {
-                await getTableData() // 重新获取当前页数据
+                await getTableData()
             } else {
                 row.isSubscribed = false
                 row.notify_channel = null
@@ -483,38 +507,133 @@ const handleSelectionChange = (selection) => {
     selectedProducts.value = selection
 }
 const handleBatchSubscribe = async () => {
+    let successCount = 0
+    let failCount = 0
     for (const product of selectedProducts.value) {
-        if (!product.isSubscribed) {
-            await handleSubscribe(product)
-        }
-    }
-    getTableData()
-}
-const handleBatchUnsubscribe = async () => {
-    for (const product of selectedProducts.value) {
-        if (product.isSubscribed) {
-            await handleUnsubscribe(product)
-        }
-    }
-    getTableData()
-}
-const handleBatchModifySubscribe = async () => {
-    try {
-        for (const product of selectedProducts.value) {
-            if (product.isSubscribed) {
-                const response = await selfUpdateSub({ product_id: product.id, notify_channel: batchModifyNotifyChannel.value })
+        const digitalProductId = product.digital_product_id || product.DigitalProductId
+        if (!product.isSubscribed && digitalProductId) {
+            try {
+                const response = await selfCreateSub({ 
+                    digital_product_id: digitalProductId, 
+                    notify_channel: batchNotifyChannel.value 
+                })
                 if (response.code === 0) {
-                    product.notify_channel = batchModifyNotifyChannel.value
+                    successCount++
+                    subscribedProductIds.value.add(digitalProductId)
                 } else {
-                    ElMessage.error(`修改商品 ${product.id} 订阅失败: ${response.message}`)
+                    failCount++
+                    console.error(`订阅产品 ${digitalProductId} 失败:`, response.message)
                 }
+            } catch (error) {
+                failCount++
+                console.error(`订阅产品 ${digitalProductId} 出错:`, error)
             }
         }
-        ElMessage.success('批量修改订阅成功')
-        getTableData()
+    }
+    if (successCount > 0) {
+        ElMessage.success(`成功订阅 ${successCount} 个商品${failCount > 0 ? `，${failCount} 个失败` : ''}`)
+    } else if (failCount > 0) {
+        ElMessage.error(`批量订阅失败，${failCount} 个商品订阅失败`)
+    }
+    await getTableData()
+}
+const handleBatchUnsubscribe = async () => {
+    let successCount = 0
+    let failCount = 0
+    
+    for (const product of selectedProducts.value) {
+        const digitalProductId = product.digital_product_id || product.DigitalProductId
+        if (product.isSubscribed && digitalProductId) {
+            try {
+                const response = await selfDeleteSub({ digital_product_id: digitalProductId })
+                if (response.code === 0) {
+                    successCount++
+                    subscribedProductIds.value.delete(digitalProductId)
+                } else {
+                    failCount++
+                    console.error(`取消订阅产品 ${digitalProductId} 失败:`, response.message)
+                }
+            } catch (error) {
+                failCount++
+                console.error(`取消订阅产品 ${digitalProductId} 出错:`, error)
+            }
+        }
+    }
+    
+    if (successCount > 0) {
+        ElMessage.success(`成功取消订阅 ${successCount} 个商品${failCount > 0 ? `，${failCount} 个失败` : ''}`)
+    } else if (failCount > 0) {
+        ElMessage.error(`批量取消订阅失败，${failCount} 个商品取消失败`)
+    }
+    
+    await getTableData()
+}
+const handleBatchModifySubscribe = async () => {
+    let successCount = 0
+    let failCount = 0
+    
+    for (const product of selectedProducts.value) {
+        if (product.isSubscribed) {
+            const digitalProductId = product.digital_product_id || product.DigitalProductId
+            if (!digitalProductId) {
+                failCount++
+                continue
+            }
+            
+            try {
+                const response = await selfUpdateSub({ 
+                    digital_product_id: digitalProductId, 
+                    notify_channel: batchModifyNotifyChannel.value 
+                })
+                if (response.code === 0) {
+                    successCount++
+                    product.notify_channel = batchModifyNotifyChannel.value
+                } else {
+                    failCount++
+                    console.error(`修改商品 ${digitalProductId} 订阅失败:`, response.message)
+                }
+            } catch (error) {
+                failCount++
+                console.error(`修改商品 ${digitalProductId} 订阅出错:`, error)
+            }
+        }
+    }
+    
+    if (successCount > 0) {
+        ElMessage.success(`成功修改 ${successCount} 个订阅${failCount > 0 ? `，${failCount} 个失败` : ''}`)
+    } else if (failCount > 0) {
+        ElMessage.error(`批量修改订阅失败，${failCount} 个商品修改失败`)
+    }
+    
+    await getTableData()
+}
+const handleBatchResetStatus = async () => {
+    const frozenProducts = selectedProducts.value.filter(product => product.status === 1)
+    if (frozenProducts.length === 0) {
+        ElMessage.info('没有需要重置的订阅')
+        return
+    }
+    
+    try {
+        const IDs = frozenProducts
+            .map(product => product.digital_product_id || product.DigitalProductId)
+            .filter(id => id)
+            
+        if (IDs.length === 0) {
+            ElMessage.error('没有有效的产品ID')
+            return
+        }
+        
+        const response = await selfBatchUpdateStatus({ IDs })
+        if (response.code === 0) {
+            ElMessage.success('批量重置状态成功')
+            frozenProducts.forEach(product => product.status = 0)
+        } else {
+            ElMessage.error(response.message || '批量重置状态失败')
+        }
     } catch (error) {
-        console.error('批量修改订阅出错:', error)
-        ElMessage.error('批量修改订阅出错')
+        console.error('批量重置状态出错:', error)
+        ElMessage.error('批量重置状态出错')
     }
 }
 const openExternalLink = (url) => {
@@ -522,13 +641,9 @@ const openExternalLink = (url) => {
 }
 onMounted(async () => {
     await getSubscribedProducts()
-    getTableData()
-})
-watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
-    getTableData()
+    await getTableData()
 })
 </script>
-
 <style scoped>
 .product-dashboard {
     display: flex;
@@ -537,7 +652,6 @@ watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: #f0f6f0;
 }
-
 .top-bar {
     display: flex;
     justify-content: space-between;
@@ -546,124 +660,90 @@ watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
     background-color: #e8f5e8;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .left-section {
     display: flex;
     align-items: center;
 }
-
 .logo {
     height: 40px;
     width: auto;
     margin-right: 20px;
 }
-
 .nav-links {
     display: flex;
     gap: 10px;
 }
-
 .nav-links .el-button {
     font-size: 14px;
     padding: 8px 16px;
 }
-
 .content-wrapper {
     display: flex;
     flex: 1;
+    position: relative;
 }
-
-.sidebar {
-    width: 280px;
-    background-color: #ffffff;
+.main-content {
+    flex-grow: 1;
     padding: 20px;
     overflow-y: auto;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    background-color: #f0f6f0;
+    position: relative;
 }
-
-.site-title {
-    font-size: 24px;
-    color: #2f3f2f;
-    margin-bottom: 20px;
-    text-align: center;
-    font-weight: 600;
-}
-
-.search-form {
+.top-actions-bar {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
 }
-
-.search-field {
-    margin-bottom: 12px;
-}
-
-.field-label {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 14px;
-    color: #2f3f2f;
-    font-weight: 500;
-}
-
-.range-field {
-    margin-bottom: 12px;
-}
-
-.range-inputs {
+.left-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
 }
-
-.range-input {
-    flex: 1;
+.right-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-
-.range-separator {
-    color: #666;
-    font-weight: bold;
-    min-width: 12px;
-    text-align: center;
+.right-actions .el-button,
+.right-actions .el-select {
+    height: 32px;
 }
-
-/* 下拉选择框样式 */
-.search-select {
-    width: 100%;
+.right-actions .el-select {
+    width: 180px;
 }
-
-.search-select :deep(.el-input__wrapper) {
-    box-shadow: 0 0 0 1px #c0cfc0 inset;
+.search-toggle-btn {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
 }
-
-.search-select :deep(.el-input__wrapper:hover) {
-    box-shadow: 0 0 0 1px #42b883 inset;
+.search-toggle-btn.active {
+    background-color: #33a06f;
+    border-color: #33a06f;
 }
-
-.search-select :deep(.el-input__wrapper.is-focus) {
-    box-shadow: 0 0 0 2px rgba(66, 184, 131, 0.2);
+.search-panel {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
 }
-
-/* 下拉选项样式 */
-:deep(.el-select-dropdown__item.is-selected) {
-    color: #42b883;
-    font-weight: bold;
+.search-header {
+    margin-bottom: 20px;
 }
-
-:deep(.el-select-dropdown__item:hover) {
-    background-color: #e8f5e8;
+.search-header h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #2f3f2f;
+    font-weight: 600;
 }
-
 .display-toggle {
     display: flex;
     background-color: #f0f6f0;
     border-radius: 20px;
     padding: 4px;
-    margin: 12px 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .toggle-option {
     flex: 1;
     text-align: center;
@@ -672,242 +752,227 @@ watch([page, pageSize, sortBy, sortOrder, displayMode], () => {
     border-radius: 16px;
     transition: all 0.3s ease;
     color: #2f3f2f;
+    font-size: 13px;
 }
-
 .toggle-option.active {
     background-color: #42b883;
     color: #ffffff;
 }
-
-.button-group {
+.search-form {
     display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
+    flex-direction: column;
 }
-
-.search-button,
-.reset-button {
+.search-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.search-field {
+    display: flex;
+    flex-direction: column;
+}
+.field-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #2f3f2f;
+    font-weight: 500;
+}
+.range-field .range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.range-input {
     flex: 1;
-    max-width: 45%;
 }
-
-.main-content {
-    flex-grow: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background-color: #f0f6f0;
+.range-separator {
+    color: #666;
+    font-weight: bold;
+    min-width: 12px;
+    text-align: center;
 }
-
+.search-select {
+    width: 100%;
+}
+.search-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+.search-buttons .el-button {
+    height: 32px;
+}
 .table-card {
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     border-radius: 4px;
 }
-
-.batch-actions {
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-}
-
 .pagination-wrapper {
     padding: 16px;
     display: flex;
     justify-content: flex-end;
 }
-
 :deep(.el-input__wrapper) {
     box-shadow: 0 0 0 1px #c0cfc0 inset;
 }
-
 :deep(.el-input__wrapper:hover) {
     box-shadow: 0 0 0 1px #42b883 inset;
 }
-
 :deep(.el-input__wrapper.is-focus) {
     box-shadow: 0 0 0 2px rgba(66, 184, 131, 0.2);
 }
-
+:deep(.el-select .el-input__wrapper) {
+    box-shadow: 0 0 0 1px #c0cfc0 inset;
+}
+:deep(.el-select .el-input__wrapper:hover) {
+    box-shadow: 0 0 0 1px #42b883 inset;
+}
+:deep(.el-select .el-input__wrapper.is-focus) {
+    box-shadow: 0 0 0 2px rgba(66, 184, 131, 0.2);
+}
+:deep(.el-select-dropdown__item.is-selected) {
+    color: #42b883;
+    font-weight: bold;
+}
+:deep(.el-select-dropdown__item:hover) {
+    background-color: #e8f5e8;
+}
 :deep(.el-switch__core) {
     border-color: #c0cfc0;
 }
-
 :deep(.el-switch.is-checked .el-switch__core) {
     border-color: #42b883;
     background-color: #42b883;
 }
-
 :deep(.el-table th) {
     background-color: #f0f6f0;
     font-weight: 600;
     color: #2f3f2f;
 }
-
 :deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
     background-color: #f9fff9;
 }
-
 :deep(.el-table--enable-row-hover .el-table__body tr:hover > td) {
     background-color: #e8f5e8;
 }
-
 :deep(.el-button--primary) {
     background-color: #42b883;
     border-color: #42b883;
 }
-
 :deep(.el-button--primary:hover) {
     background-color: #33a06f;
     border-color: #33a06f;
 }
-
 :deep(.el-button--primary.is-plain) {
     color: #42b883;
     background: #ecf5f0;
     border-color: #42b883;
 }
-
 :deep(.el-button--primary.is-plain:hover) {
     background: #42b883;
     color: #ffffff;
 }
-
 :deep(.el-button--success) {
     background-color: #42b883;
     border-color: #42b883;
 }
-
 :deep(.el-button--success:hover) {
     background-color: #33a06f;
     border-color: #33a06f;
 }
-
 :deep(.el-button--danger) {
     background-color: #f56c6c;
     border-color: #f56c6c;
 }
-
 :deep(.el-button--danger:hover) {
     background-color: #f78989;
     border-color: #f78989;
 }
-
-:deep(.el-select) {
-    width: 120px;
-}
-
 :deep(.el-table__body-wrapper) {
     overflow-x: auto;
 }
-
 :deep(.el-table .cell) {
     white-space: normal;
     line-height: 1.5;
 }
-
-/* 响应式设计 */
 @media (max-width: 768px) {
     .top-bar {
         flex-direction: column;
         align-items: flex-start;
         padding: 10px;
     }
-
     .left-section {
         flex-direction: column;
         align-items: flex-start;
     }
-
     .logo {
         margin-bottom: 10px;
     }
-
     .nav-links {
         margin-top: 10px;
         width: 100%;
     }
-
     .nav-links .el-button {
         width: 100%;
         margin-bottom: 5px;
     }
-
-    .content-wrapper {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-
     .main-content {
         padding: 10px;
     }
-
+    .top-actions-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    .right-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .right-actions .el-button,
+    .right-actions .el-select {
+        flex: 1;
+        min-width: calc(50% - 4px);
+    }
+    .search-fields-grid {
+        grid-template-columns: 1fr;
+    }
     .range-inputs {
         gap: 4px;
     }
-
     .range-separator {
         min-width: 8px;
         font-size: 12px;
     }
-
-    /* 移动端下拉选择框调整 */
-    .search-select {
-        width: 100%;
-    }
-    
-    .batch-actions {
-        flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
-    }
-    
-    .batch-actions .el-button,
-    .batch-actions .el-select {
-        width: 100%;
-        margin-left: 0 !important;
-        margin-bottom: 5px;
-    }
 }
-
-/* 小屏幕适配 */
 @media (max-width: 480px) {
-    .sidebar {
+    .search-panel {
         padding: 15px;
     }
-    
     .search-field {
         margin-bottom: 10px;
     }
-    
     .field-label {
         font-size: 13px;
     }
-    
     .range-inputs {
         flex-direction: column;
         gap: 6px;
     }
-    
     .range-separator {
         display: none;
     }
-    
     .range-input {
         width: 100%;
     }
-    
-    .button-group {
+    .search-buttons {
         flex-direction: column;
         gap: 8px;
     }
-    
-    .search-button,
-    .reset-button {
-        max-width: 100%;
-        width: 100%;
+    .right-actions .el-button,
+    .right-actions .el-select {
+        min-width: 100%;
     }
 }
 </style>

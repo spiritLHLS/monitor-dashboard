@@ -198,8 +198,8 @@ func (subApi *SubscribeApi) SelfCreateSub(c *gin.Context) {
 		return
 	}
 	uuid := utils.GetUserUuid(c)
-	if createReq.ProductId == nil {
-		response.FailWithMessage("ProductId不能为空", c)
+	if createReq.DigitalProductId == nil {
+		response.FailWithMessage("DigitalProductId不能为空", c)
 		return
 	}
 	if uuid.String() == "" {
@@ -210,7 +210,7 @@ func (subApi *SubscribeApi) SelfCreateSub(c *gin.Context) {
 		response.FailWithMessage("商品对应的推送渠道不能为空", c)
 		return
 	}
-	err = subService.SelfCreateSub(uuid, *createReq.ProductId, createReq.NotifyChannel)
+	err = subService.SelfCreateSub(uuid, *createReq.DigitalProductId, createReq.NotifyChannel)
 	if err != nil {
 		global.GVA_LOG.Error("创建订阅失败!", zap.Error(err))
 		response.FailWithMessage(fmt.Sprintf("创建订阅失败: %s", err.Error()), c)
@@ -235,11 +235,11 @@ func (subApi *SubscribeApi) SelfDeleteSub(c *gin.Context) {
 		return
 	}
 	uuid := utils.GetUserUuid(c)
-	if deleteReq.ProductId == nil {
-		response.FailWithMessage("ProductId不能为空", c)
+	if deleteReq.DigitalProductId == nil {
+		response.FailWithMessage("DigitalProductId不能为空", c)
 		return
 	}
-	err = subService.SelfDeleteSub(uuid, *deleteReq.ProductId)
+	err = subService.SelfDeleteSub(uuid, *deleteReq.DigitalProductId)
 	if err != nil {
 		global.GVA_LOG.Error("删除订阅失败!", zap.Error(err))
 		response.FailWithMessage(fmt.Sprintf("删除订阅失败: %s", err.Error()), c)
@@ -268,11 +268,11 @@ func (subApi *SubscribeApi) SelfUpdateSub(c *gin.Context) {
 		response.FailWithMessage("用户的uuid不能为空", c)
 		return
 	}
-	if updateReq.ProductId == nil {
-		response.FailWithMessage("ProductId不能为空", c)
+	if updateReq.DigitalProductId == nil {
+		response.FailWithMessage("DigitalProductId不能为空", c)
 		return
 	}
-	err = subService.SelfUpdateSub(uuid, *updateReq.ProductId, updateReq.NotifyChannel)
+	err = subService.SelfUpdateSub(uuid, *updateReq.DigitalProductId, updateReq.NotifyChannel)
 	if err != nil {
 		global.GVA_LOG.Error("更新订阅失败!", zap.Error(err))
 		response.FailWithMessage(fmt.Sprintf("更新订阅失败: %s", err.Error()), c)

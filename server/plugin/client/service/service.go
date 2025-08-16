@@ -324,7 +324,7 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 			gvaGlobal.BlackCache.Increment(key, 1)
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errLoginFailed, err)
 		}
-		if *u.IsFrozen {
+		if u.IsFrozen != nil && *u.IsFrozen {
 			gvaGlobal.GVA_LOG.Error("登陆失败! 用户被冻结，禁止登录!")
 			gvaGlobal.BlackCache.Increment(key, 1)
 			return "", request.CustomClaims{}, system.SysUser{}, errors.New(errUserDisabled)
