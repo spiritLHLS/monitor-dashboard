@@ -217,10 +217,9 @@ func (dpdService *DigitalProductsService) runConversionTask(userID uint) {
 	// 第三步：逐个处理产品转换
 	for i, product := range productsList {
 		dpdService.updateStatus(fmt.Sprintf("转换产品 ID:%d", product.ID), i, len(productsList))
-		// 使用AI解析产品信息
 		digitalProduct, parseErr := dpdService.parseProductWithAI(product)
 		if parseErr != nil {
-			global.GVA_LOG.Error(fmt.Sprintf("AI解析产品ID %d 失败: %v", product.ID, parseErr))
+			global.GVA_LOG.Error(fmt.Sprintf("AI解析产品失败 - 产品ID: %d, URL: %s, 错误: %v", product.ID, product.Url, parseErr))
 			dpdService.incrementFailCount()
 			continue
 		}
@@ -298,16 +297,16 @@ func (dpdService *DigitalProductsService) GetConversionStatus() *ConversionStatu
 
 // parseProductWithAI 使用AI解析产品信息
 func (dpdService *DigitalProductsService) parseProductWithAI(product products.Products) (digitalproducts.DigitalProducts, error) {
-	// 构建AI提示词
 	prompt := dpdService.buildPromptForProduct(product)
-	// 调用AI服务获取解析结果
 	aiResponse := ai.GetResponse(prompt)
 	if aiResponse == "" {
+		global.GVA_LOG.Error(fmt.Sprintf("AI返回空响应 - 产品ID: %d, URL: %s", product.ID, product.Url))
 		return digitalproducts.DigitalProducts{}, fmt.Errorf("AI返回空响应")
 	}
-	// 解析AI响应并构建数字商品对象
 	digitalProduct, err := dpdService.parseAIResponse(aiResponse, product)
 	if err != nil {
+		// 在这里也添加URL信息到错误日志
+		global.GVA_LOG.Error(fmt.Sprintf("解析AI响应失败 - 产品ID: %d, URL: %s, 错误: %v", product.ID, product.Url, err))
 		return digitalproducts.DigitalProducts{}, fmt.Errorf("解析AI响应失败: %v", err)
 	}
 	return digitalProduct, nil
@@ -343,7 +342,7 @@ func (dpdService *DigitalProductsService) buildPromptForProduct(product products
 3. 硬盘：提取GB数值，如"100GB SSD"→100.0，"1TB"→1024.0，"512MB"→0.512，如果不存在单位，假设单位为GB直接提取数值，不存在的设为null
 4. 流量：提取TB数值，如"10TB"→10.0，"不限"→10240.0，"500GB"→0.5，如果不存在单位，假设单位为TB直接提取数值不存在的设为null
 5. 带宽：提取Gbps数值，如"1Gbps"→1.0，"100Mbps"→0.1，"50Mbps"→0.05，小于1Mbps或不存在的设为null
-6. 价格：提取数值部分（保留小数），如"$10.99/月"→10.99，"$5.5/月"→5.5，"HK$151.80HKD"这种应该识别为港币，如果存在HKD、GBP等内容，应当优先识别英文代表的价格单位；如果非美元计价，则请按照当前汇率直接转换为美元计价的，不存在的设为null，如果存在多个，那么仅保留最小的那个，一般是按月计费的那个，不存在的设为null
+6. 价格：转换为美元计价后再提取数值部分（最多保留2位小数），如"$10.99/月"→10.99，"$5.5/月"→5.5，"151.80HKD"→识别为港币需转化为美元计价再提取数值不能直接提取，若存在HKD、GBP等非美元单位以非美元计价，则请按照当前汇率直接转换为美元计价再提取数值，如果存在多个数值，那么仅保留最小的一般是按月计费的那个，不存在的设为null
 7. 价格单位：提取单位，如"/月"、"/年"、"monthly"等，单年付的设为"annually"，月的设为"monthly"，两年付的三年付的依此类推，不存在的设为"monthly"，如果有多个都仅保留月的
 8. 位置：必须按照"城市, 省份, 国家"格式提取，使用英文全称城市和省份名称，国家使用英文二字母缩写。如果某部分信息不存在则留空但保留逗号。例如：
    - "New York, New York, US"（完整信息）
@@ -570,7 +569,7 @@ func (dpdService *DigitalProductsService) runBatchReconversionTask(digitalProduc
 		// 使用AI重新解析产品信息
 		newDigitalProduct, parseErr := dpdService.parseProductWithAI(*foundProduct)
 		if parseErr != nil {
-			global.GVA_LOG.Error(fmt.Sprintf("AI重新解析产品ID %d 失败: %v", foundProduct.ID, parseErr))
+			global.GVA_LOG.Error(fmt.Sprintf("AI重新解析产品失败 - 产品ID: %d, URL: %s, 错误: %v", foundProduct.ID, foundProduct.Url, parseErr))
 			dpdService.incrementFailCount()
 			continue
 		}

@@ -51,6 +51,10 @@ func (e *RegisterService) Code(tgid string) (err error) {
 	if model.ConfigTgBotToken == "" {
 		return errors.New("model.ConfigTgBotToken 未初始化")
 	}
+	// 检查 Redis 连接
+	if gvaGlobal.GVA_REDIS == nil {
+		return errors.New("Redis 客户端未初始化")
+	}
 	// 制作验证码
 	code := utils.RandomString(model.ConfigCodeLength)
 	if code == "" {
@@ -64,9 +68,6 @@ func (e *RegisterService) Code(tgid string) (err error) {
 	}
 	// 存储验证码
 	ctx := context.Background()
-	if gvaGlobal.GVA_REDIS == nil {
-		return errors.New("Redis 客户端未初始化")
-	}
 	err = gvaGlobal.GVA_REDIS.Set(ctx, tgid, code, 5*time.Minute).Err()
 	if err != nil {
 		return fmt.Errorf("存储验证码到 Redis 失败: %v", err)
@@ -75,8 +76,20 @@ func (e *RegisterService) Code(tgid string) (err error) {
 }
 
 func (e *RegisterService) commonRegisterLogic(register model.RegisterReq) (string, request.CustomClaims, system.SysUser, error) {
+	// 检查数据库连接
+	if gvaGlobal.GVA_DB == nil {
+		return "", request.CustomClaims{}, system.SysUser{}, errors.New("数据库连接未初始化")
+	}
 	ctx := context.Background()
 	if model.EnableTGRegister {
+		// 检查 Redis 连接
+		if gvaGlobal.GVA_REDIS == nil {
+			return "", request.CustomClaims{}, system.SysUser{}, errors.New("Redis 客户端未初始化")
+		}
+		// 检查 ServiceGroupApp
+		if service.ServiceGroupApp == nil {
+			return "", request.CustomClaims{}, system.SysUser{}, errors.New("ServiceGroupApp 未初始化")
+		}
 		// 验证TG码
 		code, err := gvaGlobal.GVA_REDIS.Get(ctx, register.Tgid).Result()
 		if err != nil {
@@ -174,6 +187,11 @@ func (e *RegisterService) Register(register model.RegisterReq) (string, request.
 }
 
 func (e *RegisterService) RegisterWithInvite(register model.RegisterWithInviteReq) (string, request.CustomClaims, system.SysUser, error) {
+	// 检查数据库连接
+	if gvaGlobal.GVA_DB == nil {
+		return "", request.CustomClaims{}, system.SysUser{}, errors.New("数据库连接未初始化")
+	}
+
 	if register.InviteCode == "" && len(register.InviteCode) != 8 {
 		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("无效邀请码，请使用有效的邀请码")
 	}
@@ -181,6 +199,10 @@ func (e *RegisterService) RegisterWithInvite(register model.RegisterWithInviteRe
 	codeErr := gvaGlobal.GVA_DB.Model(&invite_codes.InviteCodes{}).Where("code = ?", register.InviteCode).First(&dbCode).Error
 	if codeErr != nil {
 		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("数据库查无此邀请码")
+	}
+	// 安全检查指针字段
+	if dbCode.Status == nil {
+		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("邀请码状态异常")
 	}
 	if *dbCode.Status > 0 {
 		return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf("此邀请码已被使用")
@@ -207,6 +229,15 @@ func (e *RegisterService) RegisterWithInvite(register model.RegisterWithInviteRe
 }
 
 func (e *RegisterService) ChangePassword(changer model.ChangePasswordReq) error {
+	// 检查数据库连接
+	if gvaGlobal.GVA_DB == nil {
+		return errors.New("数据库连接未初始化")
+	}
+	// 检查 Redis 连接
+	if gvaGlobal.GVA_REDIS == nil {
+		return errors.New("Redis 客户端未初始化")
+	}
+
 	if changer.Tgid == "" {
 		return fmt.Errorf("由于当前用户未绑定TGID，无法通过TG进行密码重置，请联系管理员手动重置密码")
 	}
@@ -265,6 +296,14 @@ func interfaceToInt(v interface{}) (i int) {
 }
 
 func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, request.CustomClaims, system.SysUser, error) {
+	// 检查数据库连接
+	if gvaGlobal.GVA_DB == nil {
+		return "", request.CustomClaims{}, system.SysUser{}, errors.New("数据库连接未初始化")
+	}
+	// 检查日志对象
+	if gvaGlobal.GVA_LOG == nil {
+		return "", request.CustomClaims{}, system.SysUser{}, errors.New("日志服务未初始化")
+	}
 	// 定义错误消息常量
 	const (
 		errAdminNotFound     = "检测不到管理员账户"
@@ -296,6 +335,10 @@ func (e *RegisterService) Login(loginUser model.LoginReq, key string) (string, r
 			return "", request.CustomClaims{}, system.SysUser{}, fmt.Errorf(errUserNotFound, err)
 		}
 		if model.EnableTGLogin {
+			// 检查 ServiceGroupApp
+			if service.ServiceGroupApp == nil {
+				return "", request.CustomClaims{}, system.SysUser{}, errors.New("ServiceGroupApp 未初始化")
+			}
 			if _, err := service.ServiceGroupApp.IsTgMember(model.ConfigTgBotToken, ecsUser.TGID,
 				model.ConfigChannelId); err != nil {
 				return "", request.CustomClaims{}, system.SysUser{}, errors.New(errNotInChannel)
