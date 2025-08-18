@@ -41,6 +41,7 @@ server/service/privmsg
 server/service/invite_codes
 server/service/ai
 server/service/digitalproducts
+server/service/claweragent
 server/plugin/spiders
 server/plugin/allpdspiders
 server/plugin/telegrampush

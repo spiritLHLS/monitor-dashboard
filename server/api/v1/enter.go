@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"server/api/v1/claweragent"
 	"server/api/v1/digitalproducts"
 	"server/api/v1/ecsusers"
 	"server/api/v1/example"
@@ -30,4 +31,5 @@ type ApiGroup struct {
 	PrivmsgApiGroup         privmsg.ApiGroup
 	Invite_codesApiGroup    invite_codes.ApiGroup
 	DigitalproductsApiGroup digitalproducts.ApiGroup
+	ClaweragentApiGroup     claweragent.ApiGroup
 }

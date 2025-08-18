@@ -1,6 +1,7 @@
 package service
 
 import (
+	"server/service/claweragent"
 	"server/service/digitalproducts"
 	"server/service/ecsusers"
 	"server/service/example"
@@ -30,4 +31,5 @@ type ServiceGroup struct {
 	PrivmsgServiceGroup         privmsg.ServiceGroup
 	Invite_codesServiceGroup    invite_codes.ServiceGroup
 	DigitalproductsServiceGroup digitalproducts.ServiceGroup
+	ClaweragentServiceGroup     claweragent.ServiceGroup
 }

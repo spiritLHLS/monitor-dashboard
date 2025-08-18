@@ -1,6 +1,7 @@
 package router
 
 import (
+	"server/router/claweragent"
 	"server/router/digitalproducts"
 	"server/router/ecsusers"
 	"server/router/example"
@@ -30,4 +31,5 @@ type RouterGroup struct {
 	Privmsg         privmsg.RouterGroup
 	Invite_codes    invite_codes.RouterGroup
 	Digitalproducts digitalproducts.RouterGroup
+	Claweragent     claweragent.RouterGroup
 }
