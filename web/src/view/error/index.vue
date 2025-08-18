@@ -9,10 +9,10 @@
         </p>
         <p>
           项目地址：<a
-            href="https://github.com/flipped-aurora/gin-vue-admin"
+            href="https://www.spiritlhl.net"
             target="_blank"
             class="text-blue-600"
-            >https://github.com/flipped-aurora/gin-vue-admin</a
+            >https://www.spiritlhl.net</a
           >
         </p>
         <el-button @click="toDashboard">返回首页</el-button>

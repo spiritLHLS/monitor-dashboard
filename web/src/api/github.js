@@ -5,7 +5,7 @@ const service = axios.create()
 export function Commits(page) {
   return service({
     url:
-      'https://api.github.com/repos/flipped-aurora/gin-vue-admin/commits?page=' +
+      'https://www.spiritlhl.net' +
       page,
     method: 'get'
   })
@@ -13,7 +13,7 @@ export function Commits(page) {
 
 export function Members() {
   return service({
-    url: 'https://api.github.com/orgs/FLIPPED-AURORA/members',
+    url: 'https://www.spiritlhl.net',
     method: 'get'
   })
 }

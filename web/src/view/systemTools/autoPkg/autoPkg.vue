@@ -1,8 +1,8 @@
 <template>
   <div>
     <warning-bar
-      href="https://www.bilibili.com/video/BV1kv4y1g7nT?p=3"
-      title="此功能为开发环境使用，不建议发布到生产，具体使用效果请看视频https://www.bilibili.com/video/BV1kv4y1g7nT?p=3"
+      href="BV1kv4y1g7nT?p=3"
+      title="此功能为开发环境使用，不建议发布到生产，具体使用效果请看视频BV1kv4y1g7nT?p=3"
     />
     <div class="gva-table-box">
       <div class="gva-btn-list gap-3 flex items-center">

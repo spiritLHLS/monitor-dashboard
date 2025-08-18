@@ -33,7 +33,7 @@ watchEffect(() => {
 const router = useRouter()
 const route = useRoute()
 
-const url = route.query.url || 'https://www.gin-vue-admin.com'
+const url = route.query.url || 'https://www.spiritlhl.net'
 
 onMounted(() => {
   // 挂载一些通用的事件

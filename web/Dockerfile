@@ -19,7 +19,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install && pnpm run build
 
 
 FROM nginx:alpine
-LABEL MAINTAINER="bypanghu@163.com"
+LABEL MAINTAINER="master@spiritlhl.top"
 COPY --from=base  /app/.docker-compose/nginx/conf.d/my.conf /etc/nginx/conf.d/my.conf
 COPY --from=build  /app/dist /usr/share/nginx/html
 RUN ls -al /usr/share/nginx/html

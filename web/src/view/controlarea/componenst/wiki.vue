@@ -1,5 +1,5 @@
 <!--
-    @auther: bypanghu<bypanghu@163.com>
+    @auther: bypanghu<master@spiritlhl.top>
     @date: 2024/5/8
 !-->
 
@@ -23,15 +23,15 @@ const wikis = [
   },
   {
     title : "GVA 文档",
-    url : 'https://www.gin-vue-admin.com/'
+    url : 'https://www.spiritlhl.net'
   },
   {
     title : "插件市场",
-    url : 'https://plugin.gin-vue-admin.com/'
+    url : 'https://www.spiritlhl.net'
   },
   {
     title : "github 仓库",
-    url : 'https://github.com/flipped-aurora/gin-vue-admin'
+    url : 'https://www.spiritlhl.net'
   }
 
 ]

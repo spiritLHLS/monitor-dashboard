@@ -1,5 +1,5 @@
 <!--
-    @auther: bypanghu<bypanghu@163.com>
+    @auther: bypanghu<master@spiritlhl.top>
     @date: 2024/5/8
 !-->
 <template>
@@ -72,16 +72,7 @@ const openLink = (item) => {
   ]
 
   const recentVisits = [
-    {
-      icon : Reading,
-      title : "授权购买",
-      path: "https://gin-vue-admin.com/empower/index.html",
-    },
-    {
-      icon : Document,
-      title : "插件市场",
-      path: "https://plugin.gin-vue-admin.com/#/layout/home",
-    }
+
   ]
 
 </script>

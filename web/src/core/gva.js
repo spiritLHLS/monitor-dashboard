@@ -1,5 +1,5 @@
 /*
- * gin-vue-admin web框架组
+ * gva web框架组
  *
  * */
 // 加载网站配置文件夹

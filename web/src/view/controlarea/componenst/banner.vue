@@ -1,5 +1,5 @@
 <!--
-    @auther: bypanghu<bypanghu@163.com>
+    @auther: bypanghu<master@spiritlhl.top>
     @date: 2024/5/8
 !-->
 
@@ -22,15 +22,15 @@ const openLink = (link) => {
 const banners = [
   {
     img: banner,
-    link: "https://gin-vue-admin.com/empower/index.html"
+    link: "https://www.spiritlhl.net"
   },
   {
     img: banner2,
-    link: "https://plugin.gin-vue-admin.com"
+    link: "https://www.spiritlhl.net"
   },
   {
     img: "https://qmplusimg.henrongyi.top/gvaDemo/k8s.jpg",
-    link: "https://plugin.gin-vue-admin.com/#/layout/newPluginInfo?id=42"
+    link: "https://www.spiritlhl.net"
   }
 ]
 </script>

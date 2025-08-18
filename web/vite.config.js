@@ -11,7 +11,7 @@ import { svgBuilder } from 'vite-auto-import-svg'
 import { AddSecret } from './vitePlugin/secret'
 // @see https://cn.vitejs.dev/config/
 export default ({ mode }) => {
-  AddSecret("")
+  AddSecret("") 
   const NODE_ENV = mode || 'development'
   const envFiles = [`.env.${NODE_ENV}`]
   for (const file of envFiles) {
@@ -100,7 +100,7 @@ export default ({ mode }) => {
       vuePlugin(),
       svgBuilder('./src/assets/icons/'),
       svgBuilder('./src/plugin/'),
-      [Banner(`\n Build based on gin-vue-admin \n Time : ${timestamp}`)],
+      [Banner(`\n Build based on gva \n Time : ${timestamp}`)],
       VueFilePathPlugin('./src/pathInfo.json')
     ]
   }

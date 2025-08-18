@@ -1,14 +1,14 @@
 <template>
   <div>
     <warning-bar
-      href="https://www.bilibili.com/video/BV1kv4y1g7nT?p=3"
+      href="BV1kv4y1g7nT?p=3"
       title="此功能为开发环境使用，不建议发布到生产，具体使用效果请点我观看。"
     />
     <div class="gva-search-box" v-if="!isAdd">
       <div class="text-lg mb-2 text-gray-600">
         使用AI创建<a
           class="text-blue-600 text-sm ml-4"
-          href="https://plugin.gin-vue-admin.com/#/layout/userInfo/center"
+          href="https://www.spiritlhl.net"
           target="_blank"
           >获取AiPath</a
         >
@@ -31,7 +31,7 @@
               <div>
                 【完全免费】前往<a
                   class="text-blue-600"
-                  href="https://plugin.gin-vue-admin.com/#/layout/userInfo/center"
+                  href="https://www.spiritlhl.net"
                   target="_blank"
               >插件市场个人中心</a
               >申请AIPath，填入config.yaml的ai-path属性即可使用。
@@ -56,7 +56,7 @@
               <div>
                 【完全免费】前往<a
                   class="text-blue-600"
-                  href="https://plugin.gin-vue-admin.com/#/layout/userInfo/center"
+                  href="https://www.spiritlhl.net"
                   target="_blank"
                   >插件市场个人中心</a
                 >申请AIPath，填入config.yaml的ai-path属性即可使用。
