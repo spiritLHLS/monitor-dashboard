@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"server/global"
+	"server/model/claweragent"
 	"server/model/digitalproducts"
 	"server/model/ecsusers"
 	"server/model/findallpd"
@@ -16,7 +17,7 @@ import (
 
 func bizModel() error {
 	db := global.GVA_DB
-	err := db.AutoMigrate(products.Products{}, shops.Shops{}, partitions.Partitionspage{}, tgchannel.Tgchannel{}, findallpd.Findallpd{}, ecsusers.EcsUsers{}, subscribe.Subscribe{}, privmsg.PusherConfig{}, invite_codes.InviteCodes{}, digitalproducts.DigitalProducts{})
+	err := db.AutoMigrate(products.Products{}, shops.Shops{}, partitions.Partitionspage{}, tgchannel.Tgchannel{}, findallpd.Findallpd{}, ecsusers.EcsUsers{}, subscribe.Subscribe{}, privmsg.PusherConfig{}, invite_codes.InviteCodes{}, digitalproducts.DigitalProducts{}, claweragent.AgentIpRecord{})
 	if err != nil {
 		return err
 	}
