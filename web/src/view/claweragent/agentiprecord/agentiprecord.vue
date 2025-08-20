@@ -64,8 +64,8 @@
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         
-          <el-table-column align="left" label="代理IP" prop="agentIp" width="120" />
-          <el-table-column align="left" label="备注" prop="remark" width="120" />
+          <el-table-column align="left" label="代理IP" prop="agentIp" width="150" />
+          <el-table-column align="left" label="备注" prop="remark" width="150" />
         <el-table-column align="left" label="冻结" prop="frozen" width="120">
             <template #default="scope">{{ formatBoolean(scope.row.frozen) }}</template>
         </el-table-column>

@@ -1,5 +1,7 @@
 {
   "/src/view/about/index.vue": "Index",
+  "/src/view/claweragent/agentiprecord/agentiprecord.vue": "AgentIpRecord",
+  "/src/view/claweragent/agentiprecord/agentiprecordForm.vue": "AgentIpRecordForm",
   "/src/view/controlarea/componenst/banner.vue": "Banner",
   "/src/view/controlarea/componenst/card.vue": "Card",
   "/src/view/controlarea/componenst/charts-content-numbers.vue": "ChartsContentNumbers",
