@@ -7,26 +7,68 @@
           <el-input v-model="formData.tag" :clearable="true"  placeholder="请输入TAG" />
        </el-form-item>
         <el-form-item label="核心:" prop="cpu">
-          <el-input v-model.number="formData.cpu" :clearable="true" placeholder="请输入" />
-       </el-form-item>
+          <el-input 
+            v-model="formData.cpu" 
+            type="number" 
+            step="0.001"
+            :clearable="true" 
+            placeholder="请输入"
+            @input="handleNumberInput('cpu', $event)"
+          />
+        </el-form-item>
         <el-form-item label="内存:" prop="memory">
-          <el-input v-model.number="formData.memory" :clearable="true" placeholder="请输入" />
-       </el-form-item>
+          <el-input 
+            v-model="formData.memory" 
+            type="number" 
+            step="0.001"
+            :clearable="true" 
+            placeholder="请输入"
+            @input="handleNumberInput('memory', $event)"
+          />
+        </el-form-item>
         <el-form-item label="硬盘:" prop="disk">
-          <el-input v-model.number="formData.disk" :clearable="true" placeholder="请输入" />
-       </el-form-item>
+          <el-input 
+            v-model="formData.disk" 
+            type="number" 
+            step="0.001"
+            :clearable="true" 
+            placeholder="请输入"
+            @input="handleNumberInput('disk', $event)"
+          />
+        </el-form-item>
         <el-form-item label="流量:" prop="traffic">
-          <el-input v-model.number="formData.traffic" :clearable="true" placeholder="请输入" />
-       </el-form-item>
+          <el-input 
+            v-model="formData.traffic" 
+            type="number" 
+            step="0.001"
+            :clearable="true" 
+            placeholder="请输入"
+            @input="handleNumberInput('traffic', $event)"
+          />
+        </el-form-item>
         <el-form-item label="带宽:" prop="portSpeed">
-          <el-input v-model.number="formData.portSpeed" :clearable="true" placeholder="请输入" />
-       </el-form-item>
+          <el-input 
+            v-model="formData.portSpeed" 
+            type="number" 
+            step="0.001"
+            :clearable="true" 
+            placeholder="请输入"
+            @input="handleNumberInput('portSpeed', $event)"
+          />
+        </el-form-item>
         <el-form-item label="位置:" prop="location">
           <el-input v-model="formData.location" :clearable="true"  placeholder="请输入位置" />
        </el-form-item>
         <el-form-item label="价格:" prop="price">
-          <el-input v-model.number="formData.price" :clearable="true" placeholder="请输入" />
-       </el-form-item>
+          <el-input 
+            v-model="formData.price" 
+            type="number" 
+            step="0.001"
+            :clearable="true" 
+            placeholder="请输入"
+            @input="handleNumberInput('price', $event)"
+          />
+        </el-form-item>
         <el-form-item label="价格单位:" prop="priceUnit">
           <el-input v-model="formData.priceUnit" :clearable="true"  placeholder="请输入价格单位" />
        </el-form-item>
@@ -101,6 +143,26 @@ const init = async () => {
     } else {
       type.value = 'create'
     }
+}
+
+// 添加数字输入处理方法
+const handleNumberInput = (prop, value) => {
+  if (value === '' || value === null) {
+    formData.value[prop] = undefined
+  } else {
+    const numValue = parseFloat(value)
+    formData.value[prop] = isNaN(numValue) ? undefined : numValue
+  }
+}
+
+// 批量编辑的数字输入处理方法
+const handleBatchNumberInput = (prop, value) => {
+  if (value === '' || value === null) {
+    batchEditData.value[prop] = undefined
+  } else {
+    const numValue = parseFloat(value)
+    batchEditData.value[prop] = isNaN(numValue) ? undefined : numValue
+  }
 }
 
 init()

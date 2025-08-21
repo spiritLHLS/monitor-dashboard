@@ -34,29 +34,65 @@
               <el-input v-model="searchInfo.tag" placeholder="搜索TAG" />
             </el-form-item>
             <el-form-item label="核心" prop="cpu">
-              <el-input v-model.number="searchInfo.cpu" placeholder="搜索核心数" />
+              <el-input 
+                v-model="searchInfo.cpu" 
+                type="number" 
+                step="0.001"
+                placeholder="搜索核心数"
+                @input="handleSearchNumberInput('cpu', $event)" 
+              />
             </el-form-item>
             <el-form-item label="内存" prop="memory">
-              <el-input v-model.number="searchInfo.memory" placeholder="搜索内存" />
+              <el-input 
+                v-model="searchInfo.memory" 
+                type="number" 
+                step="0.001"
+                placeholder="搜索内存"
+                @input="handleSearchNumberInput('memory', $event)" 
+              />
             </el-form-item>
             <el-form-item label="硬盘" prop="disk">
-              <el-input v-model.number="searchInfo.disk" placeholder="搜索硬盘" />
+              <el-input 
+                v-model="searchInfo.disk" 
+                type="number" 
+                step="0.001"
+                placeholder="搜索硬盘"
+                @input="handleSearchNumberInput('disk', $event)" 
+              />
             </el-form-item>
           </div>
           
           <!-- 第三行：流量、带宽、位置、价格 -->
           <div class="search-row">
             <el-form-item label="流量" prop="traffic">
-              <el-input v-model.number="searchInfo.traffic" placeholder="搜索流量" />
+              <el-input 
+                v-model="searchInfo.traffic" 
+                type="number" 
+                step="0.001"
+                placeholder="搜索流量"
+                @input="handleSearchNumberInput('traffic', $event)" 
+              />
             </el-form-item>
             <el-form-item label="带宽" prop="portSpeed">
-              <el-input v-model.number="searchInfo.portSpeed" placeholder="搜索带宽" />
+              <el-input 
+                v-model="searchInfo.portSpeed" 
+                type="number" 
+                step="0.001"
+                placeholder="搜索带宽"
+                @input="handleSearchNumberInput('portSpeed', $event)" 
+              />
             </el-form-item>
             <el-form-item label="位置" prop="location">
               <el-input v-model="searchInfo.location" placeholder="搜索位置" />
             </el-form-item>
             <el-form-item label="价格" prop="price">
-              <el-input v-model.number="searchInfo.price" placeholder="搜索价格" />
+              <el-input 
+                v-model="searchInfo.price" 
+                type="number" 
+                step="0.001"
+                placeholder="搜索价格"
+                @input="handleSearchNumberInput('price', $event)" 
+              />
             </el-form-item>
           </div>
           
@@ -139,9 +175,12 @@
         <el-form-item v-for="field in formFields" :key="field.prop" :label="field.label + ':'" :prop="field.prop">
           <el-input 
             v-if="field.type === 'number' || field.type === 'float'"
-            v-model.number="formData[field.prop]" 
+            v-model="formData[field.prop]" 
+            type="number"
+            step="0.001"
             :clearable="true" 
             :placeholder="'请输入' + field.label"
+            @input="handleNumberInput(field.prop, $event)"
           />
           <el-input 
             v-else
@@ -173,9 +212,12 @@
         <el-form-item v-for="field in batchEditFields" :key="field.prop" :label="field.label + ':'">
           <el-input 
             v-if="field.type === 'number' || field.type === 'float'"
-            v-model.number="batchEditData[field.prop]" 
+            v-model="batchEditData[field.prop]" 
+            type="number"
+            step="0.001"
             :clearable="true" 
             :placeholder="'留空则不修改' + field.label"
+            @input="handleBatchNumberInput(field.prop, $event)"
           />
           <el-input 
             v-else
@@ -304,6 +346,36 @@ const detailShow = ref(false)
 const detailFrom = ref({})
 const batchConvertLoading = ref(false)
 const statusLoading = ref(false)
+
+// 数字输入处理方法
+const handleNumberInput = (prop, value) => {
+  if (value === '' || value === null) {
+    formData.value[prop] = undefined
+  } else {
+    const numValue = parseFloat(value)
+    formData.value[prop] = isNaN(numValue) ? undefined : numValue
+  }
+}
+
+// 批量编辑的数字输入处理方法
+const handleBatchNumberInput = (prop, value) => {
+  if (value === '' || value === null) {
+    batchEditData.value[prop] = undefined
+  } else {
+    const numValue = parseFloat(value)
+    batchEditData.value[prop] = isNaN(numValue) ? undefined : numValue
+  }
+}
+
+// 搜索的数字输入处理方法
+const handleSearchNumberInput = (prop, value) => {
+  if (value === '' || value === null) {
+    searchInfo.value[prop] = undefined
+  } else {
+    const numValue = parseFloat(value)
+    searchInfo.value[prop] = isNaN(numValue) ? undefined : numValue
+  }
+}
 
 // 表格操作方法
 const onReset = () => {
