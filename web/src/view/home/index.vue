@@ -291,7 +291,7 @@ const getTableData = async () => {
         Object.entries(searchInfo.value).forEach(([key, value]) => {
             if (value != null && value !== '') {
                 if (searchFields[key] && searchFields[key].type === 'number') {
-                    if (typeof value === 'number') {
+                    if (typeof value === 'number' || (typeof value === 'string' && !isNaN(parseFloat(value)) && value.trim() !== '')) {
                         params.set(key, value.toString())
                     }
                 } else if (searchFields[key] && searchFields[key].type === 'select') {

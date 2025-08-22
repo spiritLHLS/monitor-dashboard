@@ -2,7 +2,6 @@
   <div>
     <div class="gva-search-box">
       <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline" :rules="searchRule" @keyup.enter="onSubmit">
-        <!-- 第一行：创建日期 -->
         <div class="search-row">
           <el-form-item label="创建日期" prop="createdAt">
             <template #label>
@@ -26,9 +25,7 @@
           </el-form-item>
         </div>
         
-        <!-- 展开的搜索条件 - 分多行显示 -->
         <template v-if="showAllQuery">
-          <!-- 第二行：TAG、核心、内存、硬盘 -->
           <div class="search-row">
             <el-form-item label="TAG" prop="tag">
               <el-input v-model="searchInfo.tag" placeholder="搜索TAG" />
@@ -62,7 +59,6 @@
             </el-form-item>
           </div>
           
-          <!-- 第三行：流量、带宽、位置、价格 -->
           <div class="search-row">
             <el-form-item label="流量" prop="traffic">
               <el-input 
@@ -96,7 +92,6 @@
             </el-form-item>
           </div>
           
-          <!-- 第四行：价格单位 -->
           <div class="search-row">
             <el-form-item label="价格单位" prop="priceUnit">
               <el-input v-model="searchInfo.priceUnit" placeholder="搜索条件" />
@@ -124,9 +119,6 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column align="left" label="日期" prop="createdAt" width="180">
-          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
-        </el-table-column>
         <el-table-column align="left" label="TAG" prop="tag" width="120" />
         <el-table-column align="left" label="核心" prop="cpu" width="120" />
         <el-table-column align="left" label="内存" prop="memory" width="120" />
@@ -136,10 +128,16 @@
         <el-table-column align="left" label="位置" prop="location" width="120" />
         <el-table-column align="left" label="价格" prop="price" width="120" />
         <el-table-column align="left" label="价格单位" prop="priceUnit" width="120" />
-        <el-table-column align="left" label="其他" prop="additional" width="120" />
-        <el-table-column align="left" label="原表ID" prop="originId" width="120" />
-        <el-table-column align="left" label="操作" fixed="right" :min-width="appStore.operateMinWith">
+        <el-table-column align="left" label="其他" prop="additional" width="130" />
+        <el-table-column align="left" label="原表ID" prop="originId" width="70" />
+        <el-table-column align="left" label="日期" prop="createdAt" width="180">
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="操作" fixed="right" width="275">
           <template #default="scope">
+            <el-button type="primary" link class="table-button" @click="getCompareDetails(scope.row)">
+              <el-icon style="margin-right: 5px"><Connection /></el-icon>对比
+            </el-button>
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
               <el-icon style="margin-right: 5px"><InfoFilled /></el-icon>查看
             </el-button>
@@ -235,6 +233,31 @@
         </el-descriptions-item>
       </el-descriptions>
     </el-drawer>
+    <el-drawer destroy-on-close :size="800" v-model="compareShow" :show-close="true" :before-close="closeCompareShow" title="数据对比">
+      <div class="compare-container">
+        <div class="compare-section">
+          <h3>数字表数据</h3>
+          <el-descriptions :column="1" border>
+            <el-descriptions-item v-for="field in compareFields" :key="field.prop" :label="field.label">
+              <span :class="getCompareClass(field.prop, 'digital')">
+                {{ compareData.digital[field.prop] || '-' }}
+              </span>
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+        <div class="compare-section">
+          <h3>原表数据</h3>
+          <el-descriptions :column="1" border v-if="compareData.original">
+            <el-descriptions-item v-for="field in originalFields" :key="field.prop" :label="field.label">
+              <span :class="getCompareClass(field.prop, 'original')">
+                {{ compareData.original[field.prop] || '-' }}
+              </span>
+            </el-descriptions-item>
+          </el-descriptions>
+          <el-empty v-else description="未找到对应的原表数据" />
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -250,6 +273,9 @@ import {
   batchConvertProductsToDigital,
   getConversionStatus
 } from '@/api/digitalproducts/digitalproducts'
+import {
+  findProducts
+} from '@/api/products/products'
 
 import { getDictFunc, formatDate, formatBoolean, filterDict, filterDataSource, returnArrImg, onDownloadFile } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -261,7 +287,6 @@ defineOptions({
   name: 'DigitalProducts'
 })
 
-// 字段配置
 const formFields = [
   { prop: 'tag', label: 'TAG', type: 'string' },
   { prop: 'cpu', label: '核心', type: 'float' },
@@ -276,7 +301,6 @@ const formFields = [
   { prop: 'originId', label: '原表ID', type: 'number' }
 ]
 
-// 初始化表单数据
 const getInitialFormData = () => {
   const data = {}
   formFields.forEach(field => {
@@ -289,10 +313,8 @@ const getInitialFormData = () => {
   return data
 }
 
-// 批量编辑字段（排除不需要批量修改的字段）
 const batchEditFields = formFields.filter(field => !['originId'].includes(field.prop))
 
-// 基础配置
 const btnAuth = useBtnAuth()
 const appStore = useAppStore()
 const btnLoading = ref(false)
@@ -300,11 +322,9 @@ const convertLoading = ref(false)
 const batchEditLoading = ref(false)
 const showAllQuery = ref(false)
 
-// 表单数据
 const formData = ref(getInitialFormData())
 const batchEditData = ref(getInitialFormData())
 
-// 验证规则
 const rule = reactive({})
 const searchRule = reactive({
   createdAt: [
@@ -330,7 +350,6 @@ const elFormRef = ref()
 const elBatchEditFormRef = ref()
 const elSearchFormRef = ref()
 
-// 表格控制
 const page = ref(1)
 const total = ref(0)
 const pageSize = ref(10)
@@ -338,7 +357,6 @@ const tableData = ref([])
 const searchInfo = ref({})
 const multipleSelection = ref([])
 
-// 弹窗控制
 const type = ref('')
 const dialogFormVisible = ref(false)
 const batchEditVisible = ref(false)
@@ -347,7 +365,79 @@ const detailFrom = ref({})
 const batchConvertLoading = ref(false)
 const statusLoading = ref(false)
 
-// 数字输入处理方法
+const compareShow = ref(false)
+const compareData = ref({
+  digital: {},
+  original: null
+})
+
+const compareFields = [
+  { prop: 'tag', label: 'TAG' },
+  { prop: 'cpu', label: '核心' },
+  { prop: 'memory', label: '内存' },
+  { prop: 'disk', label: '硬盘' },
+  { prop: 'traffic', label: '流量' },
+  { prop: 'portSpeed', label: '带宽' },
+  { prop: 'location', label: '位置' },
+  { prop: 'price', label: '价格' },
+  { prop: 'priceUnit', label: '价格单位' },
+  { prop: 'additional', label: '其他' },
+  { prop: 'originId', label: '原表ID' }
+]
+
+const originalFields = [
+  { prop: 'tag', label: 'TAG' },
+  { prop: 'cpu', label: 'CPU' },
+  { prop: 'memory', label: '内存' },
+  { prop: 'disk', label: '磁盘' },
+  { prop: 'traffic', label: '流量' },
+  { prop: 'portSpeed', label: '端口' },
+  { prop: 'location', label: '地点' },
+  { prop: 'price', label: '价格' },
+  { prop: 'url', label: '链接' },
+  { prop: 'billingType', label: '爬虫类型' },
+  { prop: 'pushStock', label: '推送库存' },
+  { prop: 'oldStock', label: '历史库存' },
+  { prop: 'stock', label: '现有库存' },
+  { prop: 'intervals', label: '爬虫间隔' },
+  { prop: 'pushIntervals', label: '推送间隔' },
+  { prop: 'multiCheck', label: '重复检测' },
+  { prop: 'messageId', label: '消息编号' },
+  { prop: 'additional', label: '其他' }
+]
+
+const getCompareClass = (prop, type) => {
+  if (!compareData.value.original || !compareData.value.digital) return ''
+  
+  const digitalValue = compareData.value.digital[prop]
+  const originalValue = compareData.value.original[prop]
+  
+  if (prop === 'priceUnit' && type === 'digital') return ''
+  if (prop === 'originId' && type === 'digital') return ''
+  
+  const mappingFields = {
+    'cpu': 'cpu',
+    'memory': 'memory', 
+    'disk': 'disk',
+    'traffic': 'traffic',
+    'portSpeed': 'portSpeed',
+    'location': 'location',
+    'price': 'price',
+    'tag': 'tag',
+    'additional': 'additional'
+  }
+  
+  if (type === 'digital' && mappingFields[prop]) {
+    const originalProp = mappingFields[prop]
+    const origVal = compareData.value.original[originalProp]
+    if (String(digitalValue || '') !== String(origVal || '')) {
+      return 'text-red-500'
+    }
+  }
+  
+  return ''
+}
+
 const handleNumberInput = (prop, value) => {
   if (value === '' || value === null) {
     formData.value[prop] = undefined
@@ -357,7 +447,6 @@ const handleNumberInput = (prop, value) => {
   }
 }
 
-// 批量编辑的数字输入处理方法
 const handleBatchNumberInput = (prop, value) => {
   if (value === '' || value === null) {
     batchEditData.value[prop] = undefined
@@ -367,7 +456,6 @@ const handleBatchNumberInput = (prop, value) => {
   }
 }
 
-// 搜索的数字输入处理方法
 const handleSearchNumberInput = (prop, value) => {
   if (value === '' || value === null) {
     searchInfo.value[prop] = undefined
@@ -377,7 +465,6 @@ const handleSearchNumberInput = (prop, value) => {
   }
 }
 
-// 表格操作方法
 const onReset = () => {
   searchInfo.value = {}
   getTableData()
@@ -415,7 +502,6 @@ const handleSelectionChange = (val) => {
   multipleSelection.value = val
 }
 
-// 删除操作
 const deleteRow = (row) => {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
@@ -460,7 +546,6 @@ const deleteDigitalProductsFunc = async (row) => {
   }
 }
 
-// 单个编辑操作
 const updateDigitalProductsFunc = async(row) => {
   const res = await findDigitalProducts({ ID: row.ID })
   type.value = 'update'
@@ -506,7 +591,6 @@ const enterDialog = async () => {
   })
 }
 
-// 批量编辑操作
 const openBatchEditDialog = () => {
   if (multipleSelection.value.length === 0) {
     ElMessage({ type: 'warning', message: '请选择要修改的数据' })
@@ -556,7 +640,6 @@ const enterBatchEditDialog = async () => {
   }
 }
 
-// 详情查看
 const getDetails = async (row) => {
   const res = await findDigitalProducts({ ID: row.ID })
   if (res.code === 0) {
@@ -570,7 +653,38 @@ const closeDetailShow = () => {
   detailFrom.value = {}
 }
 
-// 转换操作 - 一键转换（全量转换）
+const getCompareDetails = async (row) => {
+  try {
+    const digitalRes = await findDigitalProducts({ ID: row.ID })
+    if (digitalRes.code === 0) {
+      compareData.value.digital = digitalRes.data
+      
+      if (digitalRes.data.originId) {
+        const originalRes = await findProducts({ ID: digitalRes.data.originId })
+        if (originalRes.code === 0) {
+          compareData.value.original = originalRes.data
+        } else {
+          compareData.value.original = null
+        }
+      } else {
+        compareData.value.original = null
+      }
+      
+      compareShow.value = true
+    }
+  } catch (error) {
+    ElMessage({ type: 'error', message: '获取对比数据失败' })
+  }
+}
+
+const closeCompareShow = () => {
+  compareShow.value = false
+  compareData.value = {
+    digital: {},
+    original: null
+  }
+}
+
 const onConvert = async() => {
   ElMessageBox.confirm('确定要将products表数据转换为数字商品表吗？此操作会同步所有数据。', '提示', {
     confirmButtonText: '确定',
@@ -595,7 +709,6 @@ const onConvert = async() => {
   })
 }
 
-// 批量转换操作
 const onBatchConvert = async() => {
   if (multipleSelection.value.length === 0) {
     ElMessage({ type: 'warning', message: '请选择要重新转换的数据' })
@@ -626,7 +739,6 @@ const onBatchConvert = async() => {
   })
 }
 
-// 手动查询转换状态
 const checkConversionStatus = async () => {
   statusLoading.value = true
   try {
@@ -686,29 +798,38 @@ getTableData()
   align-items: flex-end;
   margin-bottom: 10px;
 }
-
 .search-row .el-form-item {
   margin-right: 20px;
   margin-bottom: 10px;
 }
-
 .search-row:last-of-type {
   margin-bottom: 0;
 }
-
-/* 响应式布局 */
+.compare-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.compare-section h3 {
+  margin-bottom: 15px;
+  color: #409eff;
+  border-bottom: 1px solid #ebeef5;
+  padding-bottom: 8px;
+}
+.text-red-500 {
+  color: #f56565;
+  font-weight: bold;
+}
 @media (max-width: 1400px) {
   .search-row .el-form-item {
     margin-right: 15px;
   }
 }
-
 @media (max-width: 1200px) {
   .search-row {
     flex-direction: column;
     align-items: flex-start;
   }
-  
   .search-row .el-form-item {
     margin-right: 0;
     width: 100%;

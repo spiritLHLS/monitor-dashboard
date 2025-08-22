@@ -328,9 +328,8 @@ const getTableData = async () => {
             if (value != null && value !== '') {
                 const baseKey = key.replace(/Min$|Max$/, '')
                 const field = searchFields[baseKey]
-                
                 if (field && field.type === 'number') {
-                    if (typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value)))) {
+                    if (typeof value === 'number' || (typeof value === 'string' && !isNaN(parseFloat(value)) && value.trim() !== '')) {
                         params.set(key, value.toString())
                     }
                 } else if (field && field.type === 'select') {
@@ -338,7 +337,7 @@ const getTableData = async () => {
                         params.set(key, value)
                     }
                 } else if (field && field.type === 'range') {
-                    if (typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value)))) {
+                    if (typeof value === 'number' || (typeof value === 'string' && !isNaN(parseFloat(value)) && value.trim() !== '')) {
                         params.set(key, value.toString())
                     }
                 } else if (typeof value === 'string' && value.trim() !== '') {
