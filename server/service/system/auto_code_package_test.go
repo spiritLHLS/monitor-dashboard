@@ -85,7 +85,7 @@ func Test_autoCodePackage_templates(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &autoCodePackage{}
-			gotCode, gotEnter, gotCreates, err := s.templates(tt.args.ctx, tt.args.entity, tt.args.info)
+			gotCode, gotEnter, gotCreates, err := s.templates(tt.args.ctx, tt.args.entity, tt.args.info, false)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("templates() error = %v, wantErr %v", err, tt.wantErr)
 				return
